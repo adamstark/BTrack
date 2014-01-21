@@ -1,6 +1,6 @@
 //=======================================================================
 /** @file BTrack.h
- *  @brief Header file for the BTrack beat tracker
+ *  @brief BTrack - a real-time beat tracker
  *  @author Adam Stark
  *  @copyright Copyright (C) 2008-2014  Queen Mary University of London
  *

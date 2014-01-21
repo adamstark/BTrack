@@ -1,6 +1,6 @@
 //=======================================================================
 /** @file BTrack.cpp
- *  @brief Implementation file for the BTrack beat tracker
+ *  @brief BTrack - a real-time beat tracker
  *  @author Adam Stark
  *  @copyright Copyright (C) 2008-2014  Queen Mary University of London
  *
@@ -475,16 +475,24 @@ void BTrack :: acf_bal(float df_thresh[])
 float BTrack :: mean_array(float array[],int start,int end)
 {
 	int i;
-	float sum = 0;
-	int length = end - start + 1;
+	double sum = 0;
+
+    int length = end - start;
 	
 	// find sum
-	for (i = start;i < end+1;i++)
+	for (i = start;i < end;i++)
 	{
 		sum = sum + array[i];
 	}
 	
-	return sum / length;	// average and return
+    if (length > 0)
+    {
+        return sum / length;	// average and return
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 //-------------------------------------------------------------------------------
