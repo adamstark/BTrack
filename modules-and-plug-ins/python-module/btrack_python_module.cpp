@@ -1,7 +1,7 @@
 #include <iostream>
 #include <Python.h>
-#include "../src/OnsetDetectionFunction.h"
-#include "../src/BTrack.h"
+#include "../../src/OnsetDetectionFunction.h"
+#include "../../src/BTrack.h"
 #include <numpy/arrayobject.h>
 
 static PyObject * btrack_onsetdf(PyObject *dummy, PyObject *args) 
