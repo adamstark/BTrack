@@ -18,6 +18,15 @@ Full details of the working of the algorithm can be found in:
 * Real-Time Beat-Synchronous Analysis of Musical Audio, A. M. Stark, M. E. P. Davies and M. D. Plumbley. In Proceedings of the 12th International Conference on Digital Audio Effects (DAFx-09), Como, Italy, September 1-4, 2009.
 
 
+Versions
+--------
+
+==== 0.9 ====
+
+* This is the original version of the BTrack algorithm
+
+
+
 License
 -------
 
