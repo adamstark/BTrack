@@ -1,1 +1,8 @@
+syntax: glob
+
 python-module/build
+unit-tests/Build
+xcuserdata
+.DS_Store
+
+*.xcworkspace

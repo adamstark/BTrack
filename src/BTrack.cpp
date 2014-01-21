@@ -28,8 +28,7 @@ using namespace std;
 
 
 
-//-------------------------------------------------------------------------------
-// Constructor
+//=======================================================================
 BTrack :: BTrack()
 {	
 	float rayparam = 43;
@@ -82,15 +81,15 @@ BTrack :: BTrack()
 	tempofix = 0;
 }
 
-//-------------------------------------------------------------------------------
-// Destructor
+//=======================================================================
 BTrack :: ~BTrack()
 {	
 	
 }
 
-//-------------------------------------------------------------------------------
-// Initialise with frame size and set all frame sizes accordingly
+
+
+//=======================================================================
 void BTrack :: initialise(int fsize)
 {	
 	framesize = fsize;
@@ -116,8 +115,7 @@ void BTrack :: initialise(int fsize)
 	}
 }
 
-//-------------------------------------------------------------------------------
-// Add new sample to buffer and apply beat tracking
+//=======================================================================
 void BTrack :: process(float df_sample)
 {	 
 	m0--;
@@ -153,8 +151,7 @@ void BTrack :: process(float df_sample)
 	}
 }
 
-//-------------------------------------------------------------------------------
-// Set the tempo of the beat tracker
+//=======================================================================
 void BTrack :: settempo(float tempo)
 {	 
 	
@@ -221,9 +218,7 @@ void BTrack :: settempo(float tempo)
 	m0 = (int) round(((float) new_bperiod)/2);
 }
 
-
-//-------------------------------------------------------------------------------
-// fix tempo to roughly around some value
+//=======================================================================
 void BTrack :: fixtempo(float tempo)
 {	
 	// firstly make sure tempo is between 80 and 160 bpm..
@@ -253,16 +248,14 @@ void BTrack :: fixtempo(float tempo)
 	tempofix = 1;	
 }
 
-//-------------------------------------------------------------------------------
-// do not fix the tempo anymore
+//=======================================================================
 void BTrack :: unfixtempo()
 {	
 	// set the tempo fix flag
 	tempofix = 0;	
 }
 
-//-------------------------------------------------------------------------------
-// Convert detection function from N samples to 512
+//=======================================================================
 void BTrack :: dfconvert()
 {
 	float output[512];
@@ -291,8 +284,7 @@ void BTrack :: dfconvert()
 	}
 }
 
-//-------------------------------------------------------------------------------
-// To calculate the current tempo expressed as the beat period in detection function samples
+//=======================================================================
 void BTrack :: calcTempo()
 {
 	// adaptive threshold on input
@@ -378,8 +370,7 @@ void BTrack :: calcTempo()
 	//cout << bperiod << endl;
 }
 
-//-------------------------------------------------------------------------------
-// calculates an adaptive threshold which is used to remove low level energy from detection function and emphasise peaks
+//=======================================================================
 void BTrack :: adapt_thresh(float x[],int N)
 {
 	//int N = 512; // length of df
@@ -421,8 +412,7 @@ void BTrack :: adapt_thresh(float x[],int N)
 	}
 }
 
-//-------------------------------------------------------------------------------
-// returns the output of the comb filter
+//=======================================================================
 void BTrack :: getrcfoutput()
 {
 	int numelem;
@@ -446,8 +436,7 @@ void BTrack :: getrcfoutput()
 	}
 }
 
-//-------------------------------------------------------------------------------
-// calculates the balanced autocorrelation of the smoothed detection function
+//=======================================================================
 void BTrack :: acf_bal(float df_thresh[])
 {
 	int l, n = 0;
@@ -469,9 +458,7 @@ void BTrack :: acf_bal(float df_thresh[])
 	}
 }
 
-
-//-------------------------------------------------------------------------------
-// calculates the mean of values in an array from index locations [start,end]
+//=======================================================================
 float BTrack :: mean_array(float array[],int start,int end)
 {
 	int i;
@@ -495,8 +482,7 @@ float BTrack :: mean_array(float array[],int start,int end)
     }
 }
 
-//-------------------------------------------------------------------------------
-// normalise the array
+//=======================================================================
 void BTrack :: normalise(float array[],int N)
 {
 	double sum = 0;
@@ -518,20 +504,7 @@ void BTrack :: normalise(float array[],int N)
 	}
 }
 
-//-------------------------------------------------------------------------------
-// plot contents of detection function buffer
-void BTrack :: plotdfbuffer()
-{	 
-	for (int i=0;i < dfbuffer_size;i++)
-	{
-		cout << dfbuffer[i] << endl;
-	}
-	
-	cout << "--------------------------------" << endl;
-}
-
-//-------------------------------------------------------------------------------
-// update the cumulative score
+//=======================================================================
 void BTrack :: updatecumscore(float df_sample)
 {	 
 	int start, end, winsize;
@@ -583,8 +556,7 @@ void BTrack :: updatecumscore(float df_sample)
 		
 }
 
-//-------------------------------------------------------------------------------
-// plot contents of detection function buffer
+//=======================================================================
 void BTrack :: predictbeat()
 {	 
 	int winsize = (int) bperiod;
@@ -664,7 +636,7 @@ void BTrack :: predictbeat()
 		
 	
 	// set beat
-	beat = beat;
+	//beat = beat;
 	
 	// set next prediction time
 	m0 = beat+round(bperiod/2);

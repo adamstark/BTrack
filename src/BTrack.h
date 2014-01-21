@@ -22,28 +22,29 @@
 #ifndef __BTRACK_H
 #define __BTRACK_H
 
-//#include "fftw3.h"
-
 class BTrack {
 	
 public:
-	BTrack();				// constructor
-	~BTrack();				// destructor	
+    
+    /** constructor */
+	BTrack();
+    
+    /** destructor */
+	~BTrack();		
 	
+    /** Initialise with frame size and set all frame sizes accordingly */
 	void initialise(int fsize);
+    
+    /** Add new sample to buffer and apply beat tracking */
 	void process(float df_sample);
-	void plotdfbuffer();
-	void updatecumscore(float df_sample);
-	void predictbeat();
-	void dfconvert();
-	void calcTempo();
-	void adapt_thresh(float x[],int N);
-	float mean_array(float array[],int start,int end);
-	void normalise(float array[],int N);
-	void acf_bal(float df_thresh[]);
-	void getrcfoutput();
+   
+    /** Set the tempo of the beat tracker */
 	void settempo(float tempo);
+    
+    /** fix tempo to roughly around some value */
 	void fixtempo(float tempo);
+    
+    /** do not fix the tempo anymore */
 	void unfixtempo();
 	
 	int playbeat;
@@ -51,24 +52,53 @@ public:
 	float est_tempo;
 			
 private:
+    
+    /** Convert detection function from N samples to 512 */
+	void dfconvert();
+    
+    /** update the cumulative score */
+	void updatecumscore(float df_sample);
+	
+    /** predicts the next beat */
+    void predictbeat();
+    
+    /** Calculates the current tempo expressed as the beat period in detection function samples */
+    void calcTempo();
+    
+    /** calculates an adaptive threshold which is used to remove low level energy from detection 
+     * function and emphasise peaks 
+     */
+	void adapt_thresh(float x[],int N);
+    
+    /** calculates the mean of values in an array from index locations [start,end] */
+	float mean_array(float array[],int start,int end);
+    
+    /** normalises a given array */
+	void normalise(float array[],int N);
+    
+    /** calculates the balanced autocorrelation of the smoothed detection function */
+	void acf_bal(float df_thresh[]);
+    
+    /** returns the output of the comb filter */
+	void getrcfoutput();
 	
 	// buffers
-	float *dfbuffer;			// to hold detection function
-	float df512[512];			// to hold resampled detection function 
-	float *cumscore;			// to hold cumulative score
+	float *dfbuffer;			/**< to hold detection function */
+	float df512[512];			/**< to hold resampled detection function */
+	float *cumscore;			/**<  to hold cumulative score */
 	
-	float acf[512];				// to hold autocorrelation function
+	float acf[512];				/**<  to hold autocorrelation function */
 	
-	float wv[128];				// to hold weighting vector
+	float wv[128];				/**<  to hold weighting vector */
 	
-	float rcf[128];				// to hold comb filter output
-	float t_obs[41];			// to hold tempo version of comb filter output
+	float rcf[128];				/**<  to hold comb filter output */
+	float t_obs[41];			/**<  to hold tempo version of comb filter output */
 	
-	float delta[41];			// to hold final tempo candidate array
-	float prev_delta[41];		// previous delta
-	float prev_delta_fix[41];	// fixed tempo version of previous delta
+	float delta[41];			/**<  to hold final tempo candidate array */
+	float prev_delta[41];		/**<  previous delta */
+	float prev_delta_fix[41];	/**<  fixed tempo version of previous delta */
 	
-	float t_tmat[41][41];		// transition matrix
+	float t_tmat[41][41];		/**<  transition matrix */
 	
 	
 	// parameters
