@@ -10,7 +10,7 @@ include_dirs = [
                 numpy.get_include(),'/usr/local/include'
                 ]
 
-setup( name = 'BTtrack',
+setup( name = 'BTrack',
       include_dirs = include_dirs,
       ext_modules = [Extension(name, sources,libraries = ['fftw3','samplerate'])]
       )
