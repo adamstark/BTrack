@@ -68,16 +68,16 @@ private:
     /** calculates an adaptive threshold which is used to remove low level energy from detection 
      * function and emphasise peaks 
      */
-	void adapt_thresh(float x[],int N);
+	void adapt_thresh(float *x,int N);
     
     /** calculates the mean of values in an array from index locations [start,end] */
-	float mean_array(float array[],int start,int end);
+	float mean_array(float *array,int start,int end);
     
     /** normalises a given array */
-	void normalise(float array[],int N);
+	void normalise(float *array,int N);
     
     /** calculates the balanced autocorrelation of the smoothed detection function */
-	void acf_bal(float df_thresh[]);
+	void acf_bal(float *df_thresh);
     
     /** returns the output of the comb filter */
 	void getrcfoutput();

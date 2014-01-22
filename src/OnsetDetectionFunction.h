@@ -38,7 +38,7 @@ public:
 	void initialise(int arg_hsize,int arg_fsize,int arg_df_type,int arg_win_type);
 	
     /** process input buffer and calculate detection function sample */
-	double getDFsample(double inputbuffer[]);
+	double getDFsample(double *inputbuffer);
     
     /** set the detection function type */
 	void set_df_type(int arg_df_type);

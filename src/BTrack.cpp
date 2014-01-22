@@ -368,7 +368,7 @@ void BTrack :: calcTempo()
 }
 
 //=======================================================================
-void BTrack :: adapt_thresh(float x[],int N)
+void BTrack :: adapt_thresh(float *x,int N)
 {
 	//int N = 512; // length of df
 	int i = 0;
@@ -434,7 +434,7 @@ void BTrack :: getrcfoutput()
 }
 
 //=======================================================================
-void BTrack :: acf_bal(float df_thresh[])
+void BTrack :: acf_bal(float *df_thresh)
 {
 	int l, n = 0;
 	float sum, tmp;
@@ -456,7 +456,7 @@ void BTrack :: acf_bal(float df_thresh[])
 }
 
 //=======================================================================
-float BTrack :: mean_array(float array[],int start,int end)
+float BTrack :: mean_array(float *array,int start,int end)
 {
 	int i;
 	double sum = 0;
@@ -480,7 +480,7 @@ float BTrack :: mean_array(float array[],int start,int end)
 }
 
 //=======================================================================
-void BTrack :: normalise(float array[],int N)
+void BTrack :: normalise(float *array,int N)
 {
 	double sum = 0;
 	
