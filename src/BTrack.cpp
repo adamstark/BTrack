@@ -19,13 +19,10 @@
  */
 //=======================================================================
 
-#include <iostream>
 #include <cmath>
+#include <algorithm>
 #include "BTrack.h"
 #include "samplerate.h"
-using namespace std;
-
-
 
 
 //=======================================================================
@@ -381,12 +378,12 @@ void BTrack :: adapt_thresh(float x[],int N)
 	int p_post = 7;
 	int p_pre = 8;
 	
-	t = min(N,p_post);	// what is smaller, p_post of df size. This is to avoid accessing outside of arrays
+	t = std::min(N,p_post);	// what is smaller, p_post of df size. This is to avoid accessing outside of arrays
 	
 	// find threshold for first 't' samples, where a full average cannot be computed yet 
 	for (i = 0;i <= t;i++)
 	{	
-		k = min((i+p_pre),N);
+		k = std::min((i+p_pre),N);
 		x_thresh[i] = mean_array(x,1,k);
 	}
 	// find threshold for bulk of samples across a moving average from [i-p_pre,i+p_post]
@@ -397,7 +394,7 @@ void BTrack :: adapt_thresh(float x[],int N)
 	// for last few samples calculate threshold, again, not enough samples to do as above
 	for (i = N-p_post;i < N;i++)
 	{
-		k = max((i-p_post),1);
+		k = std::max((i-p_post),1);
 		x_thresh[i] = mean_array(x,k,N);
 	}
 	

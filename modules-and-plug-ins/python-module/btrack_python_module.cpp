@@ -28,11 +28,11 @@ static PyObject * btrack_onsetdf(PyObject *dummy, PyObject *args)
     double* data = (double*) PyArray_DATA(arr1);
     
     // get array size
-    int signal_length = PyArray_Size((PyObject*)arr1);
+    long signal_length = PyArray_Size((PyObject*)arr1);
     //int k = (int) theSize;
     
     // get data type 
-    char type = PyArray_DESCR(arr1)->type;
+    //char type = PyArray_DESCR(arr1)->type;
     
     ////////// BEGIN PROCESS ///////////////////
     int hsize = 512;
@@ -128,11 +128,11 @@ static PyObject * btrack_btrack(PyObject *dummy, PyObject *args)
     double* data = (double*) PyArray_DATA(arr1);
     
     // get array size
-    int signal_length = PyArray_Size((PyObject*)arr1);
+    long signal_length = PyArray_Size((PyObject*)arr1);
     //int k = (int) theSize;
     
     // get data type 
-    char type = PyArray_DESCR(arr1)->type;
+    //char type = PyArray_DESCR(arr1)->type;
     
     ////////// BEGIN PROCESS ///////////////////
     int hsize = 512;
@@ -252,11 +252,11 @@ static PyObject * btrack_btrack_df(PyObject *dummy, PyObject *args)
     double* data = (double*) PyArray_DATA(arr1);
     
     // get array size
-    int numframes = PyArray_Size((PyObject*)arr1);
+    long numframes = PyArray_Size((PyObject*)arr1);
     //int k = (int) theSize;
     
     // get data type 
-    char type = PyArray_DESCR(arr1)->type;
+    //char type = PyArray_DESCR(arr1)->type;
     
     ////////// BEGIN PROCESS ///////////////////
     int hsize = 512;
@@ -275,7 +275,7 @@ static PyObject * btrack_btrack_df(PyObject *dummy, PyObject *args)
     ///////////////////////////////////////////
 	//////// Begin Processing Loop ////////////
 	
-	for (int i=0;i < numframes;i++)
+	for (long i=0;i < numframes;i++)
 	{		
         df_val = (float) (data[i] + 0.0001);
         

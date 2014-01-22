@@ -20,27 +20,9 @@
 //=======================================================================
 
 #include <math.h>
-#include <iostream>
 #include "OnsetDetectionFunction.h"
-using namespace std;
 
-//-------------------------------------------------------------------------------
-// Constructor
-OnsetDetectionFunction :: OnsetDetectionFunction()
-{	
-	// indicate that we have not initialised yet
-	initialised = 0;		
-	
-	// set pi
-	pi = 3.14159265358979;	
-	
-	// initialise with hopsize = 512, framesize = 1024, complex spectral difference DF and hanning window
-	initialise(512,1024,6,1);	
-}
-
-
-//-------------------------------------------------------------------------------
-// Constructor (with arguments)
+//=======================================================================
 OnsetDetectionFunction :: OnsetDetectionFunction(int arg_hsize,int arg_fsize,int arg_df_type,int arg_win_type)
 {	
 	// indicate that we have not initialised yet
@@ -54,8 +36,7 @@ OnsetDetectionFunction :: OnsetDetectionFunction(int arg_hsize,int arg_fsize,int
 }
 
 
-//--------------------------------------------------------------------------------------
-// Destructor
+//=======================================================================
 OnsetDetectionFunction :: ~OnsetDetectionFunction()
 {
 	// destroy fft plan
@@ -82,8 +63,7 @@ OnsetDetectionFunction :: ~OnsetDetectionFunction()
 	phase_old_2 = NULL;
 }
 
-//-------------------------------------------------------------------------------
-// Initialisation
+//=======================================================================
 void OnsetDetectionFunction :: initialise(int arg_hsize,int arg_fsize,int arg_df_type,int arg_win_type)
 {
 	if (initialised == 1) // if we have already initialised some buffers and an FFT plan
@@ -181,16 +161,13 @@ void OnsetDetectionFunction :: initialise(int arg_hsize,int arg_fsize,int arg_df
 	initialised = 1;
 }
 
-//--------------------------------------------------------------------------------------
-// set the detection function type to that specified by the argument
+//=======================================================================
 void OnsetDetectionFunction :: set_df_type(int arg_df_type)
 {
 	df_type = arg_df_type; // set detection function type
 }
 
-
-//--------------------------------------------------------------------------------------
-// calculates a single detection function sample from a single audio frame.
+//=======================================================================
 double OnsetDetectionFunction :: getDFsample(double inputbuffer[])
 {	
 	double df_sample;
@@ -248,8 +225,7 @@ double OnsetDetectionFunction :: getDFsample(double inputbuffer[])
 }
 
 
-//--------------------------------------------------------------------------------------
-// performs the fft, storing the complex result in 'out'
+//=======================================================================
 void OnsetDetectionFunction :: perform_FFT()
 {
 	int fsize2 = (framesize/2);
@@ -271,8 +247,7 @@ void OnsetDetectionFunction :: perform_FFT()
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// Methods for Detection Functions /////////////////////////////////
 
-//--------------------------------------------------------------------------------------
-// calculates an energy envelope detection function sample
+//=======================================================================
 double OnsetDetectionFunction :: energy_envelope()
 {
 	double sum;
@@ -288,8 +263,7 @@ double OnsetDetectionFunction :: energy_envelope()
 	return sum;		// return sum
 }
 
-//--------------------------------------------------------------------------------------
-// calculates a half-wave rectified energy difference detection function sample
+//=======================================================================
 double OnsetDetectionFunction :: energy_difference()
 {
 	double sum;
@@ -317,8 +291,7 @@ double OnsetDetectionFunction :: energy_difference()
 	}
 }
 
-//--------------------------------------------------------------------------------------
-// calculates a spectral difference detection function sample
+//=======================================================================
 double OnsetDetectionFunction :: spectral_difference()
 {
 	double diff;
@@ -361,8 +334,7 @@ double OnsetDetectionFunction :: spectral_difference()
 	return sum;		
 }
 
-//--------------------------------------------------------------------------------------
-// calculates a spectral difference detection function sample
+//=======================================================================
 double OnsetDetectionFunction :: spectral_difference_hwr()
 {
 	double diff;
@@ -406,8 +378,7 @@ double OnsetDetectionFunction :: spectral_difference_hwr()
 }
 
 
-//--------------------------------------------------------------------------------------
-// calculates a phase deviation detection function sample
+//=======================================================================
 double OnsetDetectionFunction :: phase_deviation()
 {
 	double dev,pdev;
@@ -452,8 +423,7 @@ double OnsetDetectionFunction :: phase_deviation()
 	return sum;		
 }
 
-//--------------------------------------------------------------------------------------
-// calculates a complex spectral difference detection function sample
+//=======================================================================
 double OnsetDetectionFunction :: complex_spectral_difference()
 {
 	double dev,pdev;
@@ -508,8 +478,7 @@ double OnsetDetectionFunction :: complex_spectral_difference()
 	return sum;		
 }
 
-//--------------------------------------------------------------------------------------
-// calculates a complex spectral difference detection function sample (half-wave rectified)
+//=======================================================================
 double OnsetDetectionFunction :: complex_spectral_difference_hwr()
 {
 	double dev,pdev;
@@ -565,12 +534,10 @@ double OnsetDetectionFunction :: complex_spectral_difference_hwr()
 }
 
 
-//--------------------------------------------------------------------------------------
-// calculates a high frequency content detection function sample
+//=======================================================================
 double OnsetDetectionFunction :: high_frequency_content()
 {
 	double sum;
-	double mag_diff;
 	
 	// perform the FFT
 	perform_FFT();
@@ -593,8 +560,7 @@ double OnsetDetectionFunction :: high_frequency_content()
 	return sum;		
 }
 
-//--------------------------------------------------------------------------------------
-// calculates a high frequency spectral difference detection function sample
+//=======================================================================
 double OnsetDetectionFunction :: high_frequency_spectral_difference()
 {
 	double sum;
@@ -628,8 +594,7 @@ double OnsetDetectionFunction :: high_frequency_spectral_difference()
 	return sum;		
 }
 
-//--------------------------------------------------------------------------------------
-// calculates a high frequency spectral difference detection function sample (half-wave rectified)
+//=======================================================================
 double OnsetDetectionFunction :: high_frequency_spectral_difference_hwr()
 {
 	double sum;
@@ -666,8 +631,7 @@ double OnsetDetectionFunction :: high_frequency_spectral_difference_hwr()
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// Methods to Calculate Windows ////////////////////////////////////
 
-//--------------------------------------------------------------------------------------
-// HANNING: set the window in the buffer 'window' to a Hanning window
+//=======================================================================
 void OnsetDetectionFunction :: set_win_hanning()
 {
 	double N;		// variable to store framesize minus 1
@@ -681,8 +645,7 @@ void OnsetDetectionFunction :: set_win_hanning()
 	}
 }
 
-//--------------------------------------------------------------------------------------
-// HAMMING: set the window in the buffer 'window' to a Hanning window
+//=======================================================================
 void OnsetDetectionFunction :: set_win_hamming()
 {
 	double N;		// variable to store framesize minus 1
@@ -699,8 +662,7 @@ void OnsetDetectionFunction :: set_win_hamming()
 	}
 }
 
-//--------------------------------------------------------------------------------------
-// BLACKMAN: set the window in the buffer 'window' to a Blackman window
+//=======================================================================
 void OnsetDetectionFunction :: set_win_blackman()
 {
 	double N;		// variable to store framesize minus 1
@@ -717,15 +679,12 @@ void OnsetDetectionFunction :: set_win_blackman()
 	}
 }
 
-//--------------------------------------------------------------------------------------
-// TUKEY: set the window in the buffer 'window' to a Tukey window
+//=======================================================================
 void OnsetDetectionFunction :: set_win_tukey()
 {
 	double N;		// variable to store framesize minus 1
 	double n_val;	// double version of index 'n'
 	double alpha;	// alpha [default value = 0.5];
-	
-	int lim1,lim2;
 	
 	alpha = 0.5;
 	
@@ -755,8 +714,7 @@ void OnsetDetectionFunction :: set_win_tukey()
 
 }
 
-//--------------------------------------------------------------------------------------
-// RECTANGULAR: set the window in the buffer 'window' to a Rectangular window
+//=======================================================================
 void OnsetDetectionFunction :: set_win_rectangular()
 {
 	// Rectangular window calculation
@@ -772,8 +730,7 @@ void OnsetDetectionFunction :: set_win_rectangular()
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////// Other Handy Methods //////////////////////////////////////////
 
-//--------------------------------------------------------------------------------------
-// set phase values to the range [-pi,pi]
+//=======================================================================
 double OnsetDetectionFunction :: princarg(double phaseval)
 {	
 	// if phase value is less than or equal to -pi then add 2*pi
