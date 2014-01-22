@@ -156,7 +156,8 @@ static PyObject * btrack_btrack(PyObject *dummy, PyObject *args)
     double df[numframes];
     double beats[5000];
     int beatnum = 0;
-    float df_val;
+
+    double df_val;
     
     ///////////////////////////////////////////
 	//////// Begin Processing Loop ////////////
@@ -171,7 +172,7 @@ static PyObject * btrack_btrack(PyObject *dummy, PyObject *args)
 		
 		df[i] = onset.getDFsample(buffer);
         
-        df_val = (float) (df[i] + 0.0001);
+        df_val = df[i] + 0.0001;
                 
 		b.process(df_val);				// process df sample in beat tracker
 		
@@ -270,14 +271,14 @@ static PyObject * btrack_btrack_df(PyObject *dummy, PyObject *args)
     
     double beats[5000];
     int beatnum = 0;
-    float df_val;
+    double df_val;
     
     ///////////////////////////////////////////
 	//////// Begin Processing Loop ////////////
 	
 	for (long i=0;i < numframes;i++)
 	{		
-        df_val = (float) (data[i] + 0.0001);
+        df_val = data[i] + 0.0001;
         
 		b.process(df_val);				// process df sample in beat tracker
 		

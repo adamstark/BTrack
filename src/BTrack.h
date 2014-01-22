@@ -36,20 +36,20 @@ public:
 	void initialise(int fsize);
     
     /** Add new sample to buffer and apply beat tracking */
-	void process(float df_sample);
+	void process(double df_sample);
    
     /** Set the tempo of the beat tracker */
-	void settempo(float tempo);
+	void settempo(double tempo);
     
     /** fix tempo to roughly around some value */
-	void fixtempo(float tempo);
+	void fixtempo(double tempo);
     
     /** do not fix the tempo anymore */
 	void unfixtempo();
 	
 	int playbeat;
-	float cscoreval;
-	float est_tempo;
+	double cscoreval;
+	double est_tempo;
 			
 private:
     
@@ -57,7 +57,7 @@ private:
 	void dfconvert();
     
     /** update the cumulative score */
-	void updatecumscore(float df_sample);
+	void updatecumscore(double df_sample);
 	
     /** predicts the next beat */
     void predictbeat();
@@ -68,47 +68,47 @@ private:
     /** calculates an adaptive threshold which is used to remove low level energy from detection 
      * function and emphasise peaks 
      */
-	void adapt_thresh(float *x,int N);
+	void adapt_thresh(double *x,int N);
     
     /** calculates the mean of values in an array from index locations [start,end] */
-	float mean_array(float *array,int start,int end);
+	double mean_array(double *array,int start,int end);
     
     /** normalises a given array */
-	void normalise(float *array,int N);
+	void normalise(double *array,int N);
     
     /** calculates the balanced autocorrelation of the smoothed detection function */
-	void acf_bal(float *df_thresh);
+	void acf_bal(double *df_thresh);
     
     /** returns the output of the comb filter */
 	void getrcfoutput();
 	
 	// buffers
-	float *dfbuffer;			/**< to hold detection function */
-	float df512[512];			/**< to hold resampled detection function */
-	float *cumscore;			/**<  to hold cumulative score */
+	double *dfbuffer;			/**< to hold detection function */
+	double df512[512];			/**< to hold resampled detection function */
+	double *cumscore;			/**<  to hold cumulative score */
 	
-	float acf[512];				/**<  to hold autocorrelation function */
+	double acf[512];				/**<  to hold autocorrelation function */
 	
-	float wv[128];				/**<  to hold weighting vector */
+	double wv[128];				/**<  to hold weighting vector */
 	
-	float rcf[128];				/**<  to hold comb filter output */
-	float t_obs[41];			/**<  to hold tempo version of comb filter output */
+	double rcf[128];				/**<  to hold comb filter output */
+	double t_obs[41];			/**<  to hold tempo version of comb filter output */
 	
-	float delta[41];			/**<  to hold final tempo candidate array */
-	float prev_delta[41];		/**<  previous delta */
-	float prev_delta_fix[41];	/**<  fixed tempo version of previous delta */
+	double delta[41];			/**<  to hold final tempo candidate array */
+	double prev_delta[41];		/**<  previous delta */
+	double prev_delta_fix[41];	/**<  fixed tempo version of previous delta */
 	
-	float t_tmat[41][41];		/**<  transition matrix */
+	double t_tmat[41][41];		/**<  transition matrix */
 	
 	
 	// parameters
-	float tightness;
-	float alpha;
-	float bperiod;
-	float tempo;
+	double tightness;
+	double alpha;
+	double bperiod;
+	double tempo;
 	
 	
-	float p_fact;
+	double p_fact;
 	
 	
 	//

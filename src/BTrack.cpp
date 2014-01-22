@@ -28,8 +28,8 @@
 //=======================================================================
 BTrack :: BTrack()
 {	
-	float rayparam = 43;
-	float pi = 3.14159265;
+	double rayparam = 43;
+	double pi = 3.14159265;
 	
 	
 	// initialise parameters
@@ -50,7 +50,7 @@ BTrack :: BTrack()
 	// create rayleigh weighting vector
 	for (int n = 0;n < 128;n++)
 	{
-		wv[n] = ((float) n / pow(rayparam,2)) * exp((-1*pow((float)-n,2)) / (2*pow(rayparam,2)));
+		wv[n] = ((double) n / pow(rayparam,2)) * exp((-1*pow((double)-n,2)) / (2*pow(rayparam,2)));
 	}
 	
 	// initialise prev_delta
@@ -59,9 +59,9 @@ BTrack :: BTrack()
 		prev_delta[i] = 1;
 	}
 	
-	float t_mu = 41/2;
-	float m_sig;
-	float x;
+	double t_mu = 41/2;
+	double m_sig;
+	double x;
 	// create tempo transition matrix
 	m_sig = 41/8;
 	for (int i = 0;i < 41;i++)
@@ -92,10 +92,10 @@ void BTrack :: initialise(int fsize)
 	framesize = fsize;
 	dfbuffer_size = (512*512)/fsize;		// calculate df buffer size
 	
-	bperiod = round(60/((((float) fsize)/44100)*tempo));
+	bperiod = round(60/((((double) fsize)/44100)*tempo));
 	
-	dfbuffer = new float[dfbuffer_size];	// create df_buffer
-	cumscore = new float[dfbuffer_size];	// create cumscore
+	dfbuffer = new double[dfbuffer_size];	// create df_buffer
+	cumscore = new double[dfbuffer_size];	// create cumscore
 	
 	
 	// initialise df_buffer to zeros
@@ -113,7 +113,7 @@ void BTrack :: initialise(int fsize)
 }
 
 //=======================================================================
-void BTrack :: process(float df_sample)
+void BTrack :: process(double df_sample)
 {	 
 	m0--;
 	beat--;
@@ -149,7 +149,7 @@ void BTrack :: process(float df_sample)
 }
 
 //=======================================================================
-void BTrack :: settempo(float tempo)
+void BTrack :: settempo(double tempo)
 {	 
 	
 	/////////// TEMPO INDICATION RESET //////////////////
@@ -181,7 +181,7 @@ void BTrack :: settempo(float tempo)
 	/////////// CUMULATIVE SCORE ARTIFICAL TEMPO UPDATE //////////////////
 	
 	// calculate new beat period
-	int new_bperiod = (int) round(60/((((float) framesize)/44100)*tempo));
+	int new_bperiod = (int) round(60/((((double) framesize)/44100)*tempo));
 	
 	int bcounter = 1;
 	// initialise df_buffer to zeros
@@ -212,11 +212,11 @@ void BTrack :: settempo(float tempo)
 	beat = 0;
 	
 	// offbeat is half of new beat period away
-	m0 = (int) round(((float) new_bperiod)/2);
+	m0 = (int) round(((double) new_bperiod)/2);
 }
 
 //=======================================================================
-void BTrack :: fixtempo(float tempo)
+void BTrack :: fixtempo(double tempo)
 {	
 	// firstly make sure tempo is between 80 and 160 bpm..
 	while (tempo > 160)
@@ -256,6 +256,12 @@ void BTrack :: unfixtempo()
 void BTrack :: dfconvert()
 {
 	float output[512];
+    float input[dfbuffer_size];
+    
+    for (int i = 0;i < dfbuffer_size;i++)
+    {
+        input[i] = (float) dfbuffer[i];
+    }
 		
 	double src_ratio = 512.0/((double) dfbuffer_size);
 	int BUFFER_LEN = dfbuffer_size;
@@ -265,7 +271,7 @@ void BTrack :: dfconvert()
 	//output_len = (int) floor (((double) BUFFER_LEN) * src_ratio) ;
 	output_len = 512;
 	
-	src_data.data_in = dfbuffer;
+	src_data.data_in = input;
 	src_data.input_frames = BUFFER_LEN;
 	
 	src_data.src_ratio = src_ratio;
@@ -277,7 +283,7 @@ void BTrack :: dfconvert()
 			
 	for (int i = 0;i < output_len;i++)
 	{
-		df512[i] = src_data.data_out[i];
+		df512[i] = (double) src_data.data_out[i];
 	}
 }
 
@@ -303,17 +309,17 @@ void BTrack :: calcTempo()
 	// calculate tempo observation vector from bperiod observation vector
 	for (int i = 0;i < 41;i++)
 	{
-		t_index = (int) round(p_fact / ((float) ((2*i)+80)));
-		t_index2 = (int) round(p_fact / ((float) ((4*i)+160)));
+		t_index = (int) round(p_fact / ((double) ((2*i)+80)));
+		t_index2 = (int) round(p_fact / ((double) ((4*i)+160)));
 
 		
 		t_obs[i] = rcf[t_index-1] + rcf[t_index2-1];
 	}
 	
 	
-	float maxval;
-	float maxind;
-	float curval;
+	double maxval;
+	double maxind;
+	double curval;
 	
 	// if tempo is fixed then always use a fixed set of tempi as the previous observation probability function
 	if (tempofix == 1)
@@ -357,23 +363,23 @@ void BTrack :: calcTempo()
 		prev_delta[j] = delta[j];
 	}
 	
-	bperiod = round((60.0*44100.0)/(((2*maxind)+80)*((float) framesize)));
+	bperiod = round((60.0*44100.0)/(((2*maxind)+80)*((double) framesize)));
 	
 	if (bperiod > 0)
 	{
-		est_tempo = 60.0/((((float) framesize) / 44100.0)*bperiod);
+		est_tempo = 60.0/((((double) framesize) / 44100.0)*bperiod);
 	}
 	
 	//cout << bperiod << endl;
 }
 
 //=======================================================================
-void BTrack :: adapt_thresh(float *x,int N)
+void BTrack :: adapt_thresh(double *x,int N)
 {
 	//int N = 512; // length of df
 	int i = 0;
 	int k,t = 0;
-	float x_thresh[N];
+	double x_thresh[N];
 	
 	int p_post = 7;
 	int p_pre = 8;
@@ -434,10 +440,10 @@ void BTrack :: getrcfoutput()
 }
 
 //=======================================================================
-void BTrack :: acf_bal(float *df_thresh)
+void BTrack :: acf_bal(double *df_thresh)
 {
 	int l, n = 0;
-	float sum, tmp;
+	double sum, tmp;
 	
 	// for l lags from 0-511
 	for (l = 0;l < 512;l++)
@@ -456,7 +462,7 @@ void BTrack :: acf_bal(float *df_thresh)
 }
 
 //=======================================================================
-float BTrack :: mean_array(float *array,int start,int end)
+double BTrack :: mean_array(double *array,int start,int end)
 {
 	int i;
 	double sum = 0;
@@ -480,7 +486,7 @@ float BTrack :: mean_array(float *array,int start,int end)
 }
 
 //=======================================================================
-void BTrack :: normalise(float *array,int N)
+void BTrack :: normalise(double *array,int N)
 {
 	double sum = 0;
 	
@@ -502,18 +508,18 @@ void BTrack :: normalise(float *array,int N)
 }
 
 //=======================================================================
-void BTrack :: updatecumscore(float df_sample)
+void BTrack :: updatecumscore(double df_sample)
 {	 
 	int start, end, winsize;
-	float max;
+	double max;
 	
 	start = dfbuffer_size - round(2*bperiod);
 	end = dfbuffer_size - round(bperiod/2);
 	winsize = end-start+1;
 	
-	float w1[winsize];
-	float v = -2*bperiod;
-	float wcumscore;
+	double w1[winsize];
+	double v = -2*bperiod;
+	double wcumscore;
 	
 	
 	// create window
@@ -557,8 +563,8 @@ void BTrack :: updatecumscore(float df_sample)
 void BTrack :: predictbeat()
 {	 
 	int winsize = (int) bperiod;
-	float fcumscore[dfbuffer_size + winsize];
-	float w2[winsize];
+	double fcumscore[dfbuffer_size + winsize];
+	double w2[winsize];
 	// copy cumscore to first part of fcumscore
 	for (int i = 0;i < dfbuffer_size;i++)
 	{
@@ -566,7 +572,7 @@ void BTrack :: predictbeat()
 	}
 	
 	// create future window
-	float v = 1;
+	double v = 1;
 	for (int i = 0;i < winsize;i++)
 	{
 		w2[i] = exp((-1*pow((v - (bperiod/2)),2))   /  (2*pow((bperiod/2) ,2)));
@@ -578,7 +584,7 @@ void BTrack :: predictbeat()
 	int start = dfbuffer_size - round(2*bperiod);
 	int end = dfbuffer_size - round(bperiod/2);
 	int pastwinsize = end-start+1;
-	float w1[pastwinsize];
+	double w1[pastwinsize];
 
 	for (int i = 0;i < pastwinsize;i++)
 	{
@@ -589,9 +595,9 @@ void BTrack :: predictbeat()
 	
 
 	// calculate future cumulative score
-	float max;
+	double max;
 	int n;
-	float wcumscore;
+	double wcumscore;
 	for (int i = dfbuffer_size;i < (dfbuffer_size+winsize);i++)
 	{
 		start = i - round(2*bperiod);
@@ -631,10 +637,6 @@ void BTrack :: predictbeat()
 		n++;
 	}
 		
-	
-	// set beat
-	//beat = beat;
-	
 	// set next prediction time
 	m0 = beat+round(bperiod/2);
 	
