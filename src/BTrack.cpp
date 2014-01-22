@@ -24,11 +24,54 @@
 #include "BTrack.h"
 #include "samplerate.h"
 
+//=======================================================================
+BTrack::BTrack() : odf(512,1024,6,1)
+{
+    initialise(512, 1024);
+}
 
 //=======================================================================
-BTrack :: BTrack()
+BTrack::BTrack(int hopSize) : odf(hopSize,2*hopSize,6,1)
 {	
-	double rayparam = 43;
+    initialise(hopSize, 2*hopSize);
+}
+
+//=======================================================================
+BTrack::BTrack(int hopSize,int frameSize) : odf(hopSize,frameSize,6,1)
+{
+    initialise(hopSize, frameSize);
+}
+
+//=======================================================================
+BTrack::~BTrack()
+{	
+	
+}
+
+//=======================================================================
+double BTrack::getBeatTimeInSeconds(long frameNumber,int hopSize,int fs)
+{
+    double hop = (double) hopSize;
+    double samplingFrequency = (double) fs;
+    double frameNum = (double) frameNumber;
+    
+    return ((hop / samplingFrequency) * frameNum);
+}
+
+//=======================================================================
+double BTrack::getBeatTimeInSeconds(int frameNumber,int hopSize,int fs)
+{
+    long frameNum = (long) frameNumber;
+    
+    return getBeatTimeInSeconds(frameNum, hopSize, fs);
+}
+
+
+
+//=======================================================================
+void BTrack::initialise(int hopSize, int frameSize)
+{
+    double rayparam = 43;
 	double pi = 3.14159265;
 	
 	
@@ -72,27 +115,22 @@ BTrack :: BTrack()
 			t_mu = i+1;
 			t_tmat[i][j] = (1 / (m_sig * sqrt(2*pi))) * exp( (-1*pow((x-t_mu),2)) / (2*pow(m_sig,2)) );
 		}
-	}	
+	}
 	
 	// tempo is not fixed
 	tempofix = 0;
+    
+    // initialise algorithm given the hopsize
+    setHopSize(hopSize);
 }
 
 //=======================================================================
-BTrack :: ~BTrack()
+void BTrack :: setHopSize(int hopSize)
 {	
+	framesize = hopSize;
+	dfbuffer_size = (512*512)/hopSize;		// calculate df buffer size
 	
-}
-
-
-
-//=======================================================================
-void BTrack :: initialise(int fsize)
-{	
-	framesize = fsize;
-	dfbuffer_size = (512*512)/fsize;		// calculate df buffer size
-	
-	bperiod = round(60/((((double) fsize)/44100)*tempo));
+	bperiod = round(60/((((double) hopSize)/44100)*tempo));
 	
 	dfbuffer = new double[dfbuffer_size];	// create df_buffer
 	cumscore = new double[dfbuffer_size];	// create cumscore
@@ -113,7 +151,21 @@ void BTrack :: initialise(int fsize)
 }
 
 //=======================================================================
-void BTrack :: process(double df_sample)
+void BTrack::processAudioFrame(double *frame)
+{
+    // calculate the onset detection function sample for the frame
+    double sample = odf.getDFsample(frame);
+    
+    // add a tiny constant to the sample to stop it from ever going
+    // to zero. this is to avoid problems further down the line
+    sample = sample + 0.0001;
+    
+    // process the new onset detection function sample in the beat tracking algorithm
+    processOnsetDetectionFunctionSample(sample);
+}
+
+//=======================================================================
+void BTrack::processOnsetDetectionFunctionSample(double newSample)
 {	 
 	m0--;
 	beat--;
@@ -126,10 +178,10 @@ void BTrack :: process(double df_sample)
 	}
 	
 	// add new sample at the end
-	dfbuffer[dfbuffer_size-1] = df_sample;	
+	dfbuffer[dfbuffer_size-1] = newSample;
 	
 	// update cumulative score
-	updatecumscore(df_sample);
+	updatecumscore(newSample);
 	
 	// if we are halfway between beats
 	if (m0 == 0)

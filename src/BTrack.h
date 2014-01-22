@@ -22,21 +22,39 @@
 #ifndef __BTRACK_H
 #define __BTRACK_H
 
+#include "OnsetDetectionFunction.h"
+
 class BTrack {
 	
 public:
     
-    /** constructor */
+    /** constructor assuming hop size of 512 and frame size of 1024 */
 	BTrack();
+    
+    /** constructor assuming frame size will be double hopSize 
+     * @param hopSize the step size in audio samples by which we will receive audio frames
+     */
+    BTrack(int hopSize);
+    
+    /** constructor taking both hopSize and frameSize
+     * @param hopSize the step size in audio samples by which we will receive audio frames
+     * @param frameSize the audio frame size in audio samples
+     */
+	BTrack(int hopSize,int frameSize);
     
     /** destructor */
 	~BTrack();		
 	
-    /** Initialise with frame size and set all frame sizes accordingly */
-	void initialise(int fsize);
+    void initialise(int hopSize,int frameSize);
     
-    /** Add new sample to buffer and apply beat tracking */
-	void process(double df_sample);
+    /** Initialise with hop size and set all frame sizes accordingly */
+	void setHopSize(int hopSize);
+    
+    /** Process a single audio frame */
+	void processAudioFrame(double *frame);
+    
+    /** Add new onset detection function sample to buffer and apply beat tracking */
+	void processOnsetDetectionFunctionSample(double sample);
    
     /** Set the tempo of the beat tracker */
 	void settempo(double tempo);
@@ -46,7 +64,11 @@ public:
     
     /** do not fix the tempo anymore */
 	void unfixtempo();
-	
+    
+    static double getBeatTimeInSeconds(long frameNumber,int hopSize,int fs);
+    
+    static double getBeatTimeInSeconds(int frameNumber,int hopSize,int fs);
+    
 	int playbeat;
 	double cscoreval;
 	double est_tempo;
@@ -100,6 +122,7 @@ private:
 	
 	double t_tmat[41][41];		/**<  transition matrix */
 	
+    OnsetDetectionFunction odf;
 	
 	// parameters
 	double tightness;
