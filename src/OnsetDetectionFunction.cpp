@@ -168,7 +168,7 @@ void OnsetDetectionFunction :: set_df_type(int arg_df_type)
 }
 
 //=======================================================================
-double OnsetDetectionFunction :: getDFsample(double inputbuffer[])
+double OnsetDetectionFunction :: getDFsample(double *inputbuffer)
 {	
 	double df_sample;
 		
