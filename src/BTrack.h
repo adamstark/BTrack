@@ -28,6 +28,7 @@ class BTrack {
 	
 public:
     
+    //=======================================================================
     /** constructor assuming hop size of 512 and frame size of 1024 */
     BTrack();
     
@@ -42,15 +43,27 @@ public:
      */
     BTrack(int hopSize_,int frameSize_);
     
+    //=======================================================================
     /** Process a single audio frame */
     void processAudioFrame(double *frame);
     
     /** Add new onset detection function sample to buffer and apply beat tracking */
     void processOnsetDetectionFunctionSample(double sample);
    
+    //=======================================================================
     /** @returns the current hop size being used by the beat tracker */
     int getHopSize();
     
+    /** @returns true if a beat should occur in the current audio frame */
+    bool beatDueInCurrentFrame();
+
+    /** @returns the current tempo estimate being used by the beat tracker */
+    double getCurrentTempoEstimate();
+    
+    /** @returns the most recent value of the cumulative score function */
+    double getLatestCumulativeScoreValue();
+    
+    //=======================================================================
     /** Set the tempo of the beat tracker */
     void setTempo(double tempo);
     
@@ -60,16 +73,12 @@ public:
     /** do not fix the tempo anymore */
     void doNotFixTempo();
     
+    //=======================================================================
     static double getBeatTimeInSeconds(long frameNumber,int hopSize,int fs);
     
     static double getBeatTimeInSeconds(int frameNumber,int hopSize,int fs);
     
-    /** @returns true if a beat should occur in the current audio frame */
-    bool beatDueInCurrentFrame();
-    
-    double cscoreval;
-    double est_tempo;
-			
+		
 private:
     
     void initialise(int hopSize_,int frameSize_);
@@ -106,25 +115,30 @@ private:
     /** calculates the output of the comb filter bank */
     void calculateOutputOfCombFilterBank();
 	
-	// buffers
-    double *dfbuffer;			/**< to hold detection function */
-    double df512[512];			/**< to hold resampled detection function */
-    double *cumscore;			/**<  to hold cumulative score */
-	
-    double acf[512];			/**<  to hold autocorrelation function */
-	
-    double wv[128];				/**<  to hold weighting vector */
-	
-    double rcf[128];			/**<  to hold comb filter output */
-    double t_obs[41];			/**<  to hold tempo version of comb filter output */
-	
-    double delta[41];			/**<  to hold final tempo candidate array */
-    double prev_delta[41];		/**<  previous delta */
-    double prev_delta_fix[41];	/**<  fixed tempo version of previous delta */
-	
-    double t_tmat[41][41];		/**<  transition matrix */
-	
+    //=======================================================================
+
     OnsetDetectionFunction odf;
+    
+    //=======================================================================
+	// buffers
+    double *onsetDF;                        /**< to hold detection function */
+    double resampledOnsetDF[512];           /**< to hold resampled detection function */
+    double *cumulativeScore;                /**<  to hold cumulative score */
+	
+    double acf[512];                        /**<  to hold autocorrelation function */
+	
+    double weightingVector[128];            /**<  to hold weighting vector */
+	
+    double combFilterBankOutput[128];       /**<  to hold comb filter output */
+    double tempoObservationVector[41];      /**<  to hold tempo version of comb filter output */
+	
+    double delta[41];                       /**<  to hold final tempo candidate array */
+    double prevDelta[41];                   /**<  previous delta */
+    double prevDeltaFixed[41];              /**<  fixed tempo version of previous delta */
+	
+    double tempoTransitionMatrix[41][41];   /**<  tempo transition matrix */
+	
+    
 	
     // parameters
     double tightness;
@@ -132,24 +146,23 @@ private:
     double beatPeriod;
     double tempo;
 	
-	
+    double estimatedTempo;                  /**< the current tempo estimation being used by the algorithm */
+    
+    double latestCumulativeScoreValue;      /**< holds the latest value of the cumulative score function */
+    
     double p_fact;
 	
-	
-    //
-    int m0;				// indicates when the next point to predict the next beat is
-    int beat;
-	
-    int dfbuffer_size;
-		
-	
-    int hopSize;
-	
-	
-    int tempofix;
-	
+    int m0;                                 // indicates when the next point to predict the next beat is
     
-    bool beatDueInFrame;
+    int beatCounter;                        /**< keeps track of when the next beat is - will be zero when the beat is due, and is set elsewhere in the algorithm to be positive once a beat prediction is made */
+	
+    int hopSize;                            /**< the hop size being used by the algorithm */
+    
+    int onsetDFBufferSize;                  /**< the onset detection function buffer size */
+	
+    bool tempoFixed;                        /**< indicates whether the tempo should be fixed or not */
+    
+    bool beatDueInFrame;                    /**< indicates whether a beat is due in the current frame */
 
 };
 
