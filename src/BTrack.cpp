@@ -43,12 +43,6 @@ BTrack::BTrack(int hopSize,int frameSize) : odf(hopSize,frameSize,6,1)
 }
 
 //=======================================================================
-BTrack::~BTrack()
-{	
-	
-}
-
-//=======================================================================
 double BTrack::getBeatTimeInSeconds(long frameNumber,int hopSize,int fs)
 {
     double hop = (double) hopSize;
@@ -156,9 +150,7 @@ void BTrack::processAudioFrame(double *frame)
     // calculate the onset detection function sample for the frame
     double sample = odf.getDFsample(frame);
     
-    // add a tiny constant to the sample to stop it from ever going
-    // to zero. this is to avoid problems further down the line
-    sample = sample + 0.0001;
+    
     
     // process the new onset detection function sample in the beat tracking algorithm
     processOnsetDetectionFunctionSample(sample);
@@ -166,7 +158,15 @@ void BTrack::processAudioFrame(double *frame)
 
 //=======================================================================
 void BTrack::processOnsetDetectionFunctionSample(double newSample)
-{	 
+{
+    // we need to ensure that the onset
+    // detection function sample is positive
+    newSample = fabs(newSample);
+    
+    // add a tiny constant to the sample to stop it from ever going
+    // to zero. this is to avoid problems further down the line
+    newSample = newSample + 0.0001;
+    
 	m0--;
 	beat--;
 	playbeat = 0;
