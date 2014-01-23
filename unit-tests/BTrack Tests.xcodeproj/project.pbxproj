@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E31C50041891302D006530ED /* Test_BTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E31C50031891302D006530ED /* Test_BTrack.cpp */; };
 		E38214F0188E7AED00DDD7C8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E38214EF188E7AED00DDD7C8 /* main.cpp */; };
 		E38214F2188E7AED00DDD7C8 /* BTrack_Tests.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = E38214F1188E7AED00DDD7C8 /* BTrack_Tests.1 */; };
 		E3A45DB9188E7BCD00B48CE4 /* BTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E3A45DB5188E7BCD00B48CE4 /* BTrack.cpp */; };
@@ -27,6 +28,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E31C50031891302D006530ED /* Test_BTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Test_BTrack.cpp; sourceTree = "<group>"; };
 		E38214EC188E7AED00DDD7C8 /* BTrack Tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "BTrack Tests"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E38214EF188E7AED00DDD7C8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		E38214F1188E7AED00DDD7C8 /* BTrack_Tests.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = BTrack_Tests.1; sourceTree = "<group>"; };
@@ -47,6 +49,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E31C500218913007006530ED /* tests */ = {
+			isa = PBXGroup;
+			children = (
+				E31C50031891302D006530ED /* Test_BTrack.cpp */,
+			);
+			name = tests;
+			path = "BTrack Tests/tests";
+			sourceTree = SOURCE_ROOT;
+		};
 		E38214E3188E7AED00DDD7C8 = {
 			isa = PBXGroup;
 			children = (
@@ -67,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				E38214EF188E7AED00DDD7C8 /* main.cpp */,
+				E31C500218913007006530ED /* tests */,
 				E3A45DB4188E7BCD00B48CE4 /* src */,
 				E38214F1188E7AED00DDD7C8 /* BTrack_Tests.1 */,
 			);
@@ -136,6 +148,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E31C50041891302D006530ED /* Test_BTrack.cpp in Sources */,
 				E3A45DBA188E7BCD00B48CE4 /* OnsetDetectionFunction.cpp in Sources */,
 				E3A45DB9188E7BCD00B48CE4 /* BTrack.cpp in Sources */,
 				E38214F0188E7AED00DDD7C8 /* main.cpp in Sources */,
@@ -176,8 +189,19 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-lboost_unit_test_framework\n-lboost_unit_test_framework\n-lboost_unit_test_framework\n-lboost_unit_test_framework\n-lboost_unit_test_framework\n-lboost_unit_test_framework\n-lboost_unit_test_framework\n-lboost_unit_test_framework\n-lboost_unit_test_framework",
+					"-lsamplerate",
+					"-lfftw3",
+				);
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -208,7 +232,18 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				OTHER_LDFLAGS = (
+					"-lboost_unit_test_framework\n-lboost_unit_test_framework\n-lboost_unit_test_framework\n-lboost_unit_test_framework\n-lboost_unit_test_framework\n-lboost_unit_test_framework\n-lboost_unit_test_framework\n-lboost_unit_test_framework\n-lboost_unit_test_framework",
+					"-lsamplerate",
+					"-lfftw3",
+				);
 				SDKROOT = macosx;
 			};
 			name = Release;

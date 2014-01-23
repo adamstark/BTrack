@@ -29,7 +29,7 @@ class BTrack {
 public:
     
     /** constructor assuming hop size of 512 and frame size of 1024 */
-	BTrack();
+    BTrack();
     
     /** constructor assuming frame size will be double hopSize 
      * @param hopSize the step size in audio samples by which we will receive audio frames
@@ -40,46 +40,43 @@ public:
      * @param hopSize the step size in audio samples by which we will receive audio frames
      * @param frameSize the audio frame size in audio samples
      */
-	BTrack(int hopSize,int frameSize);
-    
-    /** destructor */
-	~BTrack();		
-	
-    void initialise(int hopSize,int frameSize);
-    
-    /** Initialise with hop size and set all frame sizes accordingly */
-	void setHopSize(int hopSize);
+    BTrack(int hopSize,int frameSize);
     
     /** Process a single audio frame */
-	void processAudioFrame(double *frame);
+    void processAudioFrame(double *frame);
     
     /** Add new onset detection function sample to buffer and apply beat tracking */
-	void processOnsetDetectionFunctionSample(double sample);
+    void processOnsetDetectionFunctionSample(double sample);
    
     /** Set the tempo of the beat tracker */
-	void settempo(double tempo);
+    void settempo(double tempo);
     
     /** fix tempo to roughly around some value */
-	void fixtempo(double tempo);
+    void fixtempo(double tempo);
     
     /** do not fix the tempo anymore */
-	void unfixtempo();
+    void unfixtempo();
     
     static double getBeatTimeInSeconds(long frameNumber,int hopSize,int fs);
     
     static double getBeatTimeInSeconds(int frameNumber,int hopSize,int fs);
     
-	int playbeat;
-	double cscoreval;
-	double est_tempo;
+    int playbeat;
+    double cscoreval;
+    double est_tempo;
 			
 private:
     
+    void initialise(int hopSize,int frameSize);
+    
+    /** Initialise with hop size and set all frame sizes accordingly */
+    void setHopSize(int hopSize);
+    
     /** Convert detection function from N samples to 512 */
-	void dfconvert();
+    void dfconvert();
     
     /** update the cumulative score */
-	void updatecumscore(double df_sample);
+    void updatecumscore(double df_sample);
 	
     /** predicts the next beat */
     void predictbeat();
@@ -90,61 +87,61 @@ private:
     /** calculates an adaptive threshold which is used to remove low level energy from detection 
      * function and emphasise peaks 
      */
-	void adapt_thresh(double *x,int N);
+    void adapt_thresh(double *x,int N);
     
     /** calculates the mean of values in an array from index locations [start,end] */
-	double mean_array(double *array,int start,int end);
+    double mean_array(double *array,int start,int end);
     
     /** normalises a given array */
-	void normalise(double *array,int N);
+    void normalise(double *array,int N);
     
     /** calculates the balanced autocorrelation of the smoothed detection function */
-	void acf_bal(double *df_thresh);
+    void acf_bal(double *df_thresh);
     
     /** returns the output of the comb filter */
-	void getrcfoutput();
+    void getrcfoutput();
 	
 	// buffers
-	double *dfbuffer;			/**< to hold detection function */
-	double df512[512];			/**< to hold resampled detection function */
-	double *cumscore;			/**<  to hold cumulative score */
+    double *dfbuffer;			/**< to hold detection function */
+    double df512[512];			/**< to hold resampled detection function */
+    double *cumscore;			/**<  to hold cumulative score */
 	
-	double acf[512];				/**<  to hold autocorrelation function */
+    double acf[512];				/**<  to hold autocorrelation function */
 	
-	double wv[128];				/**<  to hold weighting vector */
+    double wv[128];				/**<  to hold weighting vector */
 	
-	double rcf[128];				/**<  to hold comb filter output */
-	double t_obs[41];			/**<  to hold tempo version of comb filter output */
+    double rcf[128];				/**<  to hold comb filter output */
+    double t_obs[41];			/**<  to hold tempo version of comb filter output */
 	
-	double delta[41];			/**<  to hold final tempo candidate array */
-	double prev_delta[41];		/**<  previous delta */
-	double prev_delta_fix[41];	/**<  fixed tempo version of previous delta */
+    double delta[41];			/**<  to hold final tempo candidate array */
+    double prev_delta[41];		/**<  previous delta */
+    double prev_delta_fix[41];	/**<  fixed tempo version of previous delta */
 	
-	double t_tmat[41][41];		/**<  transition matrix */
+    double t_tmat[41][41];		/**<  transition matrix */
 	
     OnsetDetectionFunction odf;
 	
-	// parameters
-	double tightness;
-	double alpha;
-	double bperiod;
-	double tempo;
+    // parameters
+    double tightness;
+    double alpha;
+    double bperiod;
+    double tempo;
 	
 	
-	double p_fact;
+    double p_fact;
 	
 	
-	//
-	int m0;				// indicates when the next point to predict the next beat is
-	int beat;
+    //
+    int m0;				// indicates when the next point to predict the next beat is
+    int beat;
 	
-	int dfbuffer_size;
+    int dfbuffer_size;
 		
 	
-	int framesize;
+    int framesize;
 	
 	
-	int tempofix;
+    int tempofix;
 	
 
 };
