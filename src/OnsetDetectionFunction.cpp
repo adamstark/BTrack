@@ -120,19 +120,19 @@ void OnsetDetectionFunction :: initialise(int arg_hsize,int arg_fsize,int arg_df
 	
 	// set the window to the specified type
 	switch (arg_win_type){
-		case 0:
+		case RectangularWindow:
 			set_win_rectangular();		// Rectangular window
 			break;	
-		case 1:	
+		case HanningWindow:
 			set_win_hanning();			// Hanning Window
 			break;
-		case 2:
+		case HammingWindow:
 			set_win_hamming();			// Hamming Window
 			break;
-		case 3:
+		case BlackmanWindow:
 			set_win_blackman();			// Blackman Window
 			break;
-		case 4:
+		case TukeyWindow:
 			set_win_tukey();			// Tukey Window
 			break;
 		default:
@@ -187,38 +187,70 @@ double OnsetDetectionFunction :: getDFsample(double *inputbuffer)
 	}
 		
 	switch (df_type){
-		case 0:
-			df_sample = energy_envelope();	// calculate energy envelope detection function sample
-			break;	
-		case 1:
-			df_sample = energy_difference();	// calculate half-wave rectified energy difference detection function sample
+		case EnergyEnvelope:
+        {
+            // calculate energy envelope detection function sample
+			df_sample = energy_envelope();
 			break;
-		case 2:
-			df_sample = spectral_difference();	// calculate spectral difference detection function sample
+        }
+		case EnergyDifference:
+        {
+            // calculate half-wave rectified energy difference detection function sample
+			df_sample = energy_difference();
 			break;
-		case 3:
-			df_sample = spectral_difference_hwr(); // calculate spectral difference detection function sample (half wave rectified)
+        }
+		case SpectralDifference:
+        {
+            // calculate spectral difference detection function sample
+			df_sample = spectral_difference();
 			break;
-		case 4:
-			df_sample = phase_deviation();		// calculate phase deviation detection function sample (half wave rectified)
+        }
+		case SpectralDifferenceHWR:
+        {
+            // calculate spectral difference detection function sample (half wave rectified)
+			df_sample = spectral_difference_hwr();
 			break;
-		case 5:
-			df_sample = complex_spectral_difference(); // calcualte complex spectral difference detection function sample
+        }
+		case PhaseDeviation:
+        {
+            // calculate phase deviation detection function sample (half wave rectified)
+			df_sample = phase_deviation();
 			break;
-		case 6:
-			df_sample = complex_spectral_difference_hwr();  // calcualte complex spectral difference detection function sample (half-wave rectified)
+        }
+		case ComplexSpectralDifference:
+        {
+            // calcualte complex spectral difference detection function sample
+			df_sample = complex_spectral_difference();
 			break;
-		case 7:
-			df_sample = high_frequency_content(); // calculate high frequency content detection function sample
+        }
+		case ComplexSpectralDifferenceHWR:
+        {
+            // calcualte complex spectral difference detection function sample (half-wave rectified)
+			df_sample = complex_spectral_difference_hwr();
 			break;
-		case 8:
-			df_sample = high_frequency_spectral_difference(); // calculate high frequency spectral difference detection function sample
+        }
+		case HighFrequencyContent:
+        {
+            // calculate high frequency content detection function sample
+			df_sample = high_frequency_content();
 			break;
-		case 9:
-			df_sample = high_frequency_spectral_difference_hwr(); // calculate high frequency spectral difference detection function (half-wave rectified)
+        }
+		case HighFrequencySpectralDifference:
+        {
+            // calculate high frequency spectral difference detection function sample
+			df_sample = high_frequency_spectral_difference();
 			break;
+        }
+		case HighFrequencySpectralDifferenceHWR:
+        {
+            // calculate high frequency spectral difference detection function (half-wave rectified)
+			df_sample = high_frequency_spectral_difference_hwr();
+			break;
+        }
 		default:
+        {
 			df_sample = 1.0;
+        }
 	}
 		
 	return df_sample;
