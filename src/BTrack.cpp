@@ -25,21 +25,21 @@
 #include "samplerate.h"
 
 //=======================================================================
-BTrack::BTrack() : odf(512,1024,6,1)
+BTrack::BTrack() : odf(512,1024,ComplexSpectralDifferenceHWR,HanningWindow)
 {
     initialise(512, 1024);
 }
 
 //=======================================================================
-BTrack::BTrack(int hopSize) : odf(hopSize,2*hopSize,6,1)
+BTrack::BTrack(int hopSize_) : odf(hopSize_,2*hopSize_,ComplexSpectralDifferenceHWR,HanningWindow)
 {	
-    initialise(hopSize, 2*hopSize);
+    initialise(hopSize_, 2*hopSize_);
 }
 
 //=======================================================================
-BTrack::BTrack(int hopSize,int frameSize) : odf(hopSize,frameSize,6,1)
+BTrack::BTrack(int hopSize_,int frameSize_) : odf(hopSize_,frameSize_,ComplexSpectralDifferenceHWR,HanningWindow)
 {
-    initialise(hopSize, frameSize);
+    initialise(hopSize_, frameSize_);
 }
 
 //=======================================================================
@@ -63,7 +63,7 @@ double BTrack::getBeatTimeInSeconds(int frameNumber,int hopSize,int fs)
 
 
 //=======================================================================
-void BTrack::initialise(int hopSize, int frameSize)
+void BTrack::initialise(int hopSize_, int frameSize_)
 {
     double rayparam = 43;
 	double pi = 3.14159265;
@@ -79,7 +79,7 @@ void BTrack::initialise(int hopSize, int frameSize)
 	m0 = 10;
 	beat = -1;
 	
-	playbeat = 0;
+	beatDueInFrame = false;
 	
 	
 	
@@ -115,16 +115,16 @@ void BTrack::initialise(int hopSize, int frameSize)
 	tempofix = 0;
     
     // initialise algorithm given the hopsize
-    setHopSize(hopSize);
+    setHopSize(hopSize_);
 }
 
 //=======================================================================
-void BTrack :: setHopSize(int hopSize)
+void BTrack::setHopSize(int hopSize_)
 {	
-	framesize = hopSize;
+	hopSize = hopSize_;
 	dfbuffer_size = (512*512)/hopSize;		// calculate df buffer size
 	
-	bperiod = round(60/((((double) hopSize)/44100)*tempo));
+	beatPeriod = round(60/((((double) hopSize)/44100)*tempo));
 	
 	dfbuffer = new double[dfbuffer_size];	// create df_buffer
 	cumscore = new double[dfbuffer_size];	// create cumscore
@@ -137,11 +137,23 @@ void BTrack :: setHopSize(int hopSize)
 		cumscore[i] = 0;
 		
 		
-		if ((i %  ((int) round(bperiod))) == 0)
+		if ((i %  ((int) round(beatPeriod))) == 0)
 		{
 			dfbuffer[i] = 1;
 		}
 	}
+}
+
+//=======================================================================
+bool BTrack::beatDueInCurrentFrame()
+{
+    return beatDueInFrame;
+}
+
+//=======================================================================
+int BTrack::getHopSize()
+{
+    return hopSize;
 }
 
 //=======================================================================
@@ -169,7 +181,7 @@ void BTrack::processOnsetDetectionFunctionSample(double newSample)
     
 	m0--;
 	beat--;
-	playbeat = 0;
+	beatDueInFrame = false;
 	
 	// move all samples back one step
 	for (int i=0;i < (dfbuffer_size-1);i++)
@@ -181,27 +193,27 @@ void BTrack::processOnsetDetectionFunctionSample(double newSample)
 	dfbuffer[dfbuffer_size-1] = newSample;
 	
 	// update cumulative score
-	updatecumscore(newSample);
+	updateCumulativeScore(newSample);
 	
 	// if we are halfway between beats
 	if (m0 == 0)
 	{
-		predictbeat();
+		predictBeat();
 	}
 	
 	// if we are at a beat
 	if (beat == 0)
 	{
-		playbeat = 1;	// indicate a beat should be output
+		beatDueInFrame = true;	// indicate a beat should be output
 		
 		// recalculate the tempo
-		dfconvert();	
-		calcTempo();
+		resampleOnsetDetectionFunction();
+		calculateTempo();
 	}
 }
 
 //=======================================================================
-void BTrack :: settempo(double tempo)
+void BTrack::setTempo(double tempo)
 {	 
 	
 	/////////// TEMPO INDICATION RESET //////////////////
@@ -233,7 +245,7 @@ void BTrack :: settempo(double tempo)
 	/////////// CUMULATIVE SCORE ARTIFICAL TEMPO UPDATE //////////////////
 	
 	// calculate new beat period
-	int new_bperiod = (int) round(60/((((double) framesize)/44100)*tempo));
+	int new_bperiod = (int) round(60/((((double) hopSize)/44100)*tempo));
 	
 	int bcounter = 1;
 	// initialise df_buffer to zeros
@@ -268,7 +280,7 @@ void BTrack :: settempo(double tempo)
 }
 
 //=======================================================================
-void BTrack :: fixtempo(double tempo)
+void BTrack::fixTempo(double tempo)
 {	
 	// firstly make sure tempo is between 80 and 160 bpm..
 	while (tempo > 160)
@@ -298,14 +310,14 @@ void BTrack :: fixtempo(double tempo)
 }
 
 //=======================================================================
-void BTrack :: unfixtempo()
+void BTrack::doNotFixTempo()
 {	
 	// set the tempo fix flag
 	tempofix = 0;	
 }
 
 //=======================================================================
-void BTrack :: dfconvert()
+void BTrack::resampleOnsetDetectionFunction()
 {
 	float output[512];
     float input[dfbuffer_size];
@@ -340,20 +352,20 @@ void BTrack :: dfconvert()
 }
 
 //=======================================================================
-void BTrack :: calcTempo()
+void BTrack::calculateTempo()
 {
 	// adaptive threshold on input
-	adapt_thresh(df512,512);
+	adaptiveThreshold(df512,512);
 		
 	// calculate auto-correlation function of detection function
-	acf_bal(df512);
+	calculateBalancedACF(df512);
 	
 	// calculate output of comb filterbank
-	getrcfoutput();
+	calculateOutputOfCombFilterBank();
 	
 	
 	// adaptive threshold on rcf
-	adapt_thresh(rcf,128);
+	adaptiveThreshold(rcf,128);
 
 	
 	int t_index;
@@ -399,7 +411,7 @@ void BTrack :: calcTempo()
 	}
 	
 
-	normalise(delta,41);
+	normaliseArray(delta,41);
 	
 	maxind = -1;
 	maxval = -1;
@@ -415,18 +427,16 @@ void BTrack :: calcTempo()
 		prev_delta[j] = delta[j];
 	}
 	
-	bperiod = round((60.0*44100.0)/(((2*maxind)+80)*((double) framesize)));
+	beatPeriod = round((60.0*44100.0)/(((2*maxind)+80)*((double) hopSize)));
 	
-	if (bperiod > 0)
+	if (beatPeriod > 0)
 	{
-		est_tempo = 60.0/((((double) framesize) / 44100.0)*bperiod);
+		est_tempo = 60.0/((((double) hopSize) / 44100.0)*beatPeriod);
 	}
-	
-	//cout << bperiod << endl;
 }
 
 //=======================================================================
-void BTrack :: adapt_thresh(double *x,int N)
+void BTrack::adaptiveThreshold(double *x,int N)
 {
 	//int N = 512; // length of df
 	int i = 0;
@@ -442,18 +452,18 @@ void BTrack :: adapt_thresh(double *x,int N)
 	for (i = 0;i <= t;i++)
 	{	
 		k = std::min((i+p_pre),N);
-		x_thresh[i] = mean_array(x,1,k);
+		x_thresh[i] = calculateMeanOfArray(x,1,k);
 	}
 	// find threshold for bulk of samples across a moving average from [i-p_pre,i+p_post]
 	for (i = t+1;i < N-p_post;i++)
 	{
-		x_thresh[i] = mean_array(x,i-p_pre,i+p_post);
+		x_thresh[i] = calculateMeanOfArray(x,i-p_pre,i+p_post);
 	}
 	// for last few samples calculate threshold, again, not enough samples to do as above
 	for (i = N-p_post;i < N;i++)
 	{
 		k = std::max((i-p_post),1);
-		x_thresh[i] = mean_array(x,k,N);
+		x_thresh[i] = calculateMeanOfArray(x,k,N);
 	}
 	
 	// subtract the threshold from the detection function and check that it is not less than 0
@@ -468,7 +478,7 @@ void BTrack :: adapt_thresh(double *x,int N)
 }
 
 //=======================================================================
-void BTrack :: getrcfoutput()
+void BTrack::calculateOutputOfCombFilterBank()
 {
 	int numelem;
 	
@@ -492,7 +502,7 @@ void BTrack :: getrcfoutput()
 }
 
 //=======================================================================
-void BTrack :: acf_bal(double *df_thresh)
+void BTrack::calculateBalancedACF(double *df_thresh)
 {
 	int l, n = 0;
 	double sum, tmp;
@@ -514,7 +524,7 @@ void BTrack :: acf_bal(double *df_thresh)
 }
 
 //=======================================================================
-double BTrack :: mean_array(double *array,int start,int end)
+double BTrack::calculateMeanOfArray(double *array,int start,int end)
 {
 	int i;
 	double sum = 0;
@@ -538,7 +548,7 @@ double BTrack :: mean_array(double *array,int start,int end)
 }
 
 //=======================================================================
-void BTrack :: normalise(double *array,int N)
+void BTrack::normaliseArray(double *array,int N)
 {
 	double sum = 0;
 	
@@ -560,24 +570,24 @@ void BTrack :: normalise(double *array,int N)
 }
 
 //=======================================================================
-void BTrack :: updatecumscore(double df_sample)
+void BTrack::updateCumulativeScore(double df_sample)
 {	 
 	int start, end, winsize;
 	double max;
 	
-	start = dfbuffer_size - round(2*bperiod);
-	end = dfbuffer_size - round(bperiod/2);
+	start = dfbuffer_size - round(2*beatPeriod);
+	end = dfbuffer_size - round(beatPeriod/2);
 	winsize = end-start+1;
 	
 	double w1[winsize];
-	double v = -2*bperiod;
+	double v = -2*beatPeriod;
 	double wcumscore;
 	
 	
 	// create window
 	for (int i = 0;i < winsize;i++)
 	{
-		w1[i] = exp((-1*pow(tightness*log(-v/bperiod),2))/2);
+		w1[i] = exp((-1*pow(tightness*log(-v/beatPeriod),2))/2);
 		v = v+1;
 	}	
 	
@@ -612,9 +622,9 @@ void BTrack :: updatecumscore(double df_sample)
 }
 
 //=======================================================================
-void BTrack :: predictbeat()
+void BTrack::predictBeat()
 {	 
-	int winsize = (int) bperiod;
+	int winsize = (int) beatPeriod;
 	double fcumscore[dfbuffer_size + winsize];
 	double w2[winsize];
 	// copy cumscore to first part of fcumscore
@@ -627,20 +637,20 @@ void BTrack :: predictbeat()
 	double v = 1;
 	for (int i = 0;i < winsize;i++)
 	{
-		w2[i] = exp((-1*pow((v - (bperiod/2)),2))   /  (2*pow((bperiod/2) ,2)));
+		w2[i] = exp((-1*pow((v - (beatPeriod/2)),2))   /  (2*pow((beatPeriod/2) ,2)));
 		v++;
 	}
 	
 	// create past window
-	v = -2*bperiod;
-	int start = dfbuffer_size - round(2*bperiod);
-	int end = dfbuffer_size - round(bperiod/2);
+	v = -2*beatPeriod;
+	int start = dfbuffer_size - round(2*beatPeriod);
+	int end = dfbuffer_size - round(beatPeriod/2);
 	int pastwinsize = end-start+1;
 	double w1[pastwinsize];
 
 	for (int i = 0;i < pastwinsize;i++)
 	{
-		w1[i] = exp((-1*pow(tightness*log(-v/bperiod),2))/2);
+		w1[i] = exp((-1*pow(tightness*log(-v/beatPeriod),2))/2);
 		v = v+1;
 	}
 
@@ -652,8 +662,8 @@ void BTrack :: predictbeat()
 	double wcumscore;
 	for (int i = dfbuffer_size;i < (dfbuffer_size+winsize);i++)
 	{
-		start = i - round(2*bperiod);
-		end = i - round(bperiod/2);
+		start = i - round(2*beatPeriod);
+		end = i - round(beatPeriod/2);
 		
 		max = 0;
 		n = 0;
@@ -690,7 +700,7 @@ void BTrack :: predictbeat()
 	}
 		
 	// set next prediction time
-	m0 = beat+round(bperiod/2);
+	m0 = beat+round(beatPeriod/2);
 	
 
 }

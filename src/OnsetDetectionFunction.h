@@ -24,6 +24,31 @@
 
 #include "fftw3.h"
 
+//=======================================================================
+enum OnsetDetectionFunctionType
+{
+    EnergyEnvelope,
+    EnergyDifference,
+    SpectralDifference,
+    SpectralDifferenceHWR,
+    PhaseDeviation,
+    ComplexSpectralDifference,
+    ComplexSpectralDifferenceHWR,
+    HighFrequencyContent,
+    HighFrequencySpectralDifference,
+    HighFrequencySpectralDifferenceHWR
+};
+
+//=======================================================================
+enum WindowType
+{
+    RectangularWindow,
+    HanningWindow,
+    HammingWindow,
+    BlackmanWindow,
+    TukeyWindow
+};
+
 class OnsetDetectionFunction
 {
 public:

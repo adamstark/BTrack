@@ -151,9 +151,8 @@ static PyObject * btrack_btrack(PyObject *dummy, PyObject *args)
         b.processAudioFrame(buffer);
         
         // if a beat is currently scheduled
-		if (b.playbeat == 1)
+		if (b.beatDueInCurrentFrame())
 		{
-			//beats[beatnum] = (((double) hopSize) / 44100) * ((double) i);
 			beats[beatnum] = BTrack::getBeatTimeInSeconds(i,hopSize,44100);
             beatnum = beatnum + 1;
 		}
@@ -241,9 +240,8 @@ static PyObject * btrack_btrack_df(PyObject *dummy, PyObject *args)
         
 		b.processOnsetDetectionFunctionSample(df_val);				// process df sample in beat tracker
 		
-		if (b.playbeat == 1)
+		if (b.beatDueInCurrentFrame())
 		{
-			//beats[beatnum] = (((double) hopSize) / 44100) * ((double) i);
             beats[beatnum] = BTrack::getBeatTimeInSeconds(i,hopSize,44100);
 			beatnum = beatnum + 1;	
 		}

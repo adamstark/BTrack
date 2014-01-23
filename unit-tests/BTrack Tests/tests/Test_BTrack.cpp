@@ -8,6 +8,40 @@
 #include "../../../src/BTrack.h"
 
 //======================================================================
+//==================== CHECKING INITIALISATION =========================
+//======================================================================
+BOOST_AUTO_TEST_SUITE(checkingInitialisation)
+
+//======================================================================
+BOOST_AUTO_TEST_CASE(constructorWithNoArguments)
+{
+    BTrack b;
+    
+    BOOST_CHECK_EQUAL(b.getHopSize(), 512);
+}
+
+//======================================================================
+BOOST_AUTO_TEST_CASE(constructorWithHopSize)
+{
+    BTrack b(1024);
+    
+    BOOST_CHECK_EQUAL(b.getHopSize(), 1024);
+}
+
+//======================================================================
+BOOST_AUTO_TEST_CASE(constructorWithHopSizeAndFrameSize)
+{
+    BTrack b(256,512);
+    
+    BOOST_CHECK_EQUAL(b.getHopSize(), 256);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+//======================================================================
+//======================================================================
+
+
+//======================================================================
 //=================== PROCESSING SIMPLE VALUES =========================
 //======================================================================
 BOOST_AUTO_TEST_SUITE(processingSimpleValues)
@@ -31,7 +65,7 @@ BOOST_AUTO_TEST_CASE(processZeroValuedOnsetDetectionFunctionSamples)
         
         currentInterval++;
         
-        if (b.playbeat == 1)
+        if (b.beatDueInCurrentFrame())
         {
             numBeats++;
             
@@ -77,7 +111,7 @@ BOOST_AUTO_TEST_CASE(processRandomOnsetDetectionFunctionSamples)
         
         currentInterval++;
         
-        if (b.playbeat == 1)
+        if (b.beatDueInCurrentFrame())
         {
             numBeats++;
             
@@ -123,7 +157,7 @@ BOOST_AUTO_TEST_CASE(processNegativeOnsetDetectionFunctionSamples)
         
         currentInterval++;
         
-        if (b.playbeat == 1)
+        if (b.beatDueInCurrentFrame())
         {
             numBeats++;
             
@@ -178,7 +212,7 @@ BOOST_AUTO_TEST_CASE(processSeriesOfDeltaFunctions)
         
         currentInterval++;
         
-        if (b.playbeat == 1)
+        if (b.beatDueInCurrentFrame())
         {
             numBeats++;
             
@@ -210,7 +244,8 @@ BOOST_AUTO_TEST_CASE(processSeriesOfDeltaFunctions)
 
 
 BOOST_AUTO_TEST_SUITE_END()
-
+//======================================================================
+//======================================================================
 
 
 

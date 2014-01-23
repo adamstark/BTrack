@@ -34,13 +34,13 @@ public:
     /** constructor assuming frame size will be double hopSize 
      * @param hopSize the step size in audio samples by which we will receive audio frames
      */
-    BTrack(int hopSize);
+    BTrack(int hopSize_);
     
     /** constructor taking both hopSize and frameSize
      * @param hopSize the step size in audio samples by which we will receive audio frames
      * @param frameSize the audio frame size in audio samples
      */
-    BTrack(int hopSize,int frameSize);
+    BTrack(int hopSize_,int frameSize_);
     
     /** Process a single audio frame */
     void processAudioFrame(double *frame);
@@ -48,69 +48,74 @@ public:
     /** Add new onset detection function sample to buffer and apply beat tracking */
     void processOnsetDetectionFunctionSample(double sample);
    
+    /** @returns the current hop size being used by the beat tracker */
+    int getHopSize();
+    
     /** Set the tempo of the beat tracker */
-    void settempo(double tempo);
+    void setTempo(double tempo);
     
     /** fix tempo to roughly around some value */
-    void fixtempo(double tempo);
+    void fixTempo(double tempo);
     
     /** do not fix the tempo anymore */
-    void unfixtempo();
+    void doNotFixTempo();
     
     static double getBeatTimeInSeconds(long frameNumber,int hopSize,int fs);
     
     static double getBeatTimeInSeconds(int frameNumber,int hopSize,int fs);
     
-    int playbeat;
+    /** @returns true if a beat should occur in the current audio frame */
+    bool beatDueInCurrentFrame();
+    
     double cscoreval;
     double est_tempo;
 			
 private:
     
-    void initialise(int hopSize,int frameSize);
+    void initialise(int hopSize_,int frameSize_);
     
     /** Initialise with hop size and set all frame sizes accordingly */
-    void setHopSize(int hopSize);
+    void setHopSize(int hopSize_);
     
     /** Convert detection function from N samples to 512 */
-    void dfconvert();
+    void resampleOnsetDetectionFunction();
     
     /** update the cumulative score */
-    void updatecumscore(double df_sample);
+    void updateCumulativeScore(double df_sample);
 	
     /** predicts the next beat */
-    void predictbeat();
+    void predictBeat();
     
     /** Calculates the current tempo expressed as the beat period in detection function samples */
-    void calcTempo();
+    void calculateTempo();
     
     /** calculates an adaptive threshold which is used to remove low level energy from detection 
      * function and emphasise peaks 
      */
-    void adapt_thresh(double *x,int N);
+    void adaptiveThreshold(double *x,int N);
     
     /** calculates the mean of values in an array from index locations [start,end] */
-    double mean_array(double *array,int start,int end);
+    double calculateMeanOfArray(double *array,int start,int end);
     
     /** normalises a given array */
-    void normalise(double *array,int N);
+    void normaliseArray(double *array,int N);
     
     /** calculates the balanced autocorrelation of the smoothed detection function */
-    void acf_bal(double *df_thresh);
+    void calculateBalancedACF(double *df_thresh);
     
-    /** returns the output of the comb filter */
-    void getrcfoutput();
+    /** calculates the output of the comb filter bank */
+    void calculateOutputOfCombFilterBank();
 	
 	// buffers
     double *dfbuffer;			/**< to hold detection function */
     double df512[512];			/**< to hold resampled detection function */
     double *cumscore;			/**<  to hold cumulative score */
 	
-    double acf[512];				/**<  to hold autocorrelation function */
+    double acf[512];			/**<  to hold autocorrelation function */
 	
     double wv[128];				/**<  to hold weighting vector */
 	
-    double rcf[128];				/**<  to hold comb filter output */
+    double rcf[128];			/**<  to hold comb filter output */
     double t_obs[41];			/**<  to hold tempo version of comb filter output */
 	
     double delta[41];			/**<  to hold final tempo candidate array */
@@ -124,7 +129,7 @@ private:
     // parameters
     double tightness;
     double alpha;
-    double bperiod;
+    double beatPeriod;
     double tempo;
 	
 	
@@ -138,11 +143,13 @@ private:
     int dfbuffer_size;
 		
 	
-    int framesize;
+    int hopSize;
 	
 	
     int tempofix;
 	
+    
+    bool beatDueInFrame;
 
 };
 
