@@ -90,7 +90,7 @@ private:
     void resampleOnsetDetectionFunction();
     
     /** update the cumulative score */
-    void updateCumulativeScore(double df_sample);
+    void updateCumulativeScore(double odfSample);
 	
     /** predicts the next beat */
     void predictBeat();
@@ -103,8 +103,8 @@ private:
      */
     void adaptiveThreshold(double *x,int N);
     
-    /** calculates the mean of values in an array from index locations [start,end] */
-    double calculateMeanOfArray(double *array,int start,int end);
+    /** calculates the mean of values in an array from index locations [startIndex,endIndex] */
+    double calculateMeanOfArray(double *array,int startIndex,int endIndex);
     
     /** normalises a given array */
     void normaliseArray(double *array,int N);
@@ -150,9 +150,9 @@ private:
     
     double latestCumulativeScoreValue;      /**< holds the latest value of the cumulative score function */
     
-    double p_fact;
+    double tempoToLagFactor;                /**< factor for converting between lag and tempo */
 	
-    int m0;                                 // indicates when the next point to predict the next beat is
+    int m0;                                 /**< indicates when the next point to predict the next beat is */
     
     int beatCounter;                        /**< keeps track of when the next beat is - will be zero when the beat is due, and is set elsewhere in the algorithm to be positive once a beat prediction is made */
 	

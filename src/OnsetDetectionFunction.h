@@ -19,8 +19,8 @@
  */
 //=======================================================================
 
-#ifndef __RTONSETDF_H
-#define __RTONSETDF_H
+#ifndef __ONSETDETECTIONFUNCTION_H
+#define __ONSETDETECTIONFUNCTION_H
 
 #include "fftw3.h"
 
@@ -54,98 +54,100 @@ class OnsetDetectionFunction
 public:
     
     /** Constructor */
-	OnsetDetectionFunction(int arg_hsize,int arg_fsize,int arg_df_type,int arg_win_type);
+	OnsetDetectionFunction(int hopSize_,int frameSize_,int onsetDetectionFunctionType_,int windowType);
     
     /** Destructor */
 	~OnsetDetectionFunction();
     
     /** Initialisation Function */
-	void initialise(int arg_hsize,int arg_fsize,int arg_df_type,int arg_win_type);
+	void initialise(int hopSize_,int frameSize_,int onsetDetectionFunctionType_,int windowType);
 	
-    /** process input buffer and calculate detection function sample */
-	double getDFsample(double *inputbuffer);
+    /** process input frame and calculate detection function sample */
+	double calculateOnsetDetectionFunctionSample(double *buffer);
     
     /** set the detection function type */
-	void set_df_type(int arg_df_type);
+	void setOnsetDetectionFunctionType(int onsetDetectionFunctionType_);
 	
 private:
 	
     /** perform the FFT on the data in 'frame' */
-	void perform_FFT();
+	void performFFT();
 
+    //=======================================================================
     /** calculate energy envelope detection function sample */
-	double energy_envelope();
+	double energyEnvelope();
     
     /** calculate energy difference detection function sample */
-	double energy_difference();
+	double energyDifference();
     
     /** calculate spectral difference detection function sample */
-	double spectral_difference();
+	double spectralDifference();
     
     /** calculate spectral difference (half wave rectified) detection function sample */
-	double spectral_difference_hwr();
+	double spectralDifferenceHWR();
     
     /** calculate phase deviation detection function sample */
-	double phase_deviation();
+	double phaseDeviation();
     
     /** calculate complex spectral difference detection function sample */
-	double complex_spectral_difference();
+	double complexSpectralDifference();
     
     /** calculate complex spectral difference detection function sample (half-wave rectified) */
-	double complex_spectral_difference_hwr();
+	double complexSpectralDifferenceHWR();
     
     /** calculate high frequency content detection function sample */
-	double high_frequency_content();
+	double highFrequencyContent();
     
     /** calculate high frequency spectral difference detection function sample */
-	double high_frequency_spectral_difference();
+	double highFrequencySpectralDifference();
     
     /** calculate high frequency spectral difference detection function sample (half-wave rectified) */
-	double high_frequency_spectral_difference_hwr();
+	double highFrequencySpectralDifferenceHWR();
 
+    //=======================================================================
     /** calculate a Rectangular window */
-	void set_win_rectangular();
+	void calculateRectangularWindow();
     
     /** calculate a Hanning window */
-	void set_win_hanning();
+	void calculateHanningWindow();
     
     /** calculate a Hamming window */
-	void set_win_hamming();
+	void calclulateHammingWindow();
     
     /** calculate a Blackman window */
-	void set_win_blackman();
+	void calculateBlackmanWindow();
     
     /** calculate a Tukey window */
-	void set_win_tukey();
+	void calculateTukeyWindow();
 
+    //=======================================================================
 	/** set phase values between [-pi, pi] */
-	double princarg(double phaseval);
+	double princarg(double phaseVal);
 	
 	
 	double pi;							/**< pi, the constant */
 	
-	int framesize;						/**< audio framesize */
-	int hopsize;						/**< audio hopsize */
-	int df_type;						/**< type of detection function */
+	int frameSize;						/**< audio framesize */
+	int hopSize;						/**< audio hopsize */
+	int onsetDetectionFunctionType;		/**< type of detection function */
 	
-	fftw_plan p;						/**< create fft plan */
-	fftw_complex *in;					/**< to hold complex fft values for input */
-	fftw_complex *out;					/**< to hold complex fft values for output */
+	fftw_plan p;						/**< fftw plan */
+	fftw_complex *complexIn;			/**< to hold complex fft values for input */
+	fftw_complex *complexOut;			/**< to hold complex fft values for output */
 	
 	int initialised;					/**< flag indicating whether buffers and FFT plans are initialised */
 
 	double *frame;						/**< audio frame */
 	double *window;						/**< window */
-	double *wframe;						/**< windowed frame */
 	
-	double energy_sum_old;				/**< to hold the previous energy sum value */
+	double prevEnergySum;				/**< to hold the previous energy sum value */
 	
-	double *mag;						/**< magnitude spectrum */
-	double *mag_old;					/**< previous magnitude spectrum */
+	double *magSpec;					/**< magnitude spectrum */
+	double *prevMagSpec;                /**< previous magnitude spectrum */
 	
 	double *phase;						/**< FFT phase values */
-	double *phase_old;					/**< previous phase values */
-	double *phase_old_2;				/**< second order previous phase values */
+	double *prevPhase;					/**< previous phase values */
+	double *prevPhase2;                 /**< second order previous phase values */
 
 };
 

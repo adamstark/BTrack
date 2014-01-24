@@ -74,7 +74,7 @@ void BTrack::initialise(int hopSize_, int frameSize_)
 	alpha = 0.9;
 	tempo = 120;
 	estimatedTempo = 120.0;
-	p_fact = 60.*44100./512.;
+	tempoToLagFactor = 60.*44100./512.;
 	
 	m0 = 10;
 	beatCounter = -1;
@@ -168,7 +168,7 @@ double BTrack::getLatestCumulativeScoreValue()
 void BTrack::processAudioFrame(double *frame)
 {
     // calculate the onset detection function sample for the frame
-    double sample = odf.getDFsample(frame);
+    double sample = odf.calculateOnsetDetectionFunctionSample(frame);
     
     
     
@@ -378,11 +378,11 @@ void BTrack::calculateTempo()
 	
 	int t_index;
 	int t_index2;
-	// calculate tempo observation vector from bperiod observation vector
+	// calculate tempo observation vector from beat period observation vector
 	for (int i = 0;i < 41;i++)
 	{
-		t_index = (int) round(p_fact / ((double) ((2*i)+80)));
-		t_index2 = (int) round(p_fact / ((double) ((4*i)+160)));
+		t_index = (int) round(tempoToLagFactor / ((double) ((2*i)+80)));
+		t_index2 = (int) round(tempoToLagFactor / ((double) ((4*i)+160)));
 
 		
 		tempoObservationVector[i] = combFilterBankOutput[t_index-1] + combFilterBankOutput[t_index2-1];
@@ -446,7 +446,6 @@ void BTrack::calculateTempo()
 //=======================================================================
 void BTrack::adaptiveThreshold(double *x,int N)
 {
-	//int N = 512; // length of df
 	int i = 0;
 	int k,t = 0;
 	double x_thresh[N];
@@ -532,15 +531,15 @@ void BTrack::calculateBalancedACF(double *df_thresh)
 }
 
 //=======================================================================
-double BTrack::calculateMeanOfArray(double *array,int start,int end)
+double BTrack::calculateMeanOfArray(double *array,int startIndex,int endIndex)
 {
 	int i;
 	double sum = 0;
 
-    int length = end - start;
+    int length = endIndex - startIndex;
 	
 	// find sum
-	for (i = start;i < end;i++)
+	for (i = startIndex;i < endIndex;i++)
 	{
 		sum = sum + array[i];
 	}
@@ -578,7 +577,7 @@ void BTrack::normaliseArray(double *array,int N)
 }
 
 //=======================================================================
-void BTrack::updateCumulativeScore(double df_sample)
+void BTrack::updateCumulativeScore(double odfSample)
 {	 
 	int start, end, winsize;
 	double max;
@@ -621,7 +620,7 @@ void BTrack::updateCumulativeScore(double df_sample)
 	}
 	
 	// add new value to cumulative score
-	cumulativeScore[onsetDFBufferSize-1] = ((1-alpha)*df_sample) + (alpha*max);
+	cumulativeScore[onsetDFBufferSize-1] = ((1-alpha)*odfSample) + (alpha*max);
 	
 	latestCumulativeScoreValue = cumulativeScore[onsetDFBufferSize-1];
 			
