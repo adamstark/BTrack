@@ -59,7 +59,7 @@ static PyObject * btrack_onsetdf(PyObject *dummy, PyObject *args)
 			buffer[n] = data[(i*hopSize)+n];
 		}
 		
-		df[i] = onset.getDFsample(buffer);
+		df[i] = onset.calculateOnsetDetectionFunctionSample(buffer);
 		
 	}
 	
