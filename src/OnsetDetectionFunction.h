@@ -25,6 +25,7 @@
 #include "fftw3.h"
 
 //=======================================================================
+/** The type of onset detection function to calculate */
 enum OnsetDetectionFunctionType
 {
     EnergyEnvelope,
@@ -40,6 +41,7 @@ enum OnsetDetectionFunctionType
 };
 
 //=======================================================================
+/** The type of window to use when calculating onset detection function samples */
 enum WindowType
 {
     RectangularWindow,
@@ -53,75 +55,93 @@ class OnsetDetectionFunction
 {
 public:
     
-    /** Constructor */
+    /** Constructor 
+     * @param hopSize_ the hop size in audio samples
+     * @param frameSize_ the frame size in audio samples
+     * @param onsetDetectionFunctionType_ the type of onset detection function to use - (see OnsetDetectionFunctionType)
+     * @param windowType the type of window to use (see WindowType)
+     */
 	OnsetDetectionFunction(int hopSize_,int frameSize_,int onsetDetectionFunctionType_,int windowType);
     
     /** Destructor */
 	~OnsetDetectionFunction();
     
-    /** Initialisation Function */
+    /** Initialisation Function 
+     * @param hopSize_ the hop size in audio samples
+     * @param frameSize_ the frame size in audio samples
+     * @param onsetDetectionFunctionType_ the type of onset detection function to use - (see OnsetDetectionFunctionType)
+     * @param windowType the type of window to use (see WindowType)
+     */
 	void initialise(int hopSize_,int frameSize_,int onsetDetectionFunctionType_,int windowType);
 	
-    /** process input frame and calculate detection function sample */
+    /** Process input frame and calculate detection function sample 
+     * @param buffer a pointer to an array containing the audio samples to be processed
+     * @returns the onset detection function sample
+     */
 	double calculateOnsetDetectionFunctionSample(double *buffer);
     
-    /** set the detection function type */
+    /** Set the detection function type 
+     * @param onsetDetectionFunctionType_ the type of onset detection function to use - (see OnsetDetectionFunctionType)
+     */
 	void setOnsetDetectionFunctionType(int onsetDetectionFunctionType_);
 	
 private:
 	
-    /** perform the FFT on the data in 'frame' */
+    /** Perform the FFT on the data in 'frame' */
 	void performFFT();
 
     //=======================================================================
-    /** calculate energy envelope detection function sample */
+    /** Calculate energy envelope detection function sample */
 	double energyEnvelope();
     
-    /** calculate energy difference detection function sample */
+    /** Calculate energy difference detection function sample */
 	double energyDifference();
     
-    /** calculate spectral difference detection function sample */
+    /** Calculate spectral difference detection function sample */
 	double spectralDifference();
     
-    /** calculate spectral difference (half wave rectified) detection function sample */
+    /** Calculate spectral difference (half wave rectified) detection function sample */
 	double spectralDifferenceHWR();
     
-    /** calculate phase deviation detection function sample */
+    /** Calculate phase deviation detection function sample */
 	double phaseDeviation();
     
-    /** calculate complex spectral difference detection function sample */
+    /** Calculate complex spectral difference detection function sample */
 	double complexSpectralDifference();
     
-    /** calculate complex spectral difference detection function sample (half-wave rectified) */
+    /** Calculate complex spectral difference detection function sample (half-wave rectified) */
 	double complexSpectralDifferenceHWR();
     
-    /** calculate high frequency content detection function sample */
+    /** Calculate high frequency content detection function sample */
 	double highFrequencyContent();
     
-    /** calculate high frequency spectral difference detection function sample */
+    /** Calculate high frequency spectral difference detection function sample */
 	double highFrequencySpectralDifference();
     
-    /** calculate high frequency spectral difference detection function sample (half-wave rectified) */
+    /** Calculate high frequency spectral difference detection function sample (half-wave rectified) */
 	double highFrequencySpectralDifferenceHWR();
 
     //=======================================================================
-    /** calculate a Rectangular window */
+    /** Calculate a Rectangular window */
 	void calculateRectangularWindow();
     
-    /** calculate a Hanning window */
+    /** Calculate a Hanning window */
 	void calculateHanningWindow();
     
-    /** calculate a Hamming window */
+    /** Calculate a Hamming window */
 	void calclulateHammingWindow();
     
-    /** calculate a Blackman window */
+    /** Calculate a Blackman window */
 	void calculateBlackmanWindow();
     
-    /** calculate a Tukey window */
+    /** Calculate a Tukey window */
 	void calculateTukeyWindow();
 
     //=======================================================================
-	/** set phase values between [-pi, pi] */
+	/** Set phase values between [-pi, pi] 
+     * @param phaseVal the phase value to process
+     * @returns the wrapped phase value
+     */
 	double princarg(double phaseVal);
 	
 	

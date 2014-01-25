@@ -509,7 +509,7 @@ void BTrack::calculateOutputOfCombFilterBank()
 }
 
 //=======================================================================
-void BTrack::calculateBalancedACF(double *df_thresh)
+void BTrack::calculateBalancedACF(double *onsetDetectionFunction)
 {
 	int l, n = 0;
 	double sum, tmp;
@@ -522,7 +522,7 @@ void BTrack::calculateBalancedACF(double *df_thresh)
 		// for n samples from 0 - (512-lag)
 		for (n = 0;n < (512-l);n++)
 		{
-			tmp = df_thresh[n] * df_thresh[n+l];	// multiply current sample n by sample (n+l)
+			tmp = onsetDetectionFunction[n] * onsetDetectionFunction[n+l];	// multiply current sample n by sample (n+l)
 			sum = sum + tmp;	// add to sum
 		}
 		
