@@ -24,6 +24,12 @@
 
 #include "OnsetDetectionFunction.h"
 
+//=======================================================================
+/** The main beat tracking class and the interface to the BTrack
+ * beat tracking algorithm. The algorithm can process either
+ * audio frames or onset detection function samples and also
+ * contains some static functions for calculating beat times in seconds
+ */
 class BTrack {
 	
 public:
@@ -32,22 +38,27 @@ public:
     /** constructor assuming hop size of 512 and frame size of 1024 */
     BTrack();
     
-    /** constructor assuming frame size will be double hopSize 
-     * @param hopSize the step size in audio samples by which we will receive audio frames
+    /** constructor assuming frame size will be double the hopSize
+     * @param hopSize the hop size in audio samples
      */
     BTrack(int hopSize_);
     
     /** constructor taking both hopSize and frameSize
-     * @param hopSize the step size in audio samples by which we will receive audio frames
-     * @param frameSize the audio frame size in audio samples
+     * @param hopSize the hop size in audio samples
+     * @param frameSize the frame size in audio samples
      */
     BTrack(int hopSize_,int frameSize_);
     
     //=======================================================================
-    /** Process a single audio frame */
+    /** Process a single audio frame 
+     * @param frame a pointer to an array containing an audio frame. The number of samples should 
+     * match the frame size that the algorithm was initialised with.
+     */
     void processAudioFrame(double *frame);
     
-    /** Add new onset detection function sample to buffer and apply beat tracking */
+    /** Add new onset detection function sample to buffer and apply beat tracking 
+     * @param sample an onset detection function sample
+     */
     void processOnsetDetectionFunctionSample(double sample);
    
     //=======================================================================
@@ -64,35 +75,62 @@ public:
     double getLatestCumulativeScoreValue();
     
     //=======================================================================
-    /** Set the tempo of the beat tracker */
+    /** Set the tempo of the beat tracker 
+     * @param tempo the tempo in beats per minute (bpm)
+     */
     void setTempo(double tempo);
     
-    /** fix tempo to roughly around some value */
+    /** fix tempo to roughly around some value, so that the algorithm will only try to track
+     * tempi around the given tempo
+     * @param tempo the tempo in beats per minute (bpm)
+     */
     void fixTempo(double tempo);
     
-    /** do not fix the tempo anymore */
+    /** tell the algorithm to not fix the tempo anymore */
     void doNotFixTempo();
     
     //=======================================================================
+    /** calculates a beat time in seconds, given the frame number, hop size and sampling frequency.
+     * This version uses a long to represent the frame number
+     * @param frameNumber the index of the current frame 
+     * @param hopSize the hop size in audio samples
+     * @param fs the sampling frequency in Hz
+     * @returns a beat time in seconds
+     */
     static double getBeatTimeInSeconds(long frameNumber,int hopSize,int fs);
     
+    /** calculates a beat time in seconds, given the frame number, hop size and sampling frequency.
+     * This version uses an int to represent the frame number
+     * @param frameNumber the index of the current frame
+     * @param hopSize the hop size in audio samples
+     * @param fs the sampling frequency in Hz
+     * @returns a beat time in seconds
+     */
     static double getBeatTimeInSeconds(int frameNumber,int hopSize,int fs);
     
 		
 private:
     
+    /** Initialises the algorithm, setting internal parameters and creating weighting vectors 
+     * @param hopSize_ the hop size in audio samples
+     * @param frameSize_ the frame size in audio samples
+     */
     void initialise(int hopSize_,int frameSize_);
     
-    /** Initialise with hop size and set all frame sizes accordingly */
+    /** Initialise with hop size and set all array sizes accordingly
+     * @param hopSize_ the hop size in audio samples
+     */
     void setHopSize(int hopSize_);
     
-    /** Convert detection function from N samples to 512 */
+    /** Resamples the onset detection function from an arbitrary number of samples to 512 */
     void resampleOnsetDetectionFunction();
     
-    /** update the cumulative score */
+    /** Updates the cumulative score function with a new onset detection function sample 
+     * @param odfSample an onset detection function sample
+     */
     void updateCumulativeScore(double odfSample);
 	
-    /** predicts the next beat */
+    /** predicts the next beat, based upon the internal program state */
     void predictBeat();
     
     /** Calculates the current tempo expressed as the beat period in detection function samples */
@@ -100,28 +138,41 @@ private:
     
     /** calculates an adaptive threshold which is used to remove low level energy from detection 
      * function and emphasise peaks 
+     * @param x a pointer to an array containing onset detection function samples
+     * @param N the length of the array, x
      */
     void adaptiveThreshold(double *x,int N);
     
-    /** calculates the mean of values in an array from index locations [startIndex,endIndex] */
+    /** calculates the mean of values in an array between index locations [startIndex,endIndex] 
+     * @param array a pointer to an array that contains the values we wish to find the mean from
+     * @param startIndex the start index from which we would like to calculate the mean
+     * @param endIndex the final index to which we would like to calculate the mean
+     * @returns the mean of the sub-section of the array
+     */
     double calculateMeanOfArray(double *array,int startIndex,int endIndex);
     
-    /** normalises a given array */
+    /** normalises a given array 
+     * @param array a pointer to the array we wish to normalise
+     * @param N the length of the array
+     */
     void normaliseArray(double *array,int N);
     
-    /** calculates the balanced autocorrelation of the smoothed detection function */
-    void calculateBalancedACF(double *df_thresh);
+    /** calculates the balanced autocorrelation of the smoothed onset detection function 
+     * @param onsetDetectionFunction a pointer to an array containing the onset detection function
+     */
+    void calculateBalancedACF(double *onsetDetectionFunction);
     
     /** calculates the output of the comb filter bank */
     void calculateOutputOfCombFilterBank();
 	
     //=======================================================================
 
+    /** an OnsetDetectionFunction instance for calculating onset detection functions */
     OnsetDetectionFunction odf;
     
     //=======================================================================
 	// buffers
-    double *onsetDF;                        /**< to hold detection function */
+    double *onsetDF;                        /**< to hold onset detection function */
     double resampledOnsetDF[512];           /**< to hold resampled detection function */
     double *cumulativeScore;                /**<  to hold cumulative score */
 	
@@ -139,12 +190,17 @@ private:
     double tempoTransitionMatrix[41][41];   /**<  tempo transition matrix */
 	
     
-	
+	//=======================================================================
     // parameters
-    double tightness;
-    double alpha;
-    double beatPeriod;
-    double tempo;
+    
+    
+    double tightness;                       /**< the tightness of the weighting used to calculate cumulative score */
+    
+    double alpha;                           /**< the mix between the current detection function sample and the cumulative score's "momentum" */
+    
+    double beatPeriod;                      /**< the beat period, in detection function samples */
+    
+    double tempo;                           /**< the tempo in beats per minute */
 	
     double estimatedTempo;                  /**< the current tempo estimation being used by the algorithm */
     
