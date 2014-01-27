@@ -127,10 +127,12 @@ void BTrack::setHopSize(int hopSize_)
 	onsetDFBufferSize = (512*512)/hopSize;		// calculate df buffer size
 	
 	beatPeriod = round(60/((((double) hopSize)/44100)*tempo));
-	
-	onsetDF = new double[onsetDFBufferSize];	// create df_buffer
-	cumulativeScore = new double[onsetDFBufferSize];	// create cumscore
-	
+
+    // set size of onset detection function buffer
+    onsetDF.resize(onsetDFBufferSize);
+    
+    // set size of cumulative score buffer
+    cumulativeScore.resize(onsetDFBufferSize);
 	
 	// initialise df_buffer to zeros
 	for (int i = 0;i < onsetDFBufferSize;i++)
