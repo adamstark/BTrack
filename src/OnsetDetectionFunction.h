@@ -51,6 +51,8 @@ enum WindowType
     TukeyWindow
 };
 
+//=======================================================================
+/** A class for calculating onset detection functions. */
 class OnsetDetectionFunction
 {
 public:

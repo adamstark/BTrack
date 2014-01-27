@@ -35,15 +35,15 @@ class BTrack {
 public:
     
     //=======================================================================
-    /** constructor assuming hop size of 512 and frame size of 1024 */
+    /** Constructor assuming hop size of 512 and frame size of 1024 */
     BTrack();
     
-    /** constructor assuming frame size will be double the hopSize
+    /** Constructor assuming frame size will be double the hopSize
      * @param hopSize the hop size in audio samples
      */
     BTrack(int hopSize_);
     
-    /** constructor taking both hopSize and frameSize
+    /** Constructor taking both hopSize and frameSize
      * @param hopSize the hop size in audio samples
      * @param frameSize the frame size in audio samples
      */
@@ -80,17 +80,17 @@ public:
      */
     void setTempo(double tempo);
     
-    /** fix tempo to roughly around some value, so that the algorithm will only try to track
+    /** Fix tempo to roughly around some value, so that the algorithm will only try to track
      * tempi around the given tempo
      * @param tempo the tempo in beats per minute (bpm)
      */
     void fixTempo(double tempo);
     
-    /** tell the algorithm to not fix the tempo anymore */
+    /** Tell the algorithm to not fix the tempo anymore */
     void doNotFixTempo();
     
     //=======================================================================
-    /** calculates a beat time in seconds, given the frame number, hop size and sampling frequency.
+    /** Calculates a beat time in seconds, given the frame number, hop size and sampling frequency.
      * This version uses a long to represent the frame number
      * @param frameNumber the index of the current frame 
      * @param hopSize the hop size in audio samples
@@ -99,7 +99,7 @@ public:
      */
     static double getBeatTimeInSeconds(long frameNumber,int hopSize,int fs);
     
-    /** calculates a beat time in seconds, given the frame number, hop size and sampling frequency.
+    /** Calculates a beat time in seconds, given the frame number, hop size and sampling frequency.
      * This version uses an int to represent the frame number
      * @param frameNumber the index of the current frame
      * @param hopSize the hop size in audio samples
@@ -130,20 +130,20 @@ private:
      */
     void updateCumulativeScore(double odfSample);
 	
-    /** predicts the next beat, based upon the internal program state */
+    /** Predicts the next beat, based upon the internal program state */
     void predictBeat();
     
     /** Calculates the current tempo expressed as the beat period in detection function samples */
     void calculateTempo();
     
-    /** calculates an adaptive threshold which is used to remove low level energy from detection 
+    /** Calculates an adaptive threshold which is used to remove low level energy from detection
      * function and emphasise peaks 
      * @param x a pointer to an array containing onset detection function samples
      * @param N the length of the array, x
      */
     void adaptiveThreshold(double *x,int N);
     
-    /** calculates the mean of values in an array between index locations [startIndex,endIndex] 
+    /** Calculates the mean of values in an array between index locations [startIndex,endIndex]
      * @param array a pointer to an array that contains the values we wish to find the mean from
      * @param startIndex the start index from which we would like to calculate the mean
      * @param endIndex the final index to which we would like to calculate the mean
@@ -151,23 +151,23 @@ private:
      */
     double calculateMeanOfArray(double *array,int startIndex,int endIndex);
     
-    /** normalises a given array 
+    /** Normalises a given array
      * @param array a pointer to the array we wish to normalise
      * @param N the length of the array
      */
     void normaliseArray(double *array,int N);
     
-    /** calculates the balanced autocorrelation of the smoothed onset detection function 
+    /** Calculates the balanced autocorrelation of the smoothed onset detection function
      * @param onsetDetectionFunction a pointer to an array containing the onset detection function
      */
     void calculateBalancedACF(double *onsetDetectionFunction);
     
-    /** calculates the output of the comb filter bank */
+    /** Calculates the output of the comb filter bank */
     void calculateOutputOfCombFilterBank();
 	
     //=======================================================================
 
-    /** an OnsetDetectionFunction instance for calculating onset detection functions */
+    /** An OnsetDetectionFunction instance for calculating onset detection functions */
     OnsetDetectionFunction odf;
     
     //=======================================================================

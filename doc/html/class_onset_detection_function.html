@@ -68,7 +68,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Enumerations</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -86,6 +86,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">OnsetDetectionFunction Class Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
+
+<p><code>#include &lt;<a class="el" href="_onset_detection_function_8h_source.html">OnsetDetectionFunction.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -100,7 +102,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a51fdab443155aaaa935956645e8f9131"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_onset_detection_function.html#a51fdab443155aaaa935956645e8f9131">setOnsetDetectionFunctionType</a> (int onsetDetectionFunctionType_)</td></tr>
 <tr class="separator:a51fdab443155aaaa935956645e8f9131"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>A class for calculating onset detection functions. </p>
+</div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a7b4e4ab1b0be5f57682c52141eb959d6"></a>
 <div class="memitem">
 <div class="memproto">
@@ -179,7 +183,14 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>process input frame and calculate detection function sample </p>
+<p>Process input frame and calculate detection function sample </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>a pointer to an array containing the audio samples to be processed </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>the onset detection function sample </dd></dl>
 
 </div>
 </div>
@@ -219,6 +230,15 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Initialisation Function </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">hopSize_</td><td>the hop size in audio samples </td></tr>
+    <tr><td class="paramname">frameSize_</td><td>the frame size in audio samples </td></tr>
+    <tr><td class="paramname">onsetDetectionFunctionType_</td><td>the type of onset detection function to use - (see OnsetDetectionFunctionType) </td></tr>
+    <tr><td class="paramname">windowType</td><td>the type of window to use (see WindowType) </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -235,7 +255,13 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>set the detection function type </p>
+<p>Set the detection function type </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">onsetDetectionFunctionType_</td><td>the type of onset detection function to use - (see OnsetDetectionFunctionType) </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -246,7 +272,7 @@ Public Member Functions</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Jan 25 2014 18:11:17 for BTrack - A Real-Time Beat Tracker by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Jan 27 2014 22:01:21 for BTrack - A Real-Time Beat Tracker by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.2
 </small></address>
