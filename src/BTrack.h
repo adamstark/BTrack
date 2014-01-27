@@ -23,6 +23,7 @@
 #define __BTRACK_H
 
 #include "OnsetDetectionFunction.h"
+#include <vector>
 
 //=======================================================================
 /** The main beat tracking class and the interface to the BTrack
@@ -172,9 +173,11 @@ private:
     
     //=======================================================================
 	// buffers
-    double *onsetDF;                        /**< to hold onset detection function */
+    
+    std::vector<double> onsetDF;            /**< to hold onset detection function */
+    std::vector<double> cumulativeScore;    /**< to hold cumulative score */
+    
     double resampledOnsetDF[512];           /**< to hold resampled detection function */
-    double *cumulativeScore;                /**<  to hold cumulative score */
 	
     double acf[512];                        /**<  to hold autocorrelation function */
 	
