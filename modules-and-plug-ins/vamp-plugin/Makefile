@@ -17,7 +17,7 @@
 
 # Edit this to the base name of your plugin library
 #
-PLUGIN_LIBRARY_NAME := btrack-vamp
+PLUGIN_LIBRARY_NAME := btrack
 
 # Edit this to list the .cpp or .c files in your plugin project
 #
