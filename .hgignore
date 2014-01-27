@@ -5,4 +5,7 @@ unit-tests/Build
 xcuserdata
 .DS_Store
 
+*.o
+*.dylib
+
 *.xcworkspace
