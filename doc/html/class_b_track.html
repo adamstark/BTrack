@@ -98,6 +98,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:ac4dbda7c90ce1a3080def2d5da875171"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afce9e207a2f6ff71d96125dee16797de"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_b_track.html#afce9e207a2f6ff71d96125dee16797de">BTrack</a> (int hopSize_, int frameSize_)</td></tr>
 <tr class="separator:afce9e207a2f6ff71d96125dee16797de"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a70244e9a5aa8f860533fa56f942b7ede"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_b_track.html#a70244e9a5aa8f860533fa56f942b7ede">updateHopAndFrameSize</a> (int hopSize_, int frameSize_)</td></tr>
+<tr class="separator:a70244e9a5aa8f860533fa56f942b7ede"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb7ce7253095e6f859ef7b30f06ce051"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_b_track.html#abb7ce7253095e6f859ef7b30f06ce051">processAudioFrame</a> (double *frame)</td></tr>
 <tr class="separator:abb7ce7253095e6f859ef7b30f06ce051"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6fab18732bef8c87152e93dec9e4f854"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_b_track.html#a6fab18732bef8c87152e93dec9e4f854">processOnsetDetectionFunctionSample</a> (double sample)</td></tr>
@@ -139,7 +141,7 @@ Static Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>constructor assuming hop size of 512 and frame size of 1024 </p>
+<p>Constructor assuming hop size of 512 and frame size of 1024 </p>
 
 </div>
 </div>
@@ -156,7 +158,7 @@ Static Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>constructor assuming frame size will be double the hopSize </p>
+<p>Constructor assuming frame size will be double the hopSize </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">hopSize</td><td>the hop size in audio samples </td></tr>
@@ -189,7 +191,7 @@ Static Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>constructor taking both hopSize and frameSize </p>
+<p>Constructor taking both hopSize and frameSize </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">hopSize</td><td>the hop size in audio samples </td></tr>
@@ -229,7 +231,7 @@ Static Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>tell the algorithm to not fix the tempo anymore </p>
+<p>Tell the algorithm to not fix the tempo anymore </p>
 
 </div>
 </div>
@@ -246,7 +248,7 @@ Static Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>fix tempo to roughly around some value, so that the algorithm will only try to track tempi around the given tempo </p>
+<p>Fix tempo to roughly around some value, so that the algorithm will only try to track tempi around the given tempo </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">tempo</td><td>the tempo in beats per minute (bpm) </td></tr>
@@ -293,7 +295,7 @@ Static Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>calculates a beat time in seconds, given the frame number, hop size and sampling frequency. This version uses a long to represent the frame number </p>
+<p>Calculates a beat time in seconds, given the frame number, hop size and sampling frequency. This version uses a long to represent the frame number </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">frameNumber</td><td>the index of the current frame </td></tr>
@@ -343,7 +345,7 @@ Static Public Member Functions</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>calculates a beat time in seconds, given the frame number, hop size and sampling frequency. This version uses an int to represent the frame number </p>
+<p>Calculates a beat time in seconds, given the frame number, hop size and sampling frequency. This version uses an int to represent the frame number </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">frameNumber</td><td>the index of the current frame </td></tr>
@@ -473,6 +475,40 @@ Static Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a70244e9a5aa8f860533fa56f942b7ede"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void BTrack::updateHopAndFrameSize </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>hopSize_</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>frameSize_</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Updates the hop and frame size used by the beat tracker </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">hopSize</td><td>the hop size in audio samples </td></tr>
+    <tr><td class="paramname">frameSize</td><td>the frame size in audio samples </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/<a class="el" href="_b_track_8h_source.html">BTrack.h</a></li>
 <li>src/<a class="el" href="_b_track_8cpp.html">BTrack.cpp</a></li>
@@ -480,7 +516,7 @@ Static Public Member Functions</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Jan 27 2014 22:01:21 for BTrack - A Real-Time Beat Tracker by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jan 28 2014 00:29:23 for BTrack - A Real-Time Beat Tracker by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.2
 </small></address>

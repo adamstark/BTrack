@@ -149,6 +149,16 @@ void BTrack::setHopSize(int hopSize_)
 }
 
 //=======================================================================
+void BTrack::updateHopAndFrameSize(int hopSize_,int frameSize_)
+{
+    // update the onset detection function object
+    odf.initialise(hopSize_, frameSize_, ComplexSpectralDifferenceHWR, HanningWindow);
+    
+    // update the hop size being used by the beat tracker
+    setHopSize(hopSize_);
+}
+
+//=======================================================================
 bool BTrack::beatDueInCurrentFrame()
 {
     return beatDueInFrame;

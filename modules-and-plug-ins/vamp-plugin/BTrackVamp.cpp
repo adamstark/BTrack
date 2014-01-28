@@ -198,7 +198,8 @@ BTrackVamp::initialise(size_t channels, size_t stepSize, size_t blockSize)
     m_stepSize = stepSize;
     m_blockSize = blockSize;
     
-    // Real initialisation work goes here!
+    b.updateHopAndFrameSize(m_stepSize,m_blockSize);
+    
 
     return true;
 }
@@ -212,26 +213,32 @@ BTrackVamp::reset()
 BTrackVamp::FeatureSet
 BTrackVamp::process(const float *const *inputBuffers, Vamp::RealTime timestamp)
 {
+    // create an array to hold our audio frame
     double frame[m_blockSize];
     
+    // copy samples into our frame
     for (int i = 0;i < m_blockSize;i++)
     {
         frame[i] = (double) inputBuffers[0][i];
     }
     
+    // process the frame in the beat tracker
     b.processAudioFrame(frame);
     
+    // create a FeatureSet
     FeatureSet featureSet;
     
+    // if there is a beat in this frame
     if (b.beatDueInCurrentFrame())
     {
+        // add a beat to the FeatureSet
         Feature beat;
         beat.hasTimestamp = true;
         beat.timestamp = timestamp - Vamp::RealTime::frame2RealTime(m_stepSize, int(m_inputSampleRate + 0.5));
         featureSet[0].push_back(beat);
     }
     
-    // Do actual work!
+    // return the feature set
     return featureSet;
 }
 
