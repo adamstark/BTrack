@@ -51,6 +51,13 @@ public:
     BTrack(int hopSize_,int frameSize_);
     
     //=======================================================================
+    /** Updates the hop and frame size used by the beat tracker 
+     * @param hopSize the hop size in audio samples
+     * @param frameSize the frame size in audio samples
+     */
+    void updateHopAndFrameSize(int hopSize_,int frameSize_);
+    
+    //=======================================================================
     /** Process a single audio frame 
      * @param frame a pointer to an array containing an audio frame. The number of samples should 
      * match the frame size that the algorithm was initialised with.
