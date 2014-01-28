@@ -26,7 +26,7 @@
 OnsetDetectionFunction::OnsetDetectionFunction(int hopSize_,int frameSize_,int onsetDetectionFunctionType_,int windowType)
 {	
 	// indicate that we have not initialised yet
-	initialised = 0;		
+	initialised = false;
 	
 	// set pi
 	pi = 3.14159265358979;	
@@ -39,61 +39,25 @@ OnsetDetectionFunction::OnsetDetectionFunction(int hopSize_,int frameSize_,int o
 //=======================================================================
 OnsetDetectionFunction::~OnsetDetectionFunction()
 {
-	// destroy fft plan
-    fftw_destroy_plan(p);
-	fftw_free(complexIn);
-	fftw_free(complexOut);
-	
-	// deallocate memory
-	delete [] frame;
-	frame = NULL;	
-	delete [] window;
-	window = NULL;
-	delete [] magSpec;
-	magSpec = NULL;
-	delete [] prevMagSpec;
-	prevMagSpec = NULL;
-	delete [] phase;
-	phase = NULL;
-	delete [] prevPhase;
-	prevPhase = NULL;
-	delete [] prevPhase2;
-	prevPhase2 = NULL;
+    if (initialised)
+    {
+        // destroy fft plan
+        fftw_destroy_plan(p);
+        fftw_free(complexIn);
+        fftw_free(complexOut);
+    }
 }
 
 //=======================================================================
 void OnsetDetectionFunction::initialise(int hopSize_,int frameSize_,int onsetDetectionFunctionType_,int windowType)
 {
-	if (initialised == 1) // if we have already initialised some buffers and an FFT plan
+	if (initialised) // if we have already initialised FFT plan
 	{
-		//////////////////////////////////
-		// TIDY UP FIRST - If initialise is called after the class has been initialised
-		// then we want to free up memory and cancel existing FFT plans
-	
 		// destroy fft plan
 		fftw_destroy_plan(p);
 		fftw_free(complexIn);
 		fftw_free(complexOut);
-	
-	
-		// deallocate memory
-		delete [] frame;
-		frame = NULL;	
-		delete [] window;
-		window = NULL;									
-		delete [] magSpec;
-		magSpec = NULL;
-		delete [] prevMagSpec;
-		prevMagSpec = NULL;
-		delete [] phase;
-		phase = NULL;
-		delete [] prevPhase;
-		prevPhase = NULL;
-		delete [] prevPhase2;
-		prevPhase2 = NULL;
-	
-		////// END TIDY UP ///////////////
-		//////////////////////////////////
+
 	}
 	
 	hopSize = hopSize_; // set hopsize
@@ -102,15 +66,13 @@ void OnsetDetectionFunction::initialise(int hopSize_,int frameSize_,int onsetDet
 	onsetDetectionFunctionType = onsetDetectionFunctionType_; // set detection function type
 		
 	// initialise buffers
-	frame = new double[frameSize];
-	window = new double[frameSize];
-	
-	magSpec = new double[frameSize];
-	prevMagSpec = new double[frameSize];
-	
-	phase = new double[frameSize];
-	prevPhase = new double[frameSize];
-	prevPhase2 = new double[frameSize];
+    frame.resize(frameSize);
+    window.resize(frameSize);
+    magSpec.resize(frameSize);
+    prevMagSpec.resize(frameSize);
+    phase.resize(frameSize);
+    prevPhase.resize(frameSize);
+    prevPhase2.resize(frameSize);
 	
 	
 	// set the window to the specified type
@@ -134,9 +96,6 @@ void OnsetDetectionFunction::initialise(int hopSize_,int frameSize_,int onsetDet
 			calculateHanningWindow();			// DEFAULT: Hanning Window
 	}
 	
-	
-	
-	
 	// initialise previous magnitude spectrum to zero
 	for (int i = 0;i < frameSize;i++)
 	{
@@ -153,7 +112,7 @@ void OnsetDetectionFunction::initialise(int hopSize_,int frameSize_,int onsetDet
 	complexOut = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * frameSize);	// complex array to hold fft data
 	p = fftw_plan_dft_1d(frameSize, complexIn, complexOut, FFTW_FORWARD, FFTW_ESTIMATE);	// FFT plan initialisation
 	
-	initialised = 1;
+	initialised = true;
 }
 
 //=======================================================================

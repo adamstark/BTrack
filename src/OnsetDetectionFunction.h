@@ -23,6 +23,7 @@
 #define __ONSETDETECTIONFUNCTION_H
 
 #include "fftw3.h"
+#include <vector>
 
 //=======================================================================
 /** The type of onset detection function to calculate */
@@ -157,19 +158,19 @@ private:
 	fftw_complex *complexIn;			/**< to hold complex fft values for input */
 	fftw_complex *complexOut;			/**< to hold complex fft values for output */
 	
-	int initialised;					/**< flag indicating whether buffers and FFT plans are initialised */
+	bool initialised;					/**< flag indicating whether buffers and FFT plans are initialised */
 
-	double *frame;						/**< audio frame */
-	double *window;						/**< window */
+    std::vector<double> frame;          /**< audio frame */
+    std::vector<double> window;         /**< window */
 	
 	double prevEnergySum;				/**< to hold the previous energy sum value */
 	
-	double *magSpec;					/**< magnitude spectrum */
-	double *prevMagSpec;                /**< previous magnitude spectrum */
+    std::vector<double> magSpec;        /**< magnitude spectrum */
+    std::vector<double> prevMagSpec;    /**< previous magnitude spectrum */
 	
-	double *phase;						/**< FFT phase values */
-	double *prevPhase;					/**< previous phase values */
-	double *prevPhase2;                 /**< second order previous phase values */
+    std::vector<double> phase;          /**< FFT phase values */
+    std::vector<double> prevPhase;      /**< previous phase values */
+    std::vector<double> prevPhase2;     /**< second order previous phase values */
 
 };
 
