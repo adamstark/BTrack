@@ -91,12 +91,16 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a7b4e4ab1b0be5f57682c52141eb959d6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_onset_detection_function.html#a7b4e4ab1b0be5f57682c52141eb959d6">OnsetDetectionFunction</a> (int hopSize_, int frameSize_, int onsetDetectionFunctionType_, int windowType)</td></tr>
-<tr class="separator:a7b4e4ab1b0be5f57682c52141eb959d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1af5db39698d413cbb892b3a6de7aee5"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_onset_detection_function.html#a1af5db39698d413cbb892b3a6de7aee5">OnsetDetectionFunction</a> (int hopSize_, int frameSize_)</td></tr>
+<tr class="separator:a1af5db39698d413cbb892b3a6de7aee5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2c23f2d1ac346da8289712df173b190"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_onset_detection_function.html#ad2c23f2d1ac346da8289712df173b190">OnsetDetectionFunction</a> (int hopSize_, int frameSize_, int onsetDetectionFunctionType_, int windowType_)</td></tr>
+<tr class="separator:ad2c23f2d1ac346da8289712df173b190"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa01f8125c950f3def45154878107e503"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_onset_detection_function.html#aa01f8125c950f3def45154878107e503">~OnsetDetectionFunction</a> ()</td></tr>
 <tr class="separator:aa01f8125c950f3def45154878107e503"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a654ed22782f6dc62e8347df44c90fbeb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_onset_detection_function.html#a654ed22782f6dc62e8347df44c90fbeb">initialise</a> (int hopSize_, int frameSize_, int onsetDetectionFunctionType_, int windowType)</td></tr>
-<tr class="separator:a654ed22782f6dc62e8347df44c90fbeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3379d150c375e4a7e525f326ce5a2e6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_onset_detection_function.html#ab3379d150c375e4a7e525f326ce5a2e6">initialise</a> (int hopSize_, int frameSize_)</td></tr>
+<tr class="separator:ab3379d150c375e4a7e525f326ce5a2e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f9e1352bfdcd032bdd8193cc72489ba"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_onset_detection_function.html#a4f9e1352bfdcd032bdd8193cc72489ba">initialise</a> (int hopSize_, int frameSize_, int onsetDetectionFunctionType_, int windowType_)</td></tr>
+<tr class="separator:a4f9e1352bfdcd032bdd8193cc72489ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b8fffe6221d3bd4f6cac82c17db0e92"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_onset_detection_function.html#a7b8fffe6221d3bd4f6cac82c17db0e92">calculateOnsetDetectionFunctionSample</a> (double *buffer)</td></tr>
 <tr class="separator:a7b8fffe6221d3bd4f6cac82c17db0e92"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a51fdab443155aaaa935956645e8f9131"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_onset_detection_function.html#a51fdab443155aaaa935956645e8f9131">setOnsetDetectionFunctionType</a> (int onsetDetectionFunctionType_)</td></tr>
@@ -105,7 +109,41 @@ Public Member Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A class for calculating onset detection functions. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a7b4e4ab1b0be5f57682c52141eb959d6"></a>
+<a class="anchor" id="a1af5db39698d413cbb892b3a6de7aee5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">OnsetDetectionFunction::OnsetDetectionFunction </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>hopSize_</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>frameSize_</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Constructor that defaults the onset detection function type to ComplexSpectralDifferenceHWR and the window type to HanningWindow </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">hopSize_</td><td>the hop size in audio samples </td></tr>
+    <tr><td class="paramname">frameSize_</td><td>the frame size in audio samples </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="ad2c23f2d1ac346da8289712df173b190"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -131,7 +169,7 @@ Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>windowType</em>&#160;</td>
+          <td class="paramname"><em>windowType_</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -194,7 +232,41 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a654ed22782f6dc62e8347df44c90fbeb"></a>
+<a class="anchor" id="ab3379d150c375e4a7e525f326ce5a2e6"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void OnsetDetectionFunction::initialise </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>hopSize_</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>frameSize_</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Initialisation function for only updating hop size and frame size (and not window type or onset detection function type </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">hopSize_</td><td>the hop size in audio samples </td></tr>
+    <tr><td class="paramname">frameSize_</td><td>the frame size in audio samples </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a4f9e1352bfdcd032bdd8193cc72489ba"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -220,7 +292,7 @@ Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>windowType</em>&#160;</td>
+          <td class="paramname"><em>windowType_</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -272,7 +344,7 @@ Public Member Functions</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jan 28 2014 00:29:23 for BTrack - A Real-Time Beat Tracker by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Tue Jan 28 2014 01:06:53 for BTrack - A Real-Time Beat Tracker by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.2
 </small></address>
