@@ -58,16 +58,31 @@ class OnsetDetectionFunction
 {
 public:
     
+    /** Constructor that defaults the onset detection function type to ComplexSpectralDifferenceHWR
+     * and the window type to HanningWindow
+     * @param hopSize_ the hop size in audio samples
+     * @param frameSize_ the frame size in audio samples
+     */
+	OnsetDetectionFunction(int hopSize_,int frameSize_);
+    
+    
     /** Constructor 
      * @param hopSize_ the hop size in audio samples
      * @param frameSize_ the frame size in audio samples
      * @param onsetDetectionFunctionType_ the type of onset detection function to use - (see OnsetDetectionFunctionType)
      * @param windowType the type of window to use (see WindowType)
      */
-	OnsetDetectionFunction(int hopSize_,int frameSize_,int onsetDetectionFunctionType_,int windowType);
+	OnsetDetectionFunction(int hopSize_,int frameSize_,int onsetDetectionFunctionType_,int windowType_);
     
     /** Destructor */
 	~OnsetDetectionFunction();
+    
+    /** Initialisation function for only updating hop size and frame size (and not window type 
+     * or onset detection function type
+     * @param hopSize_ the hop size in audio samples
+     * @param frameSize_ the frame size in audio samples
+     */
+	void initialise(int hopSize_,int frameSize_);
     
     /** Initialisation Function 
      * @param hopSize_ the hop size in audio samples
@@ -75,7 +90,7 @@ public:
      * @param onsetDetectionFunctionType_ the type of onset detection function to use - (see OnsetDetectionFunctionType)
      * @param windowType the type of window to use (see WindowType)
      */
-	void initialise(int hopSize_,int frameSize_,int onsetDetectionFunctionType_,int windowType);
+	void initialise(int hopSize_,int frameSize_,int onsetDetectionFunctionType_,int windowType_);
 	
     /** Process input frame and calculate detection function sample 
      * @param buffer a pointer to an array containing the audio samples to be processed
@@ -153,6 +168,7 @@ private:
 	int frameSize;						/**< audio framesize */
 	int hopSize;						/**< audio hopsize */
 	int onsetDetectionFunctionType;		/**< type of detection function */
+    int windowType;                     /**< type of window used in calculations */
 	
 	fftw_plan p;						/**< fftw plan */
 	fftw_complex *complexIn;			/**< to hold complex fft values for input */

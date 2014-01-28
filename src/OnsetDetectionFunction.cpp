@@ -22,8 +22,22 @@
 #include <math.h>
 #include "OnsetDetectionFunction.h"
 
+
 //=======================================================================
-OnsetDetectionFunction::OnsetDetectionFunction(int hopSize_,int frameSize_,int onsetDetectionFunctionType_,int windowType)
+OnsetDetectionFunction::OnsetDetectionFunction(int hopSize_,int frameSize_) : onsetDetectionFunctionType(ComplexSpectralDifferenceHWR), windowType(HanningWindow)
+{
+    // indicate that we have not initialised yet
+	initialised = false;
+	
+	// set pi
+	pi = 3.14159265358979;
+	
+	// initialise with arguments to constructor
+	initialise(hopSize_,frameSize_,ComplexSpectralDifferenceHWR,HanningWindow);
+}
+
+//=======================================================================
+OnsetDetectionFunction::OnsetDetectionFunction(int hopSize_,int frameSize_,int onsetDetectionFunctionType_,int windowType_) : onsetDetectionFunctionType(ComplexSpectralDifferenceHWR), windowType(HanningWindow)
 {	
 	// indicate that we have not initialised yet
 	initialised = false;
@@ -32,7 +46,7 @@ OnsetDetectionFunction::OnsetDetectionFunction(int hopSize_,int frameSize_,int o
 	pi = 3.14159265358979;	
 	
 	// initialise with arguments to constructor
-	initialise(hopSize_,frameSize_,onsetDetectionFunctionType_,windowType);
+	initialise(hopSize_,frameSize_,onsetDetectionFunctionType_,windowType_);
 }
 
 
@@ -49,7 +63,15 @@ OnsetDetectionFunction::~OnsetDetectionFunction()
 }
 
 //=======================================================================
-void OnsetDetectionFunction::initialise(int hopSize_,int frameSize_,int onsetDetectionFunctionType_,int windowType)
+void OnsetDetectionFunction::initialise(int hopSize_,int frameSize_)
+{
+    // use the already initialised onset detection function and window type and
+    // pass the new frame and hop size to the main initialisation function
+    initialise(hopSize_, frameSize_, onsetDetectionFunctionType, windowType);
+}
+
+//=======================================================================
+void OnsetDetectionFunction::initialise(int hopSize_,int frameSize_,int onsetDetectionFunctionType_,int windowType_)
 {
 	if (initialised) // if we have already initialised FFT plan
 	{
@@ -64,6 +86,7 @@ void OnsetDetectionFunction::initialise(int hopSize_,int frameSize_,int onsetDet
 	frameSize = frameSize_; // set framesize
 	
 	onsetDetectionFunctionType = onsetDetectionFunctionType_; // set detection function type
+    windowType = windowType_; // set window type
 		
 	// initialise buffers
     frame.resize(frameSize);
