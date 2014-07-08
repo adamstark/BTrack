@@ -19,53 +19,84 @@
  */
 //=======================================================================
 
-#include <iostream>
 #include <cmath>
+#include <algorithm>
 #include "BTrack.h"
 #include "samplerate.h"
-using namespace std;
 
+//=======================================================================
+BTrack::BTrack() : odf(512,1024,ComplexSpectralDifferenceHWR,HanningWindow)
+{
+    initialise(512, 1024);
+}
 
-
-
-//-------------------------------------------------------------------------------
-// Constructor
-BTrack :: BTrack()
+//=======================================================================
+BTrack::BTrack(int hopSize_) : odf(hopSize_,2*hopSize_,ComplexSpectralDifferenceHWR,HanningWindow)
 {	
-	float rayparam = 43;
-	float pi = 3.14159265;
+    initialise(hopSize_, 2*hopSize_);
+}
+
+//=======================================================================
+BTrack::BTrack(int hopSize_,int frameSize_) : odf(hopSize_,frameSize_,ComplexSpectralDifferenceHWR,HanningWindow)
+{
+    initialise(hopSize_, frameSize_);
+}
+
+//=======================================================================
+double BTrack::getBeatTimeInSeconds(long frameNumber,int hopSize,int fs)
+{
+    double hop = (double) hopSize;
+    double samplingFrequency = (double) fs;
+    double frameNum = (double) frameNumber;
+    
+    return ((hop / samplingFrequency) * frameNum);
+}
+
+//=======================================================================
+double BTrack::getBeatTimeInSeconds(int frameNumber,int hopSize,int fs)
+{
+    long frameNum = (long) frameNumber;
+    
+    return getBeatTimeInSeconds(frameNum, hopSize, fs);
+}
+
+
+
+//=======================================================================
+void BTrack::initialise(int hopSize_, int frameSize_)
+{
+    double rayparam = 43;
+	double pi = 3.14159265;
 	
 	
 	// initialise parameters
 	tightness = 5;
 	alpha = 0.9;
 	tempo = 120;
-	est_tempo = 120;
-	p_fact = 60.*44100./512.;
+	estimatedTempo = 120.0;
+	tempoToLagFactor = 60.*44100./512.;
 	
 	m0 = 10;
-	beat = -1;
+	beatCounter = -1;
 	
-	playbeat = 0;
+	beatDueInFrame = false;
 	
-	
-	
-	
+
 	// create rayleigh weighting vector
 	for (int n = 0;n < 128;n++)
 	{
-		wv[n] = ((float) n / pow(rayparam,2)) * exp((-1*pow((float)-n,2)) / (2*pow(rayparam,2)));
+		weightingVector[n] = ((double) n / pow(rayparam,2)) * exp((-1*pow((double)-n,2)) / (2*pow(rayparam,2)));
 	}
 	
 	// initialise prev_delta
 	for (int i = 0;i < 41;i++)
 	{
-		prev_delta[i] = 1;
+		prevDelta[i] = 1;
 	}
 	
-	float t_mu = 41/2;
-	float m_sig;
-	float x;
+	double t_mu = 41/2;
+	double m_sig;
+	double x;
 	// create tempo transition matrix
 	m_sig = 41/8;
 	for (int i = 0;i < 41;i++)
@@ -74,88 +105,135 @@ BTrack :: BTrack()
 		{
 			x = j+1;
 			t_mu = i+1;
-			t_tmat[i][j] = (1 / (m_sig * sqrt(2*pi))) * exp( (-1*pow((x-t_mu),2)) / (2*pow(m_sig,2)) );
+			tempoTransitionMatrix[i][j] = (1 / (m_sig * sqrt(2*pi))) * exp( (-1*pow((x-t_mu),2)) / (2*pow(m_sig,2)) );
 		}
-	}	
+	}
 	
 	// tempo is not fixed
-	tempofix = 0;
+	tempoFixed = false;
+    
+    // initialise latest cumulative score value
+    // in case it is requested before any processing takes place
+    latestCumulativeScoreValue = 0;
+    
+    // initialise algorithm given the hopsize
+    setHopSize(hopSize_);
 }
 
-//-------------------------------------------------------------------------------
-// Destructor
-BTrack :: ~BTrack()
+//=======================================================================
+void BTrack::setHopSize(int hopSize_)
 {	
+	hopSize = hopSize_;
+	onsetDFBufferSize = (512*512)/hopSize;		// calculate df buffer size
 	
-}
+	beatPeriod = round(60/((((double) hopSize)/44100)*tempo));
 
-//-------------------------------------------------------------------------------
-// Initialise with frame size and set all frame sizes accordingly
-void BTrack :: initialise(int fsize)
-{	
-	framesize = fsize;
-	dfbuffer_size = (512*512)/fsize;		// calculate df buffer size
-	
-	bperiod = round(60/((((float) fsize)/44100)*tempo));
-	
-	dfbuffer = new float[dfbuffer_size];	// create df_buffer
-	cumscore = new float[dfbuffer_size];	// create cumscore
-	
+    // set size of onset detection function buffer
+    onsetDF.resize(onsetDFBufferSize);
+    
+    // set size of cumulative score buffer
+    cumulativeScore.resize(onsetDFBufferSize);
 	
 	// initialise df_buffer to zeros
-	for (int i = 0;i < dfbuffer_size;i++)
+	for (int i = 0;i < onsetDFBufferSize;i++)
 	{
-		dfbuffer[i] = 0;
-		cumscore[i] = 0;
+		onsetDF[i] = 0;
+		cumulativeScore[i] = 0;
 		
 		
-		if ((i %  ((int) round(bperiod))) == 0)
+		if ((i %  ((int) round(beatPeriod))) == 0)
 		{
-			dfbuffer[i] = 1;
+			onsetDF[i] = 1;
 		}
 	}
 }
 
-//-------------------------------------------------------------------------------
-// Add new sample to buffer and apply beat tracking
-void BTrack :: process(float df_sample)
-{	 
+//=======================================================================
+void BTrack::updateHopAndFrameSize(int hopSize_,int frameSize_)
+{
+    // update the onset detection function object
+    odf.initialise(hopSize_, frameSize_);
+    
+    // update the hop size being used by the beat tracker
+    setHopSize(hopSize_);
+}
+
+//=======================================================================
+bool BTrack::beatDueInCurrentFrame()
+{
+    return beatDueInFrame;
+}
+
+//=======================================================================
+int BTrack::getHopSize()
+{
+    return hopSize;
+}
+
+//=======================================================================
+double BTrack::getLatestCumulativeScoreValue()
+{
+    return latestCumulativeScoreValue;
+}
+
+//=======================================================================
+void BTrack::processAudioFrame(double *frame)
+{
+    // calculate the onset detection function sample for the frame
+    double sample = odf.calculateOnsetDetectionFunctionSample(frame);
+    
+    
+    
+    // process the new onset detection function sample in the beat tracking algorithm
+    processOnsetDetectionFunctionSample(sample);
+}
+
+//=======================================================================
+void BTrack::processOnsetDetectionFunctionSample(double newSample)
+{
+    // we need to ensure that the onset
+    // detection function sample is positive
+    newSample = fabs(newSample);
+    
+    // add a tiny constant to the sample to stop it from ever going
+    // to zero. this is to avoid problems further down the line
+    newSample = newSample + 0.0001;
+    
 	m0--;
-	beat--;
-	playbeat = 0;
+	beatCounter--;
+	beatDueInFrame = false;
 	
 	// move all samples back one step
-	for (int i=0;i < (dfbuffer_size-1);i++)
+	for (int i=0;i < (onsetDFBufferSize-1);i++)
 	{
-		dfbuffer[i] = dfbuffer[i+1];
+		onsetDF[i] = onsetDF[i+1];
 	}
 	
 	// add new sample at the end
-	dfbuffer[dfbuffer_size-1] = df_sample;	
+	onsetDF[onsetDFBufferSize-1] = newSample;
 	
 	// update cumulative score
-	updatecumscore(df_sample);
+	updateCumulativeScore(newSample);
 	
 	// if we are halfway between beats
 	if (m0 == 0)
 	{
-		predictbeat();
+		predictBeat();
 	}
 	
 	// if we are at a beat
-	if (beat == 0)
+	if (beatCounter == 0)
 	{
-		playbeat = 1;	// indicate a beat should be output
+		beatDueInFrame = true;	// indicate a beat should be output
 		
 		// recalculate the tempo
-		dfconvert();	
-		calcTempo();
+		resampleOnsetDetectionFunction();
+		calculateTempo();
 	}
 }
 
-//-------------------------------------------------------------------------------
-// Set the tempo of the beat tracker
-void BTrack :: settempo(float tempo)
+//=======================================================================
+void BTrack::setTempo(double tempo)
 {	 
 	
 	/////////// TEMPO INDICATION RESET //////////////////
@@ -177,31 +255,31 @@ void BTrack :: settempo(float tempo)
 	// now set previous tempo observations to zero
 	for (int i=0;i < 41;i++)
 	{
-		prev_delta[i] = 0;
+		prevDelta[i] = 0;
 	}
 	
 	// set desired tempo index to 1
-	prev_delta[tempo_index] = 1;
+	prevDelta[tempo_index] = 1;
 	
 	
 	/////////// CUMULATIVE SCORE ARTIFICAL TEMPO UPDATE //////////////////
 	
 	// calculate new beat period
-	int new_bperiod = (int) round(60/((((float) framesize)/44100)*tempo));
+	int new_bperiod = (int) round(60/((((double) hopSize)/44100)*tempo));
 	
 	int bcounter = 1;
 	// initialise df_buffer to zeros
-	for (int i = (dfbuffer_size-1);i >= 0;i--)
+	for (int i = (onsetDFBufferSize-1);i >= 0;i--)
 	{
 		if (bcounter == 1)
 		{
-			cumscore[i] = 150;
-			dfbuffer[i] = 150;
+			cumulativeScore[i] = 150;
+			onsetDF[i] = 150;
 		}
 		else
 		{
-			cumscore[i] = 10;
-			dfbuffer[i] = 10;
+			cumulativeScore[i] = 10;
+			onsetDF[i] = 10;
 		}
 		
 		bcounter++;
@@ -215,16 +293,14 @@ void BTrack :: settempo(float tempo)
 	/////////// INDICATE THAT THIS IS A BEAT //////////////////
 	
 	// beat is now
-	beat = 0;
+	beatCounter = 0;
 	
 	// offbeat is half of new beat period away
-	m0 = (int) round(((float) new_bperiod)/2);
+	m0 = (int) round(((double) new_bperiod)/2);
 }
 
-
-//-------------------------------------------------------------------------------
-// fix tempo to roughly around some value
-void BTrack :: fixtempo(float tempo)
+//=======================================================================
+void BTrack::fixTempo(double tempo)
 {	
 	// firstly make sure tempo is between 80 and 160 bpm..
 	while (tempo > 160)
@@ -243,39 +319,43 @@ void BTrack :: fixtempo(float tempo)
 	// now set previous fixed previous tempo observation values to zero
 	for (int i=0;i < 41;i++)
 	{
-		prev_delta_fix[i] = 0;
+		prevDeltaFixed[i] = 0;
 	}
 	
 	// set desired tempo index to 1
-	prev_delta_fix[tempo_index] = 1;
+	prevDeltaFixed[tempo_index] = 1;
 		
 	// set the tempo fix flag
-	tempofix = 1;	
+	tempoFixed = true;
 }
 
-//-------------------------------------------------------------------------------
-// do not fix the tempo anymore
-void BTrack :: unfixtempo()
+//=======================================================================
+void BTrack::doNotFixTempo()
 {	
 	// set the tempo fix flag
-	tempofix = 0;	
+	tempoFixed = false;
 }
 
-//-------------------------------------------------------------------------------
-// Convert detection function from N samples to 512
-void BTrack :: dfconvert()
+//=======================================================================
+void BTrack::resampleOnsetDetectionFunction()
 {
 	float output[512];
+    float input[onsetDFBufferSize];
+    
+    for (int i = 0;i < onsetDFBufferSize;i++)
+    {
+        input[i] = (float) onsetDF[i];
+    }
 		
-	double src_ratio = 512.0/((double) dfbuffer_size);
-	int BUFFER_LEN = dfbuffer_size;
+	double src_ratio = 512.0/((double) onsetDFBufferSize);
+	int BUFFER_LEN = onsetDFBufferSize;
 	int output_len;
 	SRC_DATA	src_data ;
 	
 	//output_len = (int) floor (((double) BUFFER_LEN) * src_ratio) ;
 	output_len = 512;
 	
-	src_data.data_in = dfbuffer;
+	src_data.data_in = input;
 	src_data.input_frames = BUFFER_LEN;
 	
 	src_data.src_ratio = src_ratio;
@@ -287,51 +367,50 @@ void BTrack :: dfconvert()
 			
 	for (int i = 0;i < output_len;i++)
 	{
-		df512[i] = src_data.data_out[i];
+		resampledOnsetDF[i] = (double) src_data.data_out[i];
 	}
 }
 
-//-------------------------------------------------------------------------------
-// To calculate the current tempo expressed as the beat period in detection function samples
-void BTrack :: calcTempo()
+//=======================================================================
+void BTrack::calculateTempo()
 {
 	// adaptive threshold on input
-	adapt_thresh(df512,512);
+	adaptiveThreshold(resampledOnsetDF,512);
 		
 	// calculate auto-correlation function of detection function
-	acf_bal(df512);
+	calculateBalancedACF(resampledOnsetDF);
 	
 	// calculate output of comb filterbank
-	getrcfoutput();
+	calculateOutputOfCombFilterBank();
 	
 	
 	// adaptive threshold on rcf
-	adapt_thresh(rcf,128);
+	adaptiveThreshold(combFilterBankOutput,128);
 
 	
 	int t_index;
 	int t_index2;
-	// calculate tempo observation vector from bperiod observation vector
+	// calculate tempo observation vector from beat period observation vector
 	for (int i = 0;i < 41;i++)
 	{
-		t_index = (int) round(p_fact / ((float) ((2*i)+80)));
-		t_index2 = (int) round(p_fact / ((float) ((4*i)+160)));
+		t_index = (int) round(tempoToLagFactor / ((double) ((2*i)+80)));
+		t_index2 = (int) round(tempoToLagFactor / ((double) ((4*i)+160)));
 
 		
-		t_obs[i] = rcf[t_index-1] + rcf[t_index2-1];
+		tempoObservationVector[i] = combFilterBankOutput[t_index-1] + combFilterBankOutput[t_index2-1];
 	}
 	
 	
-	float maxval;
-	float maxind;
-	float curval;
+	double maxval;
+	double maxind;
+	double curval;
 	
 	// if tempo is fixed then always use a fixed set of tempi as the previous observation probability function
-	if (tempofix == 1)
+	if (tempoFixed)
 	{
 		for (int k = 0;k < 41;k++)
 		{
-			prev_delta[k] = prev_delta_fix[k];
+			prevDelta[k] = prevDeltaFixed[k];
 		}
 	}
 		
@@ -340,7 +419,7 @@ void BTrack :: calcTempo()
 		maxval = -1;
 		for (int i = 0;i < 41;i++)
 		{
-			curval = prev_delta[i]*t_tmat[i][j];
+			curval = prevDelta[i]*tempoTransitionMatrix[i][j];
 			
 			if (curval > maxval)
 			{
@@ -348,11 +427,11 @@ void BTrack :: calcTempo()
 			}
 		}
 		
-		delta[j] = maxval*t_obs[j];
+		delta[j] = maxval*tempoObservationVector[j];
 	}
 	
 
-	normalise(delta,41);
+	normaliseArray(delta,41);
 	
 	maxind = -1;
 	maxval = -1;
@@ -365,49 +444,45 @@ void BTrack :: calcTempo()
 			maxind = j;
 		}
 		
-		prev_delta[j] = delta[j];
+		prevDelta[j] = delta[j];
 	}
 	
-	bperiod = round((60.0*44100.0)/(((2*maxind)+80)*((float) framesize)));
+	beatPeriod = round((60.0*44100.0)/(((2*maxind)+80)*((double) hopSize)));
 	
-	if (bperiod > 0)
+	if (beatPeriod > 0)
 	{
-		est_tempo = 60.0/((((float) framesize) / 44100.0)*bperiod);
+		estimatedTempo = 60.0/((((double) hopSize) / 44100.0)*beatPeriod);
 	}
-	
-	//cout << bperiod << endl;
 }
 
-//-------------------------------------------------------------------------------
-// calculates an adaptive threshold which is used to remove low level energy from detection function and emphasise peaks
-void BTrack :: adapt_thresh(float x[],int N)
+//=======================================================================
+void BTrack::adaptiveThreshold(double *x,int N)
 {
-	//int N = 512; // length of df
 	int i = 0;
 	int k,t = 0;
-	float x_thresh[N];
+	double x_thresh[N];
 	
 	int p_post = 7;
 	int p_pre = 8;
 	
-	t = min(N,p_post);	// what is smaller, p_post of df size. This is to avoid accessing outside of arrays
+	t = std::min(N,p_post);	// what is smaller, p_post of df size. This is to avoid accessing outside of arrays
 	
 	// find threshold for first 't' samples, where a full average cannot be computed yet 
 	for (i = 0;i <= t;i++)
 	{	
-		k = min((i+p_pre),N);
-		x_thresh[i] = mean_array(x,1,k);
+		k = std::min((i+p_pre),N);
+		x_thresh[i] = calculateMeanOfArray(x,1,k);
 	}
 	// find threshold for bulk of samples across a moving average from [i-p_pre,i+p_post]
 	for (i = t+1;i < N-p_post;i++)
 	{
-		x_thresh[i] = mean_array(x,i-p_pre,i+p_post);
+		x_thresh[i] = calculateMeanOfArray(x,i-p_pre,i+p_post);
 	}
 	// for last few samples calculate threshold, again, not enough samples to do as above
 	for (i = N-p_post;i < N;i++)
 	{
-		k = max((i-p_post),1);
-		x_thresh[i] = mean_array(x,k,N);
+		k = std::max((i-p_post),1);
+		x_thresh[i] = calculateMeanOfArray(x,k,N);
 	}
 	
 	// subtract the threshold from the detection function and check that it is not less than 0
@@ -421,15 +496,14 @@ void BTrack :: adapt_thresh(float x[],int N)
 	}
 }
 
-//-------------------------------------------------------------------------------
-// returns the output of the comb filter
-void BTrack :: getrcfoutput()
+//=======================================================================
+void BTrack::calculateOutputOfCombFilterBank()
 {
 	int numelem;
 	
 	for (int i = 0;i < 128;i++)
 	{
-		rcf[i] = 0;
+		combFilterBankOutput[i] = 0;
 	}
 	
 	numelem = 4;
@@ -440,18 +514,17 @@ void BTrack :: getrcfoutput()
 		{
 			for (int b = 1-a;b <= a-1;b++) // general state using normalisation of comb elements
 			{
-				rcf[i-1] = rcf[i-1] + (acf[(a*i+b)-1]*wv[i-1])/(2*a-1);	// calculate value for comb filter row
+				combFilterBankOutput[i-1] = combFilterBankOutput[i-1] + (acf[(a*i+b)-1]*weightingVector[i-1])/(2*a-1);	// calculate value for comb filter row
 			}
 		}
 	}
 }
 
-//-------------------------------------------------------------------------------
-// calculates the balanced autocorrelation of the smoothed detection function
-void BTrack :: acf_bal(float df_thresh[])
+//=======================================================================
+void BTrack::calculateBalancedACF(double *onsetDetectionFunction)
 {
 	int l, n = 0;
-	float sum, tmp;
+	double sum, tmp;
 	
 	// for l lags from 0-511
 	for (l = 0;l < 512;l++)
@@ -461,7 +534,7 @@ void BTrack :: acf_bal(float df_thresh[])
 		// for n samples from 0 - (512-lag)
 		for (n = 0;n < (512-l);n++)
 		{
-			tmp = df_thresh[n] * df_thresh[n+l];	// multiply current sample n by sample (n+l)
+			tmp = onsetDetectionFunction[n] * onsetDetectionFunction[n+l];	// multiply current sample n by sample (n+l)
 			sum = sum + tmp;	// add to sum
 		}
 		
@@ -469,18 +542,16 @@ void BTrack :: acf_bal(float df_thresh[])
 	}
 }
 
-
-//-------------------------------------------------------------------------------
-// calculates the mean of values in an array from index locations [start,end]
-float BTrack :: mean_array(float array[],int start,int end)
+//=======================================================================
+double BTrack::calculateMeanOfArray(double *array,int startIndex,int endIndex)
 {
 	int i;
 	double sum = 0;
 
-    int length = end - start;
+    int length = endIndex - startIndex;
 	
 	// find sum
-	for (i = start;i < end;i++)
+	for (i = startIndex;i < endIndex;i++)
 	{
 		sum = sum + array[i];
 	}
@@ -495,9 +566,8 @@ float BTrack :: mean_array(float array[],int start,int end)
     }
 }
 
-//-------------------------------------------------------------------------------
-// normalise the array
-void BTrack :: normalise(float array[],int N)
+//=======================================================================
+void BTrack::normaliseArray(double *array,int N)
 {
 	double sum = 0;
 	
@@ -518,38 +588,25 @@ void BTrack :: normalise(float array[],int N)
 	}
 }
 
-//-------------------------------------------------------------------------------
-// plot contents of detection function buffer
-void BTrack :: plotdfbuffer()
-{	 
-	for (int i=0;i < dfbuffer_size;i++)
-	{
-		cout << dfbuffer[i] << endl;
-	}
-	
-	cout << "--------------------------------" << endl;
-}
-
-//-------------------------------------------------------------------------------
-// update the cumulative score
-void BTrack :: updatecumscore(float df_sample)
+//=======================================================================
+void BTrack::updateCumulativeScore(double odfSample)
 {	 
 	int start, end, winsize;
-	float max;
+	double max;
 	
-	start = dfbuffer_size - round(2*bperiod);
-	end = dfbuffer_size - round(bperiod/2);
+	start = onsetDFBufferSize - round(2*beatPeriod);
+	end = onsetDFBufferSize - round(beatPeriod/2);
 	winsize = end-start+1;
 	
-	float w1[winsize];
-	float v = -2*bperiod;
-	float wcumscore;
+	double w1[winsize];
+	double v = -2*beatPeriod;
+	double wcumscore;
 	
 	
 	// create window
 	for (int i = 0;i < winsize;i++)
 	{
-		w1[i] = exp((-1*pow(tightness*log(-v/bperiod),2))/2);
+		w1[i] = exp((-1*pow(tightness*log(-v/beatPeriod),2))/2);
 		v = v+1;
 	}	
 	
@@ -558,7 +615,7 @@ void BTrack :: updatecumscore(float df_sample)
 	int n = 0;
 	for (int i=start;i <= end;i++)
 	{
-			wcumscore = cumscore[i]*w1[n];
+			wcumscore = cumulativeScore[i]*w1[n];
 		
 			if (wcumscore > max)
 			{
@@ -569,70 +626,67 @@ void BTrack :: updatecumscore(float df_sample)
 	
 	
 	// shift cumulative score back one
-	for (int i = 0;i < (dfbuffer_size-1);i++)
+	for (int i = 0;i < (onsetDFBufferSize-1);i++)
 	{
-		cumscore[i] = cumscore[i+1];
+		cumulativeScore[i] = cumulativeScore[i+1];
 	}
 	
 	// add new value to cumulative score
-	cumscore[dfbuffer_size-1] = ((1-alpha)*df_sample) + (alpha*max);
+	cumulativeScore[onsetDFBufferSize-1] = ((1-alpha)*odfSample) + (alpha*max);
 	
-	cscoreval = cumscore[dfbuffer_size-1];
-	
-	//cout << cumscore[dfbuffer_size-1] << endl;
-		
+	latestCumulativeScoreValue = cumulativeScore[onsetDFBufferSize-1];
+			
 }
 
-//-------------------------------------------------------------------------------
-// plot contents of detection function buffer
-void BTrack :: predictbeat()
+//=======================================================================
+void BTrack::predictBeat()
 {	 
-	int winsize = (int) bperiod;
-	float fcumscore[dfbuffer_size + winsize];
-	float w2[winsize];
+	int windowSize = (int) beatPeriod;
+	double futureCumulativeScore[onsetDFBufferSize + windowSize];
+	double w2[windowSize];
 	// copy cumscore to first part of fcumscore
-	for (int i = 0;i < dfbuffer_size;i++)
+	for (int i = 0;i < onsetDFBufferSize;i++)
 	{
-		fcumscore[i] = cumscore[i];
+		futureCumulativeScore[i] = cumulativeScore[i];
 	}
 	
 	// create future window
-	float v = 1;
-	for (int i = 0;i < winsize;i++)
+	double v = 1;
+	for (int i = 0;i < windowSize;i++)
 	{
-		w2[i] = exp((-1*pow((v - (bperiod/2)),2))   /  (2*pow((bperiod/2) ,2)));
+		w2[i] = exp((-1*pow((v - (beatPeriod/2)),2))   /  (2*pow((beatPeriod/2) ,2)));
 		v++;
 	}
 	
 	// create past window
-	v = -2*bperiod;
-	int start = dfbuffer_size - round(2*bperiod);
-	int end = dfbuffer_size - round(bperiod/2);
+	v = -2*beatPeriod;
+	int start = onsetDFBufferSize - round(2*beatPeriod);
+	int end = onsetDFBufferSize - round(beatPeriod/2);
 	int pastwinsize = end-start+1;
-	float w1[pastwinsize];
+	double w1[pastwinsize];
 
 	for (int i = 0;i < pastwinsize;i++)
 	{
-		w1[i] = exp((-1*pow(tightness*log(-v/bperiod),2))/2);
+		w1[i] = exp((-1*pow(tightness*log(-v/beatPeriod),2))/2);
 		v = v+1;
 	}
 
 	
 
 	// calculate future cumulative score
-	float max;
+	double max;
 	int n;
-	float wcumscore;
-	for (int i = dfbuffer_size;i < (dfbuffer_size+winsize);i++)
+	double wcumscore;
+	for (int i = onsetDFBufferSize;i < (onsetDFBufferSize+windowSize);i++)
 	{
-		start = i - round(2*bperiod);
-		end = i - round(bperiod/2);
+		start = i - round(2*beatPeriod);
+		end = i - round(beatPeriod/2);
 		
 		max = 0;
 		n = 0;
 		for (int k=start;k <= end;k++)
 		{
-			wcumscore = fcumscore[k]*w1[n];
+			wcumscore = futureCumulativeScore[k]*w1[n];
 			
 			if (wcumscore > max)
 			{
@@ -641,7 +695,7 @@ void BTrack :: predictbeat()
 			n++;
 		}
 		
-		fcumscore[i] = max;
+		futureCumulativeScore[i] = max;
 	}
 	
 	
@@ -649,25 +703,21 @@ void BTrack :: predictbeat()
 	max = 0;
 	n = 0;
 	
-	for (int i = dfbuffer_size;i < (dfbuffer_size+winsize);i++)
+	for (int i = onsetDFBufferSize;i < (onsetDFBufferSize+windowSize);i++)
 	{
-		wcumscore = fcumscore[i]*w2[n];
+		wcumscore = futureCumulativeScore[i]*w2[n];
 		
 		if (wcumscore > max)
 		{
 			max = wcumscore;
-			beat = n;
+			beatCounter = n;
 		}	
 		
 		n++;
 	}
 		
-	
-	// set beat
-	beat = beat;
-	
 	// set next prediction time
-	m0 = beat+round(bperiod/2);
+	m0 = beatCounter+round(beatPeriod/2);
 	
 
 }
