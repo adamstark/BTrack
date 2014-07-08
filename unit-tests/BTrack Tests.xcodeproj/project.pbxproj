@@ -251,6 +251,11 @@
 		E38214F6188E7AED00DDD7C8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				OTHER_LDFLAGS = (
+					"-lboost_unit_test_framework",
+					"-lsamplerate",
+					"-lfftw3",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -258,6 +263,11 @@
 		E38214F7188E7AED00DDD7C8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				OTHER_LDFLAGS = (
+					"-lboost_unit_test_framework",
+					"-lsamplerate",
+					"-lfftw3",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
