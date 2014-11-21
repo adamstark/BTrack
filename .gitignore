@@ -1,5 +1,3 @@
-syntax: glob
-
 python-module/build
 unit-tests/Build
 xcuserdata

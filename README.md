@@ -1,7 +1,7 @@
 BTrack - A Real-Time Beat Tracker
 =================================
 
-** Version 1.0.0 **
+** Version 1.0.1 **
 
 *by Adam Stark, Matthew Davies and Mark Plumbley.*
 
@@ -20,6 +20,11 @@ Full details of the working of the algorithm can be found in:
 
 Versions
 --------
+
+==== 1.0.1 ==== (24th November 2014)
+
+* Moved to git & updated README
+* No implementation changes
 
 ==== 1.0.0 ==== (8th July 2014)
 
@@ -85,7 +90,7 @@ and to check for beats, simply call:
 
 **STEP 3.2 - Onset Detection Function Input**	
 
-The algorithm can process onset detection function samples. Given a double precision onset detection function sample called 'newSamples', at each step, call:
+The algorithm can process onset detection function samples. Given a double precision onset detection function sample called 'newSample', at each step, call:
 
 	b.processOnsetDetectionFunctionSample(newSample);
 	
