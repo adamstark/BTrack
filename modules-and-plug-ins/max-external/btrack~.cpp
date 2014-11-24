@@ -39,6 +39,9 @@ typedef struct _btrack {
     // An instance of the BTrack beat tracker
     BTrack			*b;
     
+    // Indicates whether the beat tracker should output beats
+    bool            should_output_beats;
+    
     // An outlet for beats
     void            *beat_outlet;
     
@@ -61,6 +64,10 @@ void btrack_perform64(t_btrack *x, t_object *dsp64, double **ins, long numins, d
 
 //===========================================================================
 void btrack_process(t_btrack *x,double* audioFrame);
+
+void btrack_on(t_btrack *x);
+void btrack_off(t_btrack *x);
+
 void outlet_beat(t_btrack *x, t_symbol *s, long argc, t_atom *argv);
 
 // global class pointer variable
@@ -83,12 +90,18 @@ int C74_EXPORT main(void)
 	class_addmethod(c, (method)btrack_dsp64,		"dsp64",	A_CANT, 0);		// New 64-bit MSP dsp chain compilation for Max 6
 	class_addmethod(c, (method)btrack_assist,	"assist",	A_CANT, 0);
 	
+    class_addmethod(c, (method)btrack_on,	"on", 0);
+    class_addmethod(c, (method)btrack_off,	"off", 0);
+    
 	class_dspinit(c);
 	class_register(CLASS_BOX, c);
 	btrack_class = c;
 
 	return 0;
 }
+
+
+
 
 
 //===========================================================================
@@ -108,13 +121,15 @@ void *btrack_new(t_symbol *s, long argc, t_atom *argv)
         x->tempo_outlet = floatout(x);
         x->beat_outlet = bangout(x);
         
+        
+        x->should_output_beats = true;
+        
         /*
-        
-        
+    
         x->mode = 0;
         x->lastbang = 0;
         
-        x->dobeats = 1;
+        
         x->countin = 4;
         
         x->counttempi[0] = 120;
@@ -137,12 +152,23 @@ void btrack_free(t_btrack *x)
 //===========================================================================
 void btrack_assist(t_btrack *x, void *b, long m, long a, char *s)
 {
-	if (m == ASSIST_INLET) { //inlet
-		sprintf(s, "I am inlet %ld", a);
-	} 
-	else {	// outlet
-		sprintf(s, "I am outlet %ld", a); 			
-	}
+    if (m == ASSIST_INLET) { //inlet
+        if (a == 0)
+        {
+            sprintf(s, "(signal) Audio In");
+        }
+    }
+    else {	// outlet
+        if (a == 0)
+        {
+            sprintf(s, "Beats Out");
+        }
+        if (a == 1)
+        {
+            sprintf(s, "Tempo (bpm)");
+        }
+        
+    }
 }
 
 
@@ -237,16 +263,28 @@ void btrack_process(t_btrack *x,double* audioFrame)
 //===========================================================================
 void outlet_beat(t_btrack *x, t_symbol *s, long argc, t_atom *argv)
 {
-    // send a bang out of the beat outlet
-    outlet_bang(x->beat_outlet);
+    if (x->should_output_beats)
+    {
+        // send a bang out of the beat outlet
+        outlet_bang(x->beat_outlet);
     
-    // send the tempo out of the tempo outlet
-    outlet_float(x->tempo_outlet, (float) x->b->getCurrentTempoEstimate());
+        // send the tempo out of the tempo outlet
+        outlet_float(x->tempo_outlet, (float) x->b->getCurrentTempoEstimate());
+    }
 }
 
 
+//===========================================================================
+void btrack_on(t_btrack *x)
+{
+    x->should_output_beats = true;
+}
 
-
+//===========================================================================
+void btrack_off(t_btrack *x)
+{
+    x->should_output_beats = false;
+}
 
 
 
