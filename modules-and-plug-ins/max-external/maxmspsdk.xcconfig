@@ -1,0 +1,86 @@
+// Xcode target configuration settings for the Max 6 SDK
+// Used as the basis for Xcode projects to build Max externals.
+//
+// Changes to the settings in this file will be applied to all SDK examples
+// To change settings for only one of the examples, override the settings using
+// Xcode's target inspector.
+//
+// by Timothy Place
+// Copyright © 2012, Cycling '74
+
+
+// Name & Version
+PRODUCT_NAME = $(PROJECT_NAME)
+PRODUCT_VERSION = 6.1.4
+//ARCHS = i386 x86_64
+ARCHS = x86_64
+
+
+// Paths
+
+// ===========================================================================
+// NOTE: SET PATH TO YOUR C74SUPPORT FOLDER IN YOUR MAX SDK HERE
+
+C74SUPPORT = $(SRCROOT)/../../../SDKs/MaxSDK-6.1.4/c74support/
+
+// ===========================================================================
+
+HEADER_SEARCH_PATHS = "$(C74SUPPORT)/max-includes" "$(C74SUPPORT)/msp-includes" "$(C74SUPPORT)/jit-includes"
+FRAMEWORK_SEARCH_PATHS = "$(C74SUPPORT)/max-includes" "$(C74SUPPORT)/msp-includes" "$(C74SUPPORT)/jit-includes"
+DSTROOT = $(SRCROOT)/build
+// (This next path is relative to DSTROOT)
+INSTALL_PATH = /
+
+
+// Special Files
+GCC_PREFIX_HEADER = $(C74SUPPORT)/max-includes/macho-prefix.pch
+INFOPLIST_FILE = $(SRCROOT)/Info.plist
+
+
+// Architecture and Deployment
+ARCHS = i386 x86_64
+
+// The following section sets the Mac SDK version to be used.
+// For most projects this has little to no impact because there are no direct dependencies on OS function calls.
+// In those projects with OS function calls, it should be okay to use the most recent SDK version because the 
+// MACOSX_DEPLOYMENT_TARGET will disable functionality that is unavailable in the older target OS.
+// For this reason, the SDKROOT variable is commented out, telling Xcode to use the default (which is the most recent SDK).
+//
+// If you do need to define the SDKROOT, different versions of Xcode have varying syntax and varying versions of the SDK present.
+
+// Xcode 3.x
+// SDKROOT = $(DEVELOPER_DIR)/SDKs/MacOSX10.5.sdk
+
+// Xcode 4.0 - Xcode 4.2
+// SDKROOT = $(DEVELOPER_DIR)/SDKs/MacOSX10.6.sdk
+
+// Xcode 4.3+
+// SDKROOT = macosx10.6
+
+MACOSX_DEPLOYMENT_TARGET = 10.6
+
+
+// Compiler Version -- leave them all commented out to get the default version provided by Xcode
+// GCC_VERSION = 4.2
+// GCC_VERSION = com.apple.compilers.llvmgcc42
+// GCC_VERSION = com.apple.compilers.llvm.clang.1_0
+
+
+// Preprocessor Defines
+GCC_PREPROCESSOR_DEFINITIONS = "DENORM_WANT_FIX = 1" "NO_TRANSLATION_SUPPORT = 1"
+
+
+// Static Configuration (don't change these)
+WRAPPER_EXTENSION = mxo;
+WARNING_CFLAGS = -Wmost -Wno-four-char-constants -Wno-unknown-pragmas
+DEPLOYMENT_LOCATION = YES
+GENERATE_PKGINFO_FILE = YES
+
+
+// Flags to enforce some build-time checks for the symbols used while not actually performing a hard link
+C74_SYM_LINKER_FLAGS = @$(C74SUPPORT)/max-includes/c74_linker_flags.txt
+
+
+// hide all symbols by default
+// mark a function to be exported with the C74_EXPORT macro -- most likely this will only apply to the main() function
+OTHER_CFLAGS = -fvisibility=hidden

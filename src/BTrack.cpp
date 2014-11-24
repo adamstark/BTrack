@@ -165,6 +165,12 @@ bool BTrack::beatDueInCurrentFrame()
 }
 
 //=======================================================================
+double BTrack::getCurrentTempoEstimate()
+{
+    return estimatedTempo;
+}
+
+//=======================================================================
 int BTrack::getHopSize()
 {
     return hopSize;
