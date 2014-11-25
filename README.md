@@ -17,6 +17,7 @@ Full details of the working of the algorithm can be found in:
 
 * Real-Time Beat-Synchronous Analysis of Musical Audio, A. M. Stark, M. E. P. Davies and M. D. Plumbley. In Proceedings of the 12th International Conference on Digital Audio Effects (DAFx-09), Como, Italy, September 1-4, 2009.
 
+BTrack is made available under the GNU General Public License, version 3. Please see the included LICENSE.txt for more details.
 
 Versions
 --------
@@ -35,11 +36,6 @@ Versions
 * This is the original version of the BTrack algorithm
 
 
-
-License
--------
-
-BTrack is made available under the GNU General Public License, version 3. Please see the included LICENSE.txt for more details.
 
 Usage - C++
 -----------
@@ -100,6 +96,14 @@ and then check for beats with:
 	{
 		// do something on the beat
 	}
+
+Requirements
+------------
+
+To compile BTrack, you will require the following libraries:
+
+* FFTW
+* libsamplerate
 
 
 License
