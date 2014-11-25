@@ -7,3 +7,5 @@ xcuserdata
 *.dylib
 
 *.xcworkspace
+
+modules-and-plug-ins/max-external/build
