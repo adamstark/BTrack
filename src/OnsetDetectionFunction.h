@@ -36,6 +36,8 @@ enum OnsetDetectionFunctionType
     PhaseDeviation,
     ComplexSpectralDifference,
     ComplexSpectralDifferenceHWR,
+    ComplexSpectralDifferenceSquared,
+    ComplexSpectralDifferenceSquaredHWR,
     HighFrequencyContent,
     HighFrequencySpectralDifference,
     HighFrequencySpectralDifferenceHWR
@@ -129,6 +131,12 @@ private:
     
     /** Calculate complex spectral difference detection function sample (half-wave rectified) */
 	double complexSpectralDifferenceHWR();
+    
+    /** Calculate complex spectral difference squared detection function sample */
+	double complexSpectralDifferenceSquared();
+    
+    /** Calculate complex spectral difference squared detection function sample (half-wave rectified) */
+	double complexSpectralDifferenceSquaredHWR();
     
     /** Calculate high frequency content detection function sample */
 	double highFrequencyContent();

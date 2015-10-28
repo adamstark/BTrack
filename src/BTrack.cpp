@@ -25,19 +25,19 @@
 #include "samplerate.h"
 
 //=======================================================================
-BTrack::BTrack() : odf(512,1024,ComplexSpectralDifferenceHWR,HanningWindow)
+BTrack::BTrack() : odf(512,1024,ComplexSpectralDifference,HanningWindow)
 {
     initialise(512, 1024);
 }
 
 //=======================================================================
-BTrack::BTrack(int hopSize_) : odf(hopSize_,2*hopSize_,ComplexSpectralDifferenceHWR,HanningWindow)
+BTrack::BTrack(int hopSize_) : odf(hopSize_,2*hopSize_,ComplexSpectralDifferenceSquaredHWR,HanningWindow)
 {	
     initialise(hopSize_, 2*hopSize_);
 }
 
 //=======================================================================
-BTrack::BTrack(int hopSize_,int frameSize_) : odf(hopSize_,frameSize_,ComplexSpectralDifferenceHWR,HanningWindow)
+BTrack::BTrack(int hopSize_,int frameSize_) : odf(hopSize_,frameSize_,ComplexSpectralDifferenceSquaredHWR,HanningWindow)
 {
     initialise(hopSize_, frameSize_);
 }
