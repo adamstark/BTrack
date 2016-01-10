@@ -1,7 +1,7 @@
 BTrack - A Real-Time Beat Tracker
 =================================
 
-** Version 1.0.2 **
+** Version 1.0.3 **
 
 *by Adam Stark, Matthew Davies and Mark Plumbley.*
 
@@ -21,6 +21,11 @@ BTrack is made available under the GNU General Public License, version 3. Please
 
 Versions
 --------
+
+==== 1.0.3 ==== (10th January 2016)
+
+* Fixed implementation error in complex spectral difference (thanks to @zbanks for pointing it out)
+* Small change to python module build script
 
 ==== 1.0.2 ==== (25th November 2014)
 

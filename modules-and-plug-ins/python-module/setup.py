@@ -12,5 +12,5 @@ include_dirs = [
 
 setup( name = 'BTrack',
       include_dirs = include_dirs,
-      ext_modules = [Extension(name, sources,libraries = ['fftw3','samplerate'])]
+      ext_modules = [Extension(name, sources,libraries = ['fftw3','samplerate'],library_dirs = ['/usr/local/lib'])]
       )

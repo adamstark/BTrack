@@ -435,10 +435,9 @@ double OnsetDetectionFunction :: phaseDeviation()
 //=======================================================================
 double OnsetDetectionFunction :: complexSpectralDifference()
 {
-	double dev,pdev;
+	double phaseDeviation;
 	double sum;
-	double mag_diff,phase_diff;
-	double value;
+	double csd;
 	
 	// perform the FFT
 	performFFT();
@@ -454,29 +453,14 @@ double OnsetDetectionFunction :: complexSpectralDifference()
 		// calculate magnitude value
 		magSpec[i] = sqrt(pow(complexOut[i][0],2) + pow(complexOut[i][1],2));
 		
-		
 		// phase deviation
-		dev = phase[i] - (2*prevPhase[i]) + prevPhase2[i];
+		phaseDeviation = phase[i] - (2*prevPhase[i]) + prevPhase2[i];
 		
-		// wrap into [-pi,pi] range
-		pdev = princarg(dev);	
-		
-		
-		// calculate magnitude difference (real part of Euclidean distance between complex frames)
-		mag_diff = magSpec[i] - prevMagSpec[i];
-		
-		// calculate phase difference (imaginary part of Euclidean distance between complex frames)
-		phase_diff = -magSpec[i]*sin(pdev);
-		
-
-		
-		// square real and imaginary parts, sum and take square root
-		value = sqrt(pow(mag_diff,2) + pow(phase_diff,2));
-	
+        // calculate complex spectral difference for the current spectral bin
+		csd = sqrt(pow(magSpec[i], 2) + pow(prevMagSpec[i], 2) - 2 * magSpec[i] * prevMagSpec[i] * cos(phaseDeviation));
 			
 		// add to sum
-		sum = sum + value;
-		
+		sum = sum + csd;
 		
 		// store values for next calculation
 		prevPhase2[i] = prevPhase[i];
@@ -490,10 +474,10 @@ double OnsetDetectionFunction :: complexSpectralDifference()
 //=======================================================================
 double OnsetDetectionFunction :: complexSpectralDifferenceHWR()
 {
-	double dev,pdev;
+	double phaseDeviation;
 	double sum;
-	double mag_diff,phase_diff;
-	double value;
+	double magnitudeDifference;
+	double csd;
 	
 	// perform the FFT
 	performFFT();
@@ -509,30 +493,22 @@ double OnsetDetectionFunction :: complexSpectralDifferenceHWR()
 		// calculate magnitude value
 		magSpec[i] = sqrt(pow(complexOut[i][0],2) + pow(complexOut[i][1],2));
 		
-		
-		// phase deviation
-		dev = phase[i] - (2*prevPhase[i]) + prevPhase2[i];
-		
-		// wrap into [-pi,pi] range
-		pdev = princarg(dev);	
-		
-		
-		// calculate magnitude difference (real part of Euclidean distance between complex frames)
-		mag_diff = magSpec[i] - prevMagSpec[i];
-		
-		// if we have a positive change in magnitude, then include in sum, otherwise ignore (half-wave rectification)
-		if (mag_diff > 0)
-		{
-			// calculate phase difference (imaginary part of Euclidean distance between complex frames)
-			phase_diff = -magSpec[i]*sin(pdev);
-
-			// square real and imaginary parts, sum and take square root
-			value = sqrt(pow(mag_diff,2) + pow(phase_diff,2));
-		
-			// add to sum
-			sum = sum + value;
-		}
-		
+        // phase deviation
+        phaseDeviation = phase[i] - (2*prevPhase[i]) + prevPhase2[i];
+        
+        // calculate magnitude difference (real part of Euclidean distance between complex frames)
+        magnitudeDifference = magSpec[i] - prevMagSpec[i];
+        
+        // if we have a positive change in magnitude, then include in sum, otherwise ignore (half-wave rectification)
+        if (magnitudeDifference > 0)
+        {
+            // calculate complex spectral difference for the current spectral bin
+            csd = sqrt(pow(magSpec[i], 2) + pow(prevMagSpec[i], 2) - 2 * magSpec[i] * prevMagSpec[i] * cos(phaseDeviation));
+        
+            // add to sum
+            sum = sum + csd;
+        }
+        
 		// store values for next calculation
 		prevPhase2[i] = prevPhase[i];
 		prevPhase[i] = phase[i];
