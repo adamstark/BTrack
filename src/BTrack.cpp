@@ -43,6 +43,16 @@ BTrack::BTrack(int hopSize_,int frameSize_) : odf(hopSize_,frameSize_,ComplexSpe
 }
 
 //=======================================================================
+BTrack::~BTrack()
+{
+    // destroy fft plan
+    fftw_destroy_plan(acfForwardFFT);
+    fftw_destroy_plan(acfBackwardFFT);
+    fftw_free(complexIn);
+    fftw_free(complexOut);
+}
+
+//=======================================================================
 double BTrack::getBeatTimeInSeconds(long frameNumber,int hopSize,int fs)
 {
     double hop = (double) hopSize;
@@ -118,6 +128,16 @@ void BTrack::initialise(int hopSize_, int frameSize_)
     
     // initialise algorithm given the hopsize
     setHopSize(hopSize_);
+    
+    
+    // Set up FFT for calculating the auto-correlation function
+    FFTLengthForACFCalculation = 1024;
+    
+    complexIn = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFTLengthForACFCalculation);		// complex array to hold fft data
+    complexOut = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * FFTLengthForACFCalculation);	// complex array to hold fft data
+    
+    acfForwardFFT = fftw_plan_dft_1d(FFTLengthForACFCalculation, complexIn, complexOut, FFTW_FORWARD, FFTW_ESTIMATE);	// FFT plan initialisation
+    acfBackwardFFT = fftw_plan_dft_1d(FFTLengthForACFCalculation, complexOut, complexIn, FFTW_BACKWARD, FFTW_ESTIMATE);	// FFT plan initialisation
 }
 
 //=======================================================================
@@ -529,23 +549,54 @@ void BTrack::calculateOutputOfCombFilterBank()
 //=======================================================================
 void BTrack::calculateBalancedACF(double *onsetDetectionFunction)
 {
-	int l, n = 0;
-	double sum, tmp;
-	
-	// for l lags from 0-511
-	for (l = 0;l < 512;l++)
-	{
-		sum = 0;	
-		
-		// for n samples from 0 - (512-lag)
-		for (n = 0;n < (512-l);n++)
-		{
-			tmp = onsetDetectionFunction[n] * onsetDetectionFunction[n+l];	// multiply current sample n by sample (n+l)
-			sum = sum + tmp;	// add to sum
-		}
-		
-		acf[l] = sum / (512-l);		// weight by number of mults and add to acf buffer
-	}
+    int onsetDetectionFunctionLength = 512;
+    
+    // copy into complex array and zero pad
+    for (int i = 0;i < FFTLengthForACFCalculation;i++)
+    {
+        if (i < onsetDetectionFunctionLength)
+        {
+            complexIn[i][0] = onsetDetectionFunction[i];
+            complexIn[i][1] = 0.0;
+        }
+        else
+        {
+            complexIn[i][0] = 0.0;
+            complexIn[i][1] = 0.0;
+        }
+    }
+    
+    // perform the fft
+    fftw_execute(acfForwardFFT);
+    
+    // multiply by complex conjugate
+    for (int i = 0;i < FFTLengthForACFCalculation;i++)
+    {
+        complexOut[i][0] = complexOut[i][0]*complexOut[i][0] + complexOut[i][1]*complexOut[i][1];
+        complexOut[i][1] = 0.0;
+    }
+    
+    // perform the ifft
+    fftw_execute(acfBackwardFFT);
+    
+    
+    double lag = 512;
+    
+    for (int i = 0;i < 512;i++)
+    {
+        // calculate absolute value of result
+        double absValue = sqrt(complexIn[i][0]*complexIn[i][0] + complexIn[i][1]*complexIn[i][1]);
+        
+        // divide by inverse lad to deal with scale bias towards small lags
+        acf[i] = absValue / lag;
+        
+        // this division by 1024 is technically unnecessary but it ensures the algorithm produces
+        // exactly the same ACF output as the old time domain implementation. The time difference is
+        // minimal so I decided to keep it
+        acf[i] = acf[i] / 1024.;
+        
+        lag = lag - 1.;
+    }
 }
 
 //=======================================================================

@@ -50,6 +50,9 @@ public:
      */
     BTrack(int hopSize_,int frameSize_);
     
+    /** Destructor */
+    ~BTrack();
+    
     //=======================================================================
     /** Updates the hop and frame size used by the beat tracker 
      * @param hopSize the hop size in audio samples
@@ -229,6 +232,12 @@ private:
     bool tempoFixed;                        /**< indicates whether the tempo should be fixed or not */
     
     bool beatDueInFrame;                    /**< indicates whether a beat is due in the current frame */
+    
+    int FFTLengthForACFCalculation;         /**< the FFT length for the auto-correlation function calculation */
+    fftw_plan acfForwardFFT;                /**< forward fftw plan for calculating auto-correlation function */
+    fftw_plan acfBackwardFFT;               /**< inverse fftw plan for calculating auto-correlation function */
+    fftw_complex *complexIn;                /**< to hold complex fft values for input */
+    fftw_complex *complexOut;               /**< to hold complex fft values for output */
 
 };
 
