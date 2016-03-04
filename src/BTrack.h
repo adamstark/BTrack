@@ -23,6 +23,7 @@
 #define __BTRACK_H
 
 #include "OnsetDetectionFunction.h"
+#include "CircularBuffer.h"
 #include <vector>
 
 //=======================================================================
@@ -184,8 +185,8 @@ private:
     //=======================================================================
 	// buffers
     
-    std::vector<double> onsetDF;            /**< to hold onset detection function */
-    std::vector<double> cumulativeScore;    /**< to hold cumulative score */
+    CircularBuffer onsetDF;                 /**< to hold onset detection function */
+    CircularBuffer cumulativeScore;         /**< to hold cumulative score */
     
     double resampledOnsetDF[512];           /**< to hold resampled detection function */
 	

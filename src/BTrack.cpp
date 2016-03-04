@@ -23,6 +23,7 @@
 #include <algorithm>
 #include "BTrack.h"
 #include "samplerate.h"
+#include <iostream>
 
 //=======================================================================
 BTrack::BTrack() : odf(512,1024,ComplexSpectralDifferenceHWR,HanningWindow)
@@ -229,14 +230,15 @@ void BTrack::processOnsetDetectionFunctionSample(double newSample)
 	beatCounter--;
 	beatDueInFrame = false;
 	
-	// move all samples back one step
-	for (int i=0;i < (onsetDFBufferSize-1);i++)
-	{
-		onsetDF[i] = onsetDF[i+1];
-	}
+//	// move all samples back one step
+//	for (int i=0;i < (onsetDFBufferSize-1);i++)
+//	{
+//		onsetDF[i] = onsetDF[i+1];
+//	}
 	
 	// add new sample at the end
-	onsetDF[onsetDFBufferSize-1] = newSample;
+	//onsetDF[onsetDFBufferSize-1] = newSample;
+    onsetDF.addSampleToEnd(newSample);
 	
 	// update cumulative score
 	updateCumulativeScore(newSample);
@@ -366,35 +368,37 @@ void BTrack::doNotFixTempo()
 void BTrack::resampleOnsetDetectionFunction()
 {
 	float output[512];
+    
+
     float input[onsetDFBufferSize];
     
     for (int i = 0;i < onsetDFBufferSize;i++)
     {
         input[i] = (float) onsetDF[i];
     }
-		
-	double src_ratio = 512.0/((double) onsetDFBufferSize);
-	int BUFFER_LEN = onsetDFBufferSize;
-	int output_len;
-	SRC_DATA	src_data ;
-	
-	//output_len = (int) floor (((double) BUFFER_LEN) * src_ratio) ;
-	output_len = 512;
-	
-	src_data.data_in = input;
-	src_data.input_frames = BUFFER_LEN;
-	
-	src_data.src_ratio = src_ratio;
-	
-	src_data.data_out = output;
-	src_data.output_frames = output_len;
-	
-	src_simple (&src_data, SRC_SINC_BEST_QUALITY, 1);
-			
-	for (int i = 0;i < output_len;i++)
-	{
-		resampledOnsetDF[i] = (double) src_data.data_out[i];
-	}
+        
+    double src_ratio = 512.0/((double) onsetDFBufferSize);
+    int BUFFER_LEN = onsetDFBufferSize;
+    int output_len;
+    SRC_DATA	src_data ;
+    
+    //output_len = (int) floor (((double) BUFFER_LEN) * src_ratio) ;
+    output_len = 512;
+    
+    src_data.data_in = input;
+    src_data.input_frames = BUFFER_LEN;
+    
+    src_data.src_ratio = src_ratio;
+    
+    src_data.data_out = output;
+    src_data.output_frames = output_len;
+    
+    src_simple (&src_data, SRC_SINC_BEST_QUALITY, 1);
+            
+    for (int i = 0;i < output_len;i++)
+    {
+        resampledOnsetDF[i] = (double) src_data.data_out[i];
+    }
 }
 
 //=======================================================================
@@ -682,16 +686,20 @@ void BTrack::updateCumulativeScore(double odfSample)
 	}
 	
 	
-	// shift cumulative score back one
-	for (int i = 0;i < (onsetDFBufferSize-1);i++)
-	{
-		cumulativeScore[i] = cumulativeScore[i+1];
-	}
+//	// shift cumulative score back one
+//	for (int i = 0;i < (onsetDFBufferSize-1);i++)
+//	{
+//		cumulativeScore[i] = cumulativeScore[i+1];
+//	}
 	
+    latestCumulativeScoreValue = ((1-alpha)*odfSample) + (alpha*max);
+    
+    cumulativeScore.addSampleToEnd(latestCumulativeScoreValue);
+    
 	// add new value to cumulative score
-	cumulativeScore[onsetDFBufferSize-1] = ((1-alpha)*odfSample) + (alpha*max);
+	//cumulativeScore[onsetDFBufferSize-1] = ((1-alpha)*odfSample) + (alpha*max);
 	
-	latestCumulativeScoreValue = cumulativeScore[onsetDFBufferSize-1];
+	//latestCumulativeScoreValue = cumulativeScore[onsetDFBufferSize-1];
 			
 }
 

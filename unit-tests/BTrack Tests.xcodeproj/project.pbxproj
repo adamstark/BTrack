@@ -12,6 +12,7 @@
 		E38214F2188E7AED00DDD7C8 /* BTrack_Tests.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = E38214F1188E7AED00DDD7C8 /* BTrack_Tests.1 */; };
 		E3A45DB9188E7BCD00B48CE4 /* BTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E3A45DB5188E7BCD00B48CE4 /* BTrack.cpp */; };
 		E3A45DBA188E7BCD00B48CE4 /* OnsetDetectionFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E3A45DB7188E7BCD00B48CE4 /* OnsetDetectionFunction.cpp */; };
+		E3A5E1DA1C63CE83007A17B0 /* CircularBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E3A5E1D81C63CE83007A17B0 /* CircularBuffer.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -36,6 +37,8 @@
 		E3A45DB6188E7BCD00B48CE4 /* BTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTrack.h; sourceTree = "<group>"; };
 		E3A45DB7188E7BCD00B48CE4 /* OnsetDetectionFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OnsetDetectionFunction.cpp; sourceTree = "<group>"; };
 		E3A45DB8188E7BCD00B48CE4 /* OnsetDetectionFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnsetDetectionFunction.h; sourceTree = "<group>"; };
+		E3A5E1D81C63CE83007A17B0 /* CircularBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CircularBuffer.cpp; sourceTree = "<group>"; };
+		E3A5E1D91C63CE83007A17B0 /* CircularBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CircularBuffer.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +95,8 @@
 				E3A45DB6188E7BCD00B48CE4 /* BTrack.h */,
 				E3A45DB7188E7BCD00B48CE4 /* OnsetDetectionFunction.cpp */,
 				E3A45DB8188E7BCD00B48CE4 /* OnsetDetectionFunction.h */,
+				E3A5E1D81C63CE83007A17B0 /* CircularBuffer.cpp */,
+				E3A5E1D91C63CE83007A17B0 /* CircularBuffer.h */,
 			);
 			name = src;
 			path = ../../src;
@@ -149,6 +154,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E31C50041891302D006530ED /* Test_BTrack.cpp in Sources */,
+				E3A5E1DA1C63CE83007A17B0 /* CircularBuffer.cpp in Sources */,
 				E3A45DBA188E7BCD00B48CE4 /* OnsetDetectionFunction.cpp in Sources */,
 				E3A45DB9188E7BCD00B48CE4 /* BTrack.cpp in Sources */,
 				E38214F0188E7AED00DDD7C8 /* main.cpp in Sources */,
