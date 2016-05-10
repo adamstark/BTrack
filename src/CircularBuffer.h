@@ -14,7 +14,7 @@
 class CircularBuffer
 {
 public:
-    CircularBuffer() : writeIndex(0)
+    CircularBuffer() : writeIndex (0)
     {
         
     }
@@ -33,7 +33,7 @@ public:
     
     void resize(int size)
     {
-        buffer.resize(size);
+        buffer.resize (size);
         writeIndex = 0;
     }
     
