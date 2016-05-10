@@ -229,15 +229,8 @@ void BTrack::processOnsetDetectionFunctionSample(double newSample)
 	m0--;
 	beatCounter--;
 	beatDueInFrame = false;
-	
-//	// move all samples back one step
-//	for (int i=0;i < (onsetDFBufferSize-1);i++)
-//	{
-//		onsetDF[i] = onsetDF[i+1];
-//	}
-	
+		
 	// add new sample at the end
-	//onsetDF[onsetDFBufferSize-1] = newSample;
     onsetDF.addSampleToEnd(newSample);
 	
 	// update cumulative score
@@ -685,22 +678,10 @@ void BTrack::updateCumulativeScore(double odfSample)
 		n++;
 	}
 	
-	
-//	// shift cumulative score back one
-//	for (int i = 0;i < (onsetDFBufferSize-1);i++)
-//	{
-//		cumulativeScore[i] = cumulativeScore[i+1];
-//	}
-	
+		
     latestCumulativeScoreValue = ((1-alpha)*odfSample) + (alpha*max);
     
     cumulativeScore.addSampleToEnd(latestCumulativeScoreValue);
-    
-	// add new value to cumulative score
-	//cumulativeScore[onsetDFBufferSize-1] = ((1-alpha)*odfSample) + (alpha*max);
-	
-	//latestCumulativeScoreValue = cumulativeScore[onsetDFBufferSize-1];
-			
 }
 
 //=======================================================================
