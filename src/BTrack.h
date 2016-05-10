@@ -43,13 +43,13 @@ public:
     /** Constructor assuming frame size will be double the hopSize
      * @param hopSize the hop size in audio samples
      */
-    BTrack(int hopSize_);
+    BTrack (int hopSize_);
     
     /** Constructor taking both hopSize and frameSize
      * @param hopSize the hop size in audio samples
      * @param frameSize the frame size in audio samples
      */
-    BTrack(int hopSize_,int frameSize_);
+    BTrack (int hopSize_, int frameSize_);
     
     /** Destructor */
     ~BTrack();
@@ -59,19 +59,19 @@ public:
      * @param hopSize the hop size in audio samples
      * @param frameSize the frame size in audio samples
      */
-    void updateHopAndFrameSize(int hopSize_,int frameSize_);
+    void updateHopAndFrameSize (int hopSize_, int frameSize_);
     
     //=======================================================================
     /** Process a single audio frame 
      * @param frame a pointer to an array containing an audio frame. The number of samples should 
      * match the frame size that the algorithm was initialised with.
      */
-    void processAudioFrame(double *frame);
+    void processAudioFrame (double *frame);
     
     /** Add new onset detection function sample to buffer and apply beat tracking 
      * @param sample an onset detection function sample
      */
-    void processOnsetDetectionFunctionSample(double sample);
+    void processOnsetDetectionFunctionSample (double sample);
    
     //=======================================================================
     /** @returns the current hop size being used by the beat tracker */
@@ -90,13 +90,13 @@ public:
     /** Set the tempo of the beat tracker 
      * @param tempo the tempo in beats per minute (bpm)
      */
-    void setTempo(double tempo);
+    void setTempo (double tempo);
     
     /** Fix tempo to roughly around some value, so that the algorithm will only try to track
      * tempi around the given tempo
      * @param tempo the tempo in beats per minute (bpm)
      */
-    void fixTempo(double tempo);
+    void fixTempo (double tempo);
     
     /** Tell the algorithm to not fix the tempo anymore */
     void doNotFixTempo();
@@ -109,7 +109,7 @@ public:
      * @param fs the sampling frequency in Hz
      * @returns a beat time in seconds
      */
-    static double getBeatTimeInSeconds(long frameNumber,int hopSize,int fs);
+    static double getBeatTimeInSeconds (long frameNumber, int hopSize, int fs);
     
     /** Calculates a beat time in seconds, given the frame number, hop size and sampling frequency.
      * This version uses an int to represent the frame number
@@ -118,7 +118,7 @@ public:
      * @param fs the sampling frequency in Hz
      * @returns a beat time in seconds
      */
-    static double getBeatTimeInSeconds(int frameNumber,int hopSize,int fs);
+    static double getBeatTimeInSeconds (int frameNumber, int hopSize, int fs);
     
 		
 private:
@@ -127,12 +127,12 @@ private:
      * @param hopSize_ the hop size in audio samples
      * @param frameSize_ the frame size in audio samples
      */
-    void initialise(int hopSize_,int frameSize_);
+    void initialise (int hopSize_, int frameSize_);
     
     /** Initialise with hop size and set all array sizes accordingly
      * @param hopSize_ the hop size in audio samples
      */
-    void setHopSize(int hopSize_);
+    void setHopSize (int hopSize_);
     
     /** Resamples the onset detection function from an arbitrary number of samples to 512 */
     void resampleOnsetDetectionFunction();
@@ -140,7 +140,7 @@ private:
     /** Updates the cumulative score function with a new onset detection function sample 
      * @param odfSample an onset detection function sample
      */
-    void updateCumulativeScore(double odfSample);
+    void updateCumulativeScore (double odfSample);
 	
     /** Predicts the next beat, based upon the internal program state */
     void predictBeat();
@@ -153,7 +153,7 @@ private:
      * @param x a pointer to an array containing onset detection function samples
      * @param N the length of the array, x
      */
-    void adaptiveThreshold(double *x,int N);
+    void adaptiveThreshold (double* x, int N);
     
     /** Calculates the mean of values in an array between index locations [startIndex,endIndex]
      * @param array a pointer to an array that contains the values we wish to find the mean from
@@ -161,18 +161,18 @@ private:
      * @param endIndex the final index to which we would like to calculate the mean
      * @returns the mean of the sub-section of the array
      */
-    double calculateMeanOfArray(double *array,int startIndex,int endIndex);
+    double calculateMeanOfArray (double*array, int startIndex, int endIndex);
     
     /** Normalises a given array
      * @param array a pointer to the array we wish to normalise
      * @param N the length of the array
      */
-    void normaliseArray(double *array,int N);
+    void normaliseArray (double* array, int N);
     
     /** Calculates the balanced autocorrelation of the smoothed onset detection function
      * @param onsetDetectionFunction a pointer to an array containing the onset detection function
      */
-    void calculateBalancedACF(double *onsetDetectionFunction);
+    void calculateBalancedACF (double* onsetDetectionFunction);
     
     /** Calculates the output of the comb filter bank */
     void calculateOutputOfCombFilterBank();
