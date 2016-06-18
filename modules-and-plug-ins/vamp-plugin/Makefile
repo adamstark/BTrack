@@ -21,17 +21,15 @@ PLUGIN_LIBRARY_NAME := btrack
 
 # Edit this to list the .cpp or .c files in your plugin project
 #
-PLUGIN_SOURCES := BTrackVamp.cpp plugins.cpp ../../src/BTrack.cpp ../../src/OnsetDetectionFunction.cpp
+PLUGIN_SOURCES := BTrackVamp.cpp plugins.cpp ../../src/BTrack.cpp ../../src/OnsetDetectionFunction.cpp 
 
 # Edit this to list the .h files in your plugin project
 #
-PLUGIN_HEADERS := BTrackVamp.h ../../src/BTrack.h ../../src/OnsetDetectionFunction.h
-
+PLUGIN_HEADERS := BTrackVamp.h ../../src/BTrack.h ../../src/OnsetDetectionFunction.h ../../src/CircularBuffer.h
 # Edit this to the location of the Vamp plugin SDK, relative to your
 # project directory
 #
 VAMP_SDK_DIR := /usr/local/lib/vamp-sdk
-
 
 ## Uncomment these for an OS/X universal binary (32- and 64-bit Intel)
 ## supporting 10.5 or newer. Use this if you have OS/X 10.7 with the
@@ -40,10 +38,10 @@ VAMP_SDK_DIR := /usr/local/lib/vamp-sdk
 CXX := g++
 
 ## commented this out while I don't have both 32 and 64 bit versions of the libraries
-#CXXFLAGS := -mmacosx-version-min=10.5 -arch i386 -arch x86_64 -I$(VAMP_SDK_DIR) -Wall -fPIC
-CXXFLAGS := -mmacosx-version-min=10.5 -arch x86_64 -I$(VAMP_SDK_DIR) -Wall -fPIC
+#CXXFLAGS := -mmacosx-version-min=10.11 -arch i386 -arch x86_64 -I$(VAMP_SDK_DIR) -Wall -fPIC
+CXXFLAGS := -mmacosx-version-min=10.11 -arch x86_64 -I$(VAMP_SDK_DIR) -I/usr/local/include  -DUSE_FFTW -Wall -fPIC
 PLUGIN_EXT := .dylib
-LDFLAGS := $(CXXFLAGS) -dynamiclib -lfftw3 -lsamplerate -install_name $(PLUGIN_LIBRARY_NAME)$(PLUGIN_EXT) $(VAMP_SDK_DIR)/libvamp-sdk.a -exported_symbols_list vamp-plugin.list
+LDFLAGS := $(CXXFLAGS) -dynamiclib -L/usr/local/lib -lsamplerate -lfftw3 -lstdc++ -install_name $(PLUGIN_LIBRARY_NAME)$(PLUGIN_EXT) $(VAMP_SDK_DIR)/libvamp-sdk.a -exported_symbols_list vamp-plugin.list
 
 
 ## Uncomment these for an OS/X universal binary (PPC and 32- and

@@ -5,7 +5,7 @@ from scikits.audiolab import wavread
 import btrack
 
 # set the path to an audio file on your machine
-audioFilePath = "/Users/adamstark/Documents/Audio/Databases/Hainsworth/audio/001.wav"
+audioFilePath = "/path/to/your/audioFile.wav"
 
 # read the audio file
 audioData, fs, enc = wavread(audioFilePath)     # extract audio from file
