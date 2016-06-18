@@ -117,8 +117,15 @@ Requirements
 
 To compile BTrack, you will require the following libraries:
 
-* FFTW
 * libsamplerate
+
+And either:
+
+* FFTW (add the flag -DUSE_FFTW)
+
+or:
+
+* Kiss FFT (included with project, use the flag -DUSE_KISS_FFT)
 
 
 License
