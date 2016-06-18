@@ -66,7 +66,7 @@ public:
      * @param frame a pointer to an array containing an audio frame. The number of samples should 
      * match the frame size that the algorithm was initialised with.
      */
-    void processAudioFrame (double *frame);
+    void processAudioFrame (double* frame);
     
     /** Add new onset detection function sample to buffer and apply beat tracking 
      * @param sample an onset detection function sample
@@ -161,7 +161,7 @@ private:
      * @param endIndex the final index to which we would like to calculate the mean
      * @returns the mean of the sub-section of the array
      */
-    double calculateMeanOfArray (double*array, int startIndex, int endIndex);
+    double calculateMeanOfArray (double* array, int startIndex, int endIndex);
     
     /** Normalises a given array
      * @param array a pointer to the array we wish to normalise
@@ -189,56 +189,46 @@ private:
     CircularBuffer cumulativeScore;         /**< to hold cumulative score */
     
     double resampledOnsetDF[512];           /**< to hold resampled detection function */
-	
     double acf[512];                        /**<  to hold autocorrelation function */
-	
     double weightingVector[128];            /**<  to hold weighting vector */
-	
     double combFilterBankOutput[128];       /**<  to hold comb filter output */
     double tempoObservationVector[41];      /**<  to hold tempo version of comb filter output */
-	
     double delta[41];                       /**<  to hold final tempo candidate array */
     double prevDelta[41];                   /**<  previous delta */
     double prevDeltaFixed[41];              /**<  fixed tempo version of previous delta */
-	
     double tempoTransitionMatrix[41][41];   /**<  tempo transition matrix */
-	
     
 	//=======================================================================
     // parameters
     
-    
     double tightness;                       /**< the tightness of the weighting used to calculate cumulative score */
-    
     double alpha;                           /**< the mix between the current detection function sample and the cumulative score's "momentum" */
-    
     double beatPeriod;                      /**< the beat period, in detection function samples */
-    
     double tempo;                           /**< the tempo in beats per minute */
-	
     double estimatedTempo;                  /**< the current tempo estimation being used by the algorithm */
-    
     double latestCumulativeScoreValue;      /**< holds the latest value of the cumulative score function */
-    
     double tempoToLagFactor;                /**< factor for converting between lag and tempo */
-	
     int m0;                                 /**< indicates when the next point to predict the next beat is */
-    
     int beatCounter;                        /**< keeps track of when the next beat is - will be zero when the beat is due, and is set elsewhere in the algorithm to be positive once a beat prediction is made */
-	
     int hopSize;                            /**< the hop size being used by the algorithm */
-    
     int onsetDFBufferSize;                  /**< the onset detection function buffer size */
-	
     bool tempoFixed;                        /**< indicates whether the tempo should be fixed or not */
-    
     bool beatDueInFrame;                    /**< indicates whether a beat is due in the current frame */
-    
     int FFTLengthForACFCalculation;         /**< the FFT length for the auto-correlation function calculation */
+    
+#ifdef USE_FFTW
     fftw_plan acfForwardFFT;                /**< forward fftw plan for calculating auto-correlation function */
     fftw_plan acfBackwardFFT;               /**< inverse fftw plan for calculating auto-correlation function */
     fftw_complex* complexIn;                /**< to hold complex fft values for input */
     fftw_complex* complexOut;               /**< to hold complex fft values for output */
+#endif
+    
+#ifdef USE_KISS_FFT
+    kiss_fft_cfg cfgForwards;               /**< Kiss FFT configuration */
+    kiss_fft_cfg cfgBackwards;              /**< Kiss FFT configuration */
+    kiss_fft_cpx* fftIn;                    /**< FFT input samples, in complex form */
+    kiss_fft_cpx* fftOut;                   /**< FFT output samples, in complex form */
+#endif
 
 };
 

@@ -29,14 +29,14 @@
 BTrack::BTrack()
  :  odf (512, 1024, ComplexSpectralDifferenceHWR, HanningWindow)
 {
-    initialise(512, 1024);
+    initialise (512, 1024);
 }
 
 //=======================================================================
 BTrack::BTrack (int hopSize_)
  :  odf(hopSize_, 2*hopSize_, ComplexSpectralDifferenceHWR, HanningWindow)
 {	
-    initialise(hopSize_, 2*hopSize_);
+    initialise (hopSize_, 2*hopSize_);
 }
 
 //=======================================================================
@@ -49,11 +49,20 @@ BTrack::BTrack (int hopSize_, int frameSize_)
 //=======================================================================
 BTrack::~BTrack()
 {
+#ifdef USE_FFTW
     // destroy fft plan
     fftw_destroy_plan (acfForwardFFT);
     fftw_destroy_plan (acfBackwardFFT);
     fftw_free (complexIn);
     fftw_free (complexOut);
+#endif
+    
+#ifdef USE_KISS_FFT
+    free (cfgForwards);
+    free (cfgBackwards);
+    delete [] fftIn;
+    delete [] fftOut;
+#endif
 }
 
 //=======================================================================
@@ -137,11 +146,20 @@ void BTrack::initialise (int hopSize_, int frameSize_)
     // Set up FFT for calculating the auto-correlation function
     FFTLengthForACFCalculation = 1024;
     
+#ifdef USE_FFTW
     complexIn = (fftw_complex*) fftw_malloc (sizeof(fftw_complex) * FFTLengthForACFCalculation);		// complex array to hold fft data
     complexOut = (fftw_complex*) fftw_malloc (sizeof(fftw_complex) * FFTLengthForACFCalculation);	// complex array to hold fft data
     
     acfForwardFFT = fftw_plan_dft_1d (FFTLengthForACFCalculation, complexIn, complexOut, FFTW_FORWARD, FFTW_ESTIMATE);	// FFT plan initialisation
     acfBackwardFFT = fftw_plan_dft_1d (FFTLengthForACFCalculation, complexOut, complexIn, FFTW_BACKWARD, FFTW_ESTIMATE);	// FFT plan initialisation
+#endif
+    
+#ifdef USE_KISS_FFT
+    fftIn = new kiss_fft_cpx[FFTLengthForACFCalculation];
+    fftOut = new kiss_fft_cpx[FFTLengthForACFCalculation];
+    cfgForwards = kiss_fft_alloc (FFTLengthForACFCalculation, 0, 0, 0);
+    cfgBackwards = kiss_fft_alloc (FFTLengthForACFCalculation, 1, 0, 0);
+#endif
 }
 
 //=======================================================================
@@ -477,7 +495,7 @@ void BTrack::calculateTempo()
 }
 
 //=======================================================================
-void BTrack::adaptiveThreshold (double*x, int N)
+void BTrack::adaptiveThreshold (double* x, int N)
 {
 	int i = 0;
 	int k,t = 0;
@@ -546,6 +564,7 @@ void BTrack::calculateBalancedACF (double* onsetDetectionFunction)
 {
     int onsetDetectionFunctionLength = 512;
     
+#ifdef USE_FFTW
     // copy into complex array and zero pad
     for (int i = 0;i < FFTLengthForACFCalculation;i++)
     {
@@ -574,14 +593,52 @@ void BTrack::calculateBalancedACF (double* onsetDetectionFunction)
     // perform the ifft
     fftw_execute (acfBackwardFFT);
     
+#endif
+    
+#ifdef USE_KISS_FFT
+    // copy into complex array and zero pad
+    for (int i = 0;i < FFTLengthForACFCalculation;i++)
+    {
+        if (i < onsetDetectionFunctionLength)
+        {
+            fftIn[i].r = onsetDetectionFunction[i];
+            fftIn[i].i = 0.0;
+        }
+        else
+        {
+            fftIn[i].r = 0.0;
+            fftIn[i].i = 0.0;
+        }
+    }
+    
+    // execute kiss fft
+    kiss_fft (cfgForwards, fftIn, fftOut);
+    
+    // multiply by complex conjugate
+    for (int i = 0;i < FFTLengthForACFCalculation;i++)
+    {
+        fftOut[i].r = fftOut[i].r * fftOut[i].r + fftOut[i].i * fftOut[i].i;
+        fftOut[i].i = 0.0;
+    }
+    
+    // perform the ifft
+    kiss_fft (cfgBackwards, fftOut, fftIn);
+    
+#endif
     
     double lag = 512;
     
     for (int i = 0; i < 512; i++)
     {
+#ifdef USE_FFTW
         // calculate absolute value of result
         double absValue = sqrt (complexIn[i][0]*complexIn[i][0] + complexIn[i][1]*complexIn[i][1]);
+#endif
         
+#ifdef USE_KISS_FFT
+        // calculate absolute value of result
+        double absValue = sqrt (fftIn[i].r * fftIn[i].r + fftIn[i].i * fftIn[i].i);
+#endif
         // divide by inverse lad to deal with scale bias towards small lags
         acf[i] = absValue / lag;
         
@@ -619,7 +676,7 @@ double BTrack::calculateMeanOfArray (double* array, int startIndex, int endIndex
 }
 
 //=======================================================================
-void BTrack::normaliseArray(double* array, int N)
+void BTrack::normaliseArray (double* array, int N)
 {
 	double sum = 0;
 	
@@ -654,11 +711,10 @@ void BTrack::updateCumulativeScore (double odfSample)
 	double v = -2*beatPeriod;
 	double wcumscore;
 	
-	
 	// create window
 	for (int i = 0; i < winsize; i++)
 	{
-		w1[i] = exp((-1*pow (tightness * log (-v / beatPeriod), 2)) / 2);
+		w1[i] = exp((-1 * pow (tightness * log (-v / beatPeriod), 2)) / 2);
 		v = v+1;
 	}	
 	
@@ -676,8 +732,7 @@ void BTrack::updateCumulativeScore (double odfSample)
 		n++;
 	}
 	
-		
-    latestCumulativeScoreValue = ((1-alpha)*odfSample) + (alpha*max);
+    latestCumulativeScoreValue = ((1 - alpha) * odfSample) + (alpha * max);
     
     cumulativeScore.addSampleToEnd (latestCumulativeScoreValue);
 }
@@ -688,6 +743,7 @@ void BTrack::predictBeat()
 	int windowSize = (int) beatPeriod;
 	double futureCumulativeScore[onsetDFBufferSize + windowSize];
 	double w2[windowSize];
+    
 	// copy cumscore to first part of fcumscore
 	for (int i = 0;i < onsetDFBufferSize;i++)
 	{
@@ -715,8 +771,6 @@ void BTrack::predictBeat()
 		v = v+1;
 	}
 
-	
-
 	// calculate future cumulative score
 	double max;
 	int n;
@@ -741,7 +795,6 @@ void BTrack::predictBeat()
 		
 		futureCumulativeScore[i] = max;
 	}
-	
 	
 	// predict beat
 	max = 0;

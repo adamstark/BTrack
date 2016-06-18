@@ -22,7 +22,14 @@
 #ifndef __ONSETDETECTIONFUNCTION_H
 #define __ONSETDETECTIONFUNCTION_H
 
+#ifdef USE_FFTW
 #include "fftw3.h"
+#endif
+
+#ifdef USE_KISS_FFT
+#include "kiss_fft.h"
+#endif
+
 #include <vector>
 
 //=======================================================================
@@ -162,6 +169,8 @@ private:
      */
 	double princarg(double phaseVal);
 	
+    void initialiseFFT();
+    void freeFFT();
 	
 	double pi;							/**< pi, the constant */
 	
@@ -169,11 +178,22 @@ private:
 	int hopSize;						/**< audio hopsize */
 	int onsetDetectionFunctionType;		/**< type of detection function */
     int windowType;                     /**< type of window used in calculations */
-	
+
+    //=======================================================================
+#ifdef USE_FFTW
 	fftw_plan p;						/**< fftw plan */
 	fftw_complex* complexIn;			/**< to hold complex fft values for input */
 	fftw_complex* complexOut;			/**< to hold complex fft values for output */
+#endif
+    
+#ifdef USE_KISS_FFT
+    kiss_fft_cfg cfg;                   /**< Kiss FFT configuration */
+    kiss_fft_cpx* fftIn;                /**< FFT input samples, in complex form */
+    kiss_fft_cpx* fftOut;               /**< FFT output samples, in complex form */
+    std::vector<std::vector<double> > complexOut;
+#endif
 	
+    //=======================================================================
 	bool initialised;					/**< flag indicating whether buffers and FFT plans are initialised */
 
     std::vector<double> frame;          /**< audio frame */
