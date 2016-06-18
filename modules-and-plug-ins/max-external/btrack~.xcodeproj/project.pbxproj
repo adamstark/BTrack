@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		22CF119B0EE9A8250054F513 /* btrack~.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 22CF119A0EE9A8250054F513 /* btrack~.cpp */; };
 		22CF119E0EE9A82E0054F513 /* MaxAudioAPI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 22CF119D0EE9A82E0054F513 /* MaxAudioAPI.framework */; };
+		E3391F081D153E1200C7EB2E /* CircularBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = E3391F071D153E1200C7EB2E /* CircularBuffer.h */; };
 		E34F60F61A22A83400AD0770 /* BTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E34F60F21A22A83400AD0770 /* BTrack.cpp */; };
 		E34F60F71A22A83400AD0770 /* BTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = E34F60F31A22A83400AD0770 /* BTrack.h */; };
 		E34F60F81A22A83400AD0770 /* OnsetDetectionFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E34F60F41A22A83400AD0770 /* OnsetDetectionFunction.cpp */; };
@@ -20,6 +21,7 @@
 		22CF119A0EE9A8250054F513 /* btrack~.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "btrack~.cpp"; sourceTree = "<group>"; };
 		22CF119D0EE9A82E0054F513 /* MaxAudioAPI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MaxAudioAPI.framework; path = "../../../SDKs/MaxSDK-6.1.4/c74support/msp-includes/MaxAudioAPI.framework"; sourceTree = SOURCE_ROOT; };
 		2FBBEAE508F335360078DB84 /* btrack~.mxo */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "btrack~.mxo"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E3391F071D153E1200C7EB2E /* CircularBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CircularBuffer.h; sourceTree = "<group>"; };
 		E34F60F21A22A83400AD0770 /* BTrack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BTrack.cpp; sourceTree = "<group>"; };
 		E34F60F31A22A83400AD0770 /* BTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTrack.h; sourceTree = "<group>"; };
 		E34F60F41A22A83400AD0770 /* OnsetDetectionFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OnsetDetectionFunction.cpp; sourceTree = "<group>"; };
@@ -65,6 +67,7 @@
 				E34F60F31A22A83400AD0770 /* BTrack.h */,
 				E34F60F41A22A83400AD0770 /* OnsetDetectionFunction.cpp */,
 				E34F60F51A22A83400AD0770 /* OnsetDetectionFunction.h */,
+				E3391F071D153E1200C7EB2E /* CircularBuffer.h */,
 			);
 			name = src;
 			path = ../../src;
@@ -79,6 +82,7 @@
 			files = (
 				E34F60F91A22A83400AD0770 /* OnsetDetectionFunction.h in Headers */,
 				E34F60F71A22A83400AD0770 /* BTrack.h in Headers */,
+				E3391F081D153E1200C7EB2E /* CircularBuffer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -12,6 +12,7 @@
 		E38214F2188E7AED00DDD7C8 /* BTrack_Tests.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = E38214F1188E7AED00DDD7C8 /* BTrack_Tests.1 */; };
 		E3A45DB9188E7BCD00B48CE4 /* BTrack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E3A45DB5188E7BCD00B48CE4 /* BTrack.cpp */; };
 		E3A45DBA188E7BCD00B48CE4 /* OnsetDetectionFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E3A45DB7188E7BCD00B48CE4 /* OnsetDetectionFunction.cpp */; };
+		E3CDB1F71CE3EABC00EE78E5 /* kiss_fft.c in Sources */ = {isa = PBXBuildFile; fileRef = E3CDB1F31CE3EABC00EE78E5 /* kiss_fft.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -36,6 +37,11 @@
 		E3A45DB6188E7BCD00B48CE4 /* BTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BTrack.h; sourceTree = "<group>"; };
 		E3A45DB7188E7BCD00B48CE4 /* OnsetDetectionFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OnsetDetectionFunction.cpp; sourceTree = "<group>"; };
 		E3A45DB8188E7BCD00B48CE4 /* OnsetDetectionFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnsetDetectionFunction.h; sourceTree = "<group>"; };
+		E3A5E1D91C63CE83007A17B0 /* CircularBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CircularBuffer.h; sourceTree = "<group>"; };
+		E3CDB1F11CE3EABC00EE78E5 /* _kiss_fft_guts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = _kiss_fft_guts.h; sourceTree = "<group>"; };
+		E3CDB1F31CE3EABC00EE78E5 /* kiss_fft.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kiss_fft.c; sourceTree = "<group>"; };
+		E3CDB1F41CE3EABC00EE78E5 /* kiss_fft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kiss_fft.h; sourceTree = "<group>"; };
+		E3CDB1F51CE3EABC00EE78E5 /* kissfft.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = kissfft.hh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +84,7 @@
 			isa = PBXGroup;
 			children = (
 				E38214EF188E7AED00DDD7C8 /* main.cpp */,
+				E3CDB1EF1CE3EABC00EE78E5 /* libs */,
 				E31C500218913007006530ED /* tests */,
 				E3A45DB4188E7BCD00B48CE4 /* src */,
 				E38214F1188E7AED00DDD7C8 /* BTrack_Tests.1 */,
@@ -92,9 +99,30 @@
 				E3A45DB6188E7BCD00B48CE4 /* BTrack.h */,
 				E3A45DB7188E7BCD00B48CE4 /* OnsetDetectionFunction.cpp */,
 				E3A45DB8188E7BCD00B48CE4 /* OnsetDetectionFunction.h */,
+				E3A5E1D91C63CE83007A17B0 /* CircularBuffer.h */,
 			);
 			name = src;
 			path = ../../src;
+			sourceTree = "<group>";
+		};
+		E3CDB1EF1CE3EABC00EE78E5 /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				E3CDB1F01CE3EABC00EE78E5 /* kiss_fft130 */,
+			);
+			name = libs;
+			path = ../../libs;
+			sourceTree = "<group>";
+		};
+		E3CDB1F01CE3EABC00EE78E5 /* kiss_fft130 */ = {
+			isa = PBXGroup;
+			children = (
+				E3CDB1F11CE3EABC00EE78E5 /* _kiss_fft_guts.h */,
+				E3CDB1F31CE3EABC00EE78E5 /* kiss_fft.c */,
+				E3CDB1F41CE3EABC00EE78E5 /* kiss_fft.h */,
+				E3CDB1F51CE3EABC00EE78E5 /* kissfft.hh */,
+			);
+			path = kiss_fft130;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -149,6 +177,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E31C50041891302D006530ED /* Test_BTrack.cpp in Sources */,
+				E3CDB1F71CE3EABC00EE78E5 /* kiss_fft.c in Sources */,
 				E3A45DBA188E7BCD00B48CE4 /* OnsetDetectionFunction.cpp in Sources */,
 				E3A45DB9188E7BCD00B48CE4 /* BTrack.cpp in Sources */,
 				E38214F0188E7AED00DDD7C8 /* main.cpp in Sources */,
@@ -251,6 +280,10 @@
 		E38214F6188E7AED00DDD7C8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DUSE_FFTW",
+				);
 				OTHER_LDFLAGS = (
 					"-lboost_unit_test_framework",
 					"-lsamplerate",
@@ -263,6 +296,10 @@
 		E38214F7188E7AED00DDD7C8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DUSE_FFTW",
+				);
 				OTHER_LDFLAGS = (
 					"-lboost_unit_test_framework",
 					"-lsamplerate",

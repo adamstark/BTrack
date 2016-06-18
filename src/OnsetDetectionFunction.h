@@ -22,7 +22,14 @@
 #ifndef __ONSETDETECTIONFUNCTION_H
 #define __ONSETDETECTIONFUNCTION_H
 
+#ifdef USE_FFTW
 #include "fftw3.h"
+#endif
+
+#ifdef USE_KISS_FFT
+#include "kiss_fft.h"
+#endif
+
 #include <vector>
 
 //=======================================================================
@@ -63,7 +70,7 @@ public:
      * @param hopSize_ the hop size in audio samples
      * @param frameSize_ the frame size in audio samples
      */
-	OnsetDetectionFunction(int hopSize_,int frameSize_);
+	OnsetDetectionFunction (int hopSize_, int frameSize_);
     
     
     /** Constructor 
@@ -72,7 +79,7 @@ public:
      * @param onsetDetectionFunctionType_ the type of onset detection function to use - (see OnsetDetectionFunctionType)
      * @param windowType the type of window to use (see WindowType)
      */
-	OnsetDetectionFunction(int hopSize_,int frameSize_,int onsetDetectionFunctionType_,int windowType_);
+	OnsetDetectionFunction (int hopSize_, int frameSize_, int onsetDetectionFunctionType_, int windowType_);
     
     /** Destructor */
 	~OnsetDetectionFunction();
@@ -82,7 +89,7 @@ public:
      * @param hopSize_ the hop size in audio samples
      * @param frameSize_ the frame size in audio samples
      */
-	void initialise(int hopSize_,int frameSize_);
+	void initialise (int hopSize_, int frameSize_);
     
     /** Initialisation Function 
      * @param hopSize_ the hop size in audio samples
@@ -90,18 +97,18 @@ public:
      * @param onsetDetectionFunctionType_ the type of onset detection function to use - (see OnsetDetectionFunctionType)
      * @param windowType the type of window to use (see WindowType)
      */
-	void initialise(int hopSize_,int frameSize_,int onsetDetectionFunctionType_,int windowType_);
+	void initialise (int hopSize_, int frameSize_, int onsetDetectionFunctionType_, int windowType_);
 	
     /** Process input frame and calculate detection function sample 
      * @param buffer a pointer to an array containing the audio samples to be processed
      * @returns the onset detection function sample
      */
-	double calculateOnsetDetectionFunctionSample(double *buffer);
+	double calculateOnsetDetectionFunctionSample (double* buffer);
     
     /** Set the detection function type 
      * @param onsetDetectionFunctionType_ the type of onset detection function to use - (see OnsetDetectionFunctionType)
      */
-	void setOnsetDetectionFunctionType(int onsetDetectionFunctionType_);
+	void setOnsetDetectionFunctionType (int onsetDetectionFunctionType_);
 	
 private:
 	
@@ -162,6 +169,8 @@ private:
      */
 	double princarg(double phaseVal);
 	
+    void initialiseFFT();
+    void freeFFT();
 	
 	double pi;							/**< pi, the constant */
 	
@@ -169,11 +178,22 @@ private:
 	int hopSize;						/**< audio hopsize */
 	int onsetDetectionFunctionType;		/**< type of detection function */
     int windowType;                     /**< type of window used in calculations */
-	
+
+    //=======================================================================
+#ifdef USE_FFTW
 	fftw_plan p;						/**< fftw plan */
-	fftw_complex *complexIn;			/**< to hold complex fft values for input */
-	fftw_complex *complexOut;			/**< to hold complex fft values for output */
+	fftw_complex* complexIn;			/**< to hold complex fft values for input */
+	fftw_complex* complexOut;			/**< to hold complex fft values for output */
+#endif
+    
+#ifdef USE_KISS_FFT
+    kiss_fft_cfg cfg;                   /**< Kiss FFT configuration */
+    kiss_fft_cpx* fftIn;                /**< FFT input samples, in complex form */
+    kiss_fft_cpx* fftOut;               /**< FFT output samples, in complex form */
+    std::vector<std::vector<double> > complexOut;
+#endif
 	
+    //=======================================================================
 	bool initialised;					/**< flag indicating whether buffers and FFT plans are initialised */
 
     std::vector<double> frame;          /**< audio frame */
