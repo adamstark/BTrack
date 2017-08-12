@@ -25,7 +25,6 @@
 #include "OnsetDetectionFunction.h"
 #include "CircularBuffer.h"
 #include <vector>
-#include <array>
 
 //=======================================================================
 /** The main beat tracking class and the interface to the BTrack
