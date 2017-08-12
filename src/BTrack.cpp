@@ -99,7 +99,7 @@ void BTrack::initialise (int hopSize_, int frameSize_)
     prevDelta.resize (41);
     prevDeltaFixed.resize (41);
     
-    double rayparam = 43;
+    double rayleighParameter = 43;
 	double pi = 3.14159265;
 	
 	
@@ -118,9 +118,7 @@ void BTrack::initialise (int hopSize_, int frameSize_)
 
 	// create rayleigh weighting vector
 	for (int n = 0; n < 128; n++)
-	{
-		weightingVector[n] = ((double) n / pow(rayparam,2)) * exp((-1*pow((double)-n,2)) / (2*pow(rayparam,2)));
-	}
+        weightingVector[n] = ((double) n / pow (rayleighParameter, 2)) * exp((-1 * pow((double) - n, 2)) / (2 * pow (rayleighParameter, 2)));
 	
     // initialise prev_delta
     std::fill (prevDelta.begin(), prevDelta.end(), 1);
@@ -664,41 +662,37 @@ void BTrack::normaliseArray (std::vector<double>& array)
 
 //=======================================================================
 void BTrack::updateCumulativeScore (double odfSample)
-{	 
-	int start, end, winsize;
-	double max;
+{
+	int start = onsetDFBufferSize - round (2. * beatPeriod);
+	int end = onsetDFBufferSize - round (beatPeriod / 2.);
+	int windowSize = end - start + 1;
 	
-	start = onsetDFBufferSize - round (2. * beatPeriod);
-	end = onsetDFBufferSize - round (beatPeriod / 2.);
-	winsize = end - start + 1;
-	
-	double w1[winsize];
+	double w1[windowSize];
 	double v = -2. * beatPeriod;
-	double wcumscore;
+	double weightedCumulativeScore;
 	
 	// create window
-	for (int i = 0; i < winsize; i++)
+	for (int i = 0; i < windowSize; i++)
 	{
-		w1[i] = exp((-1 * pow (tightness * log (-v / beatPeriod), 2)) / 2);
-		v = v + 1;
+        double a = tightness * log (-v / beatPeriod);
+		w1[i] = exp ((-1. * a * a) / 2.);
+		v = v + 1.;
 	}	
 	
 	// calculate new cumulative score value
-	max = 0;
+	double maxValue = 0;
 	int n = 0;
-	for (int i=start; i <= end; i++)
+	for (int i = start; i <= end; i++)
 	{
-			wcumscore = cumulativeScore[i]*w1[n];
+        weightedCumulativeScore = cumulativeScore[i] * w1[n];
 		
-			if (wcumscore > max)
-			{
-				max = wcumscore;
-			}
+        if (weightedCumulativeScore > maxValue)
+            maxValue = weightedCumulativeScore;
+        
 		n++;
 	}
 	
-    latestCumulativeScoreValue = ((1 - alpha) * odfSample) + (alpha * max);
-    
+    latestCumulativeScoreValue = ((1 - alpha) * odfSample) + (alpha * maxValue);
     cumulativeScore.addSampleToEnd (latestCumulativeScoreValue);
 }
 
