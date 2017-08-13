@@ -181,14 +181,11 @@ double OnsetDetectionFunction::calculateOnsetDetectionFunctionSample (double* bu
 	double odfSample;
 		
 	// shift audio samples back in frame by hop size
-	for (int i = 0; i < (frameSize-hopSize);i++)
-	{
-		frame[i] = frame[i+hopSize];
-	}
+    std::rotate (frame.begin(), frame.begin() + hopSize, frame.end());
 	
 	// add new samples to frame from input buffer
 	int j = 0;
-	for (int i = (frameSize-hopSize);i < frameSize;i++)
+	for (int i = (frameSize - hopSize); i < frameSize; i++)
 	{
 		frame[i] = buffer[j];
 		j++;

@@ -138,9 +138,9 @@ private:
     void resampleOnsetDetectionFunction();
     
     /** Updates the cumulative score function with a new onset detection function sample 
-     * @param odfSample an onset detection function sample
+     * @param onsetDetectionFunctionSample an onset detection function sample
      */
-    void updateCumulativeScore (double odfSample);
+    void updateCumulativeScore (double onsetDetectionFunctionSample);
 	
     /** Predicts the next beat, based upon the internal program state */
     void predictBeat();
@@ -150,28 +150,27 @@ private:
     
     /** Calculates an adaptive threshold which is used to remove low level energy from detection
      * function and emphasise peaks 
-     * @param x a pointer to an array containing onset detection function samples
-     * @param N the length of the array, x
+     * @param x a vector containing onset detection function samples
      */
-    void adaptiveThreshold (std::vector<double>& x, int N);
+    void adaptiveThreshold (std::vector<double>& x);
     
-    /** Calculates the mean of values in an array between index locations [startIndex,endIndex]
-     * @param array a pointer to an array that contains the values we wish to find the mean from
+    /** Calculates the mean of values in a vector between index locations [startIndex, endIndex]
+     * @param vector a vector that contains the values we wish to find the mean from
      * @param startIndex the start index from which we would like to calculate the mean
      * @param endIndex the final index to which we would like to calculate the mean
-     * @returns the mean of the sub-section of the array
+     * @returns the mean of the sub-section of the vector
      */
-    double calculateMeanOfArray (std::vector<double>& array, int startIndex, int endIndex);
+    double calculateMeanOfVector (std::vector<double>& vector, int startIndex, int endIndex);
     
     /** Normalises a given array
-     * @param array the array we wish to normalise
+     * @param vector the vector we wish to normalise
      */
-    void normaliseArray (std::vector<double>& array);
+    void normaliseVector (std::vector<double>& vector);
     
     /** Calculates the balanced autocorrelation of the smoothed onset detection function
-     * @param onsetDetectionFunction a pointer to an array containing the onset detection function
+     * @param onsetDetectionFunction a vector containing the onset detection function
      */
-    void calculateBalancedACF (double* onsetDetectionFunction);
+    void calculateBalancedACF (std::vector<double>& onsetDetectionFunction);
     
     /** Calculates the output of the comb filter bank */
     void calculateOutputOfCombFilterBank();
