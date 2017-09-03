@@ -104,7 +104,6 @@ void BTrack::initialise (int hopSize_, int frameSize_)
 	// initialise parameters
 	tightness = 5;
 	alpha = 0.9;
-	tempo = 120;
 	estimatedTempo = 120.0;
 	tempoToLagFactor = 60. * 44100. / 512.;
 	
@@ -146,7 +145,6 @@ void BTrack::initialise (int hopSize_, int frameSize_)
     // initialise algorithm given the hopsize
     setHopSize (hopSize_);
     
-    
     // Set up FFT for calculating the auto-correlation function
     FFTLengthForACFCalculation = 1024;
     
@@ -171,8 +169,7 @@ void BTrack::setHopSize (int hopSize_)
 {	
 	hopSize = hopSize_;
 	onsetDFBufferSize = (512 * 512) / hopSize;		// calculate df buffer size
-	
-	beatPeriod = round(60/((((double) hopSize)/44100)*tempo));
+	beatPeriod = round(60/((((double) hopSize)/44100) * 120.));
 
     // set size of onset detection function buffer
     onsetDF.resize (onsetDFBufferSize);

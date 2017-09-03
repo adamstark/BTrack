@@ -202,7 +202,6 @@ private:
     double tightness;                       /**< the tightness of the weighting used to calculate cumulative score */
     double alpha;                           /**< the mix between the current detection function sample and the cumulative score's "momentum" */
     double beatPeriod;                      /**< the beat period, in detection function samples */
-    double tempo;                           /**< the tempo in beats per minute */
     double estimatedTempo;                  /**< the current tempo estimation being used by the algorithm */
     double latestCumulativeScoreValue;      /**< holds the latest value of the cumulative score function */
     double tempoToLagFactor;                /**< factor for converting between lag and tempo */
