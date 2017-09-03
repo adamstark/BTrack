@@ -77,14 +77,6 @@ double BTrack::getBeatTimeInSeconds (long frameNumber, int hopSize, int fs)
 }
 
 //=======================================================================
-double BTrack::getBeatTimeInSeconds (int frameNumber, int hopSize, int fs)
-{
-    long frameNum = (long) frameNumber;
-    
-    return getBeatTimeInSeconds (frameNum, hopSize, fs);
-}
-
-//=======================================================================
 void BTrack::initialise (int hopSize_, int frameSize_)
 {
     // set vector sizes
@@ -507,7 +499,7 @@ void BTrack::calculateOutputOfCombFilterBank()
 		{
 			for (int b = 1 - a; b <= a - 1; b++) // general state using normalisation of comb elements
 			{
-				combFilterBankOutput[i-1] = combFilterBankOutput[i-1] + (acf[(a*i+b)-1]*weightingVector[i-1])/(2*a-1);	// calculate value for comb filter row
+				combFilterBankOutput[i-1] += (acf[(a * i + b) - 1] * weightingVector[i - 1]) / (2 * a - 1);	// calculate value for comb filter row
 			}
 		}
 	}
@@ -638,7 +630,6 @@ void BTrack::updateCumulativeScore (double onsetDetectionFunctionSample)
 	
 	double w1[windowSize];
 	double v = -2. * beatPeriod;
-	double weightedCumulativeScore;
 	
 	// create window
 	for (int i = 0; i < windowSize; i++)
@@ -653,7 +644,7 @@ void BTrack::updateCumulativeScore (double onsetDetectionFunctionSample)
 	int n = 0;
 	for (int i = windowStart; i <= windowEnd; i++)
 	{
-        weightedCumulativeScore = cumulativeScore[i] * w1[n];
+        double weightedCumulativeScore = cumulativeScore[i] * w1[n];
 		
         if (weightedCumulativeScore > maxValue)
             maxValue = weightedCumulativeScore;
@@ -668,73 +659,79 @@ void BTrack::updateCumulativeScore (double onsetDetectionFunctionSample)
 //=======================================================================
 void BTrack::predictBeat()
 {	 
-	int windowSize = (int) beatPeriod;
-	double futureCumulativeScore[onsetDFBufferSize + windowSize];
-	double w2[windowSize];
+	int beatExpectationWindowSize = (int) beatPeriod;
+	double futureCumulativeScore[onsetDFBufferSize + beatExpectationWindowSize];
+	double beatExpectationWindow[beatExpectationWindowSize];
     
-	// copy cumscore to first part of fcumscore
+	// copy cumulativeScore to first part of futureCumulativeScore
 	for (int i = 0;i < onsetDFBufferSize;i++)
-	{
-		futureCumulativeScore[i] = cumulativeScore[i];
-	}
+        futureCumulativeScore[i] = cumulativeScore[i];
 	
-	// create future window
+	// Create a beat expectation window for predicting future beats from the "future" of the cumulative score.
+    // We are making this beat prediction at the midpoint between beats, and so we make a Gaussian
+    // weighting centred on the most likely beat position (half a beat period into the future)
+    // This is W2 in Adam Stark's PhD thesis, equation 3.6, page 62
+    
 	double v = 1;
-	for (int i = 0; i < windowSize; i++)
+	for (int i = 0; i < beatExpectationWindowSize; i++)
 	{
-		w2[i] = exp((-1*pow((v - (beatPeriod/2)),2))   /  (2*pow((beatPeriod/2) ,2)));
+		beatExpectationWindow[i] = exp((-1 * pow ((v - (beatPeriod / 2)), 2))   /  (2 * pow (beatPeriod / 2, 2)));
 		v++;
 	}
 	
-	// create past window
-	v = -2*beatPeriod;
-	int start = onsetDFBufferSize - round(2*beatPeriod);
-	int end = onsetDFBufferSize - round(beatPeriod/2);
-	int pastwinsize = end-start+1;
-	double w1[pastwinsize];
+	// Create window for "synthesizing" the cumulative score into the future
+    // It is a log-Gaussian transition weighting running from from 2 beat periods
+    // in the past to half a beat period in the past. It favours the time exactly
+    // one beat period in the past
+    // This is W1 in Adam Stark's PhD thesis, equation 3.2, page 60
+    
+	v = -2 * beatPeriod;
+	int startIndex = onsetDFBufferSize - round (2 * beatPeriod);
+	int endIndex = onsetDFBufferSize - round (beatPeriod / 2);
+	int pastWindowSize = endIndex - startIndex + 1;
+	double logGaussianTransitionWeighting[pastWindowSize];
 
-	for (int i = 0;i < pastwinsize;i++)
+	for (int i = 0; i < pastWindowSize; i++)
 	{
-		w1[i] = exp((-1*pow(tightness*log(-v/beatPeriod),2))/2);
-		v = v+1;
+		logGaussianTransitionWeighting[i] = exp((-1 * pow (tightness * log (-v / beatPeriod), 2) ) / 2);
+		v = v + 1;
 	}
 
-	// calculate future cumulative score
-	double max;
-	int n;
-	double wcumscore;
-	for (int i = onsetDFBufferSize; i < (onsetDFBufferSize + windowSize); i++)
+	// Calculate the future cumulative score, using the log Gaussian transition weighting
+    
+	for (int i = onsetDFBufferSize; i < (onsetDFBufferSize + beatExpectationWindowSize); i++)
 	{
-		start = i - round (2*beatPeriod);
-		end = i - round (beatPeriod/2);
+		startIndex = i - round (2 * beatPeriod);
+		endIndex = i - round (beatPeriod / 2);
 		
-		max = 0;
-		n = 0;
-		for (int k=start;k <= end;k++)
+		double maxValue = 0;
+		int n = 0;
+		for (int k = startIndex; k <= endIndex; k++)
 		{
-			wcumscore = futureCumulativeScore[k]*w1[n];
+			double weightedCumulativeScore = futureCumulativeScore[k] * logGaussianTransitionWeighting[n];
 			
-			if (wcumscore > max)
-			{
-				max = wcumscore;
-			}
+			if (weightedCumulativeScore > maxValue)
+                maxValue = weightedCumulativeScore;
+
 			n++;
 		}
 		
-		futureCumulativeScore[i] = max;
+		futureCumulativeScore[i] = maxValue;
 	}
 	
-	// predict beat
-	max = 0;
-	n = 0;
+	// Predict the next beat, finding the maximum point of the future cumulative score
+    // over the next beat, after being weighted by the beat expectation window
+    
+	double maxValue = 0;
+	int n = 0;
 	
-	for (int i = onsetDFBufferSize; i < (onsetDFBufferSize + windowSize); i++)
+	for (int i = onsetDFBufferSize; i < (onsetDFBufferSize + beatExpectationWindowSize); i++)
 	{
-		wcumscore = futureCumulativeScore[i]*w2[n];
+		double weightedCumulativeScore = futureCumulativeScore[i] * beatExpectationWindow[n];
 		
-		if (wcumscore > max)
+		if (weightedCumulativeScore > maxValue)
 		{
-			max = wcumscore;
+			maxValue = weightedCumulativeScore;
 			beatCounter = n;
 		}	
 		

@@ -111,16 +111,6 @@ public:
      */
     static double getBeatTimeInSeconds (long frameNumber, int hopSize, int fs);
     
-    /** Calculates a beat time in seconds, given the frame number, hop size and sampling frequency.
-     * This version uses an int to represent the frame number
-     * @param frameNumber the index of the current frame
-     * @param hopSize the hop size in audio samples
-     * @param fs the sampling frequency in Hz
-     * @returns a beat time in seconds
-     */
-    static double getBeatTimeInSeconds (int frameNumber, int hopSize, int fs);
-    
-		
 private:
     
     /** Initialises the algorithm, setting internal parameters and creating weighting vectors 
