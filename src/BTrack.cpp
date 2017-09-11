@@ -628,30 +628,21 @@ void BTrack::updateCumulativeScore (double onsetDetectionFunctionSample)
 	int windowEnd = onsetDFBufferSize - round (beatPeriod / 2.);
 	int windowSize = windowEnd - windowStart + 1;
 	
+    // create log gaussian transition window
 	double logGaussianTransitionWeighting[windowSize];
     createLogGaussianTransitionWeighting (logGaussianTransitionWeighting, windowSize, beatPeriod);
 	
-	// calculate new cumulative score value
-	double maxValue = 0;
-	int n = 0;
-	for (int i = windowStart; i <= windowEnd; i++)
-	{
-        double weightedCumulativeScore = cumulativeScore[i] * logGaussianTransitionWeighting[n];
-		
-        if (weightedCumulativeScore > maxValue)
-            maxValue = weightedCumulativeScore;
-        
-		n++;
-	}
-	
-    latestCumulativeScoreValue = ((1 - alpha) * onsetDetectionFunctionSample) + (alpha * maxValue);
+    // calculate the new cumulative score value
+    latestCumulativeScoreValue = calculateNewCumulativeScoreValue (cumulativeScore, logGaussianTransitionWeighting, windowStart, windowEnd, onsetDetectionFunctionSample, alpha);
+    
+    // add the new cumulative score value to the buffer
     cumulativeScore.addSampleToEnd (latestCumulativeScoreValue);
 }
 
 //=======================================================================
 void BTrack::predictBeat()
 {	 
-	int beatExpectationWindowSize = (int) beatPeriod;
+	int beatExpectationWindowSize = static_cast<int> (beatPeriod);
 	double futureCumulativeScore[onsetDFBufferSize + beatExpectationWindowSize];
 	double beatExpectationWindow[beatExpectationWindowSize];
     
@@ -677,7 +668,6 @@ void BTrack::predictBeat()
     // one beat period in the past
     // This is W1 in Adam Stark's PhD thesis, equation 3.2, page 60
     
-	
 	int startIndex = onsetDFBufferSize - round (2 * beatPeriod);
 	int endIndex = onsetDFBufferSize - round (beatPeriod / 2);
 	int pastWindowSize = endIndex - startIndex + 1;
@@ -685,26 +675,18 @@ void BTrack::predictBeat()
 	double logGaussianTransitionWeighting[pastWindowSize];
     createLogGaussianTransitionWeighting (logGaussianTransitionWeighting, pastWindowSize, beatPeriod);
 
-	// Calculate the future cumulative score, using the log Gaussian transition weighting
-    
+	// Calculate the future cumulative score, by shifting the log Gaussian transition weighting from its
+    // start position of [-2 beat periods, 0.5 beat periods] forwards over the size of the beat
+    // expectation window, calculating a new cumulative score where the onset detection function sample
+    // is zero. This uses the "momentum" of the function to generate itself into the future.
 	for (int i = onsetDFBufferSize; i < (onsetDFBufferSize + beatExpectationWindowSize); i++)
 	{
-		startIndex = i - round (2 * beatPeriod);
-		endIndex = i - round (beatPeriod / 2);
-		
-		double maxValue = 0;
-		int n = 0;
-		for (int k = startIndex; k <= endIndex; k++)
-		{
-			double weightedCumulativeScore = futureCumulativeScore[k] * logGaussianTransitionWeighting[n];
-			
-			if (weightedCumulativeScore > maxValue)
-                maxValue = weightedCumulativeScore;
-
-			n++;
-		}
-		
-		futureCumulativeScore[i] = maxValue;
+        // note here that we pass 0.0 in for the onset detection function value and 1.0 for the alpha weighting factor
+        // see equation 3.4 and page 60 - 62 of Adam Stark's PhD thesis for details
+        futureCumulativeScore[i] = calculateNewCumulativeScoreValue (futureCumulativeScore, logGaussianTransitionWeighting, startIndex, endIndex, 0.0, 1.0);
+        
+        startIndex++;
+        endIndex++;
 	}
 	
 	// Predict the next beat, finding the maximum point of the future cumulative score
@@ -741,4 +723,29 @@ void BTrack::createLogGaussianTransitionWeighting (double* weightingArray, int n
         weightingArray[i] = exp ((-1. * a * a) / 2.);
         v++;
     }
+}
+
+//=======================================================================
+template <typename T>
+double BTrack::calculateNewCumulativeScoreValue (T cumulativeScoreArray, double* logGaussianTransitionWeighting, int startIndex, int endIndex, double onsetDetectionFunctionSample, double alphaWeightingFactor)
+{
+    // calculate new cumulative score value by weighting the cumulative score between
+    // startIndex and endIndex and finding the maximum value
+    double maxValue = 0;
+    int n = 0;
+    for (int i = startIndex; i <= endIndex; i++)
+    {
+        double weightedCumulativeScore = cumulativeScoreArray[i] * logGaussianTransitionWeighting[n];
+        
+        if (weightedCumulativeScore > maxValue)
+            maxValue = weightedCumulativeScore;
+        
+        n++;
+    }
+    
+    // now mix with the incoming onset detection function sample
+    // (equation 3.4 on page 60 of Adam Stark's PhD thesis)
+    double cumulativeScoreValue = ((1. - alphaWeightingFactor) * onsetDetectionFunctionSample) + (alphaWeightingFactor * maxValue);
+    
+    return cumulativeScoreValue;
 }

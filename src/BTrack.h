@@ -165,9 +165,12 @@ private:
     /** Calculates the output of the comb filter bank */
     void calculateOutputOfCombFilterBank();
     
+    /** Calculate a log gaussian transition weighting */
     void createLogGaussianTransitionWeighting (double* weightingArray, int numSamples, double beatPeriod);
     
-    
+    /** Calculate a new cumulative score value */
+    template <typename T>
+    double calculateNewCumulativeScoreValue (T cumulativeScoreArray, double* logGaussianTransitionWeighting, int startIndex, int endIndex, double onsetDetectionFunctionSample, double alphaWeightingFactor);
 	
     //=======================================================================
 
