@@ -200,10 +200,8 @@ private:
     double alpha;                           /**< the mix between the current detection function sample and the cumulative score's "momentum" */
     double beatPeriod;                      /**< the beat period, in detection function samples */
     double estimatedTempo;                  /**< the current tempo estimation being used by the algorithm */
-    double latestCumulativeScoreValue;      /**< holds the latest value of the cumulative score function */
-    double tempoToLagFactor;                /**< factor for converting between lag and tempo */
-    int m0;                                 /**< indicates when the next point to predict the next beat is */
-    int beatCounter;                        /**< keeps track of when the next beat is - will be zero when the beat is due, and is set elsewhere in the algorithm to be positive once a beat prediction is made */
+    int timeToNextPrediction;               /**< indicates when the next point to predict the next beat is */
+    int timeToNextBeat;                     /**< keeps track of when the next beat is - will be zero when the beat is due, and is set elsewhere in the algorithm to be positive once a beat prediction is made */
     int hopSize;                            /**< the hop size being used by the algorithm */
     int onsetDFBufferSize;                  /**< the onset detection function buffer size */
     bool tempoFixed;                        /**< indicates whether the tempo should be fixed or not */

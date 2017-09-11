@@ -58,7 +58,13 @@ public:
     void resize (int size)
     {
         buffer.resize (size);
+        std::fill (buffer.begin(), buffer.end(), 0.0);
         writeIndex = 0;
+    }
+    
+    int size()
+    {
+        return static_cast<int> (buffer.size());
     }
     
 private:

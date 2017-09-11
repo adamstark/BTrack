@@ -90,17 +90,15 @@ void BTrack::initialise (int hopSize_, int frameSize_)
     prevDeltaFixed.resize (41);
     
     double rayleighParameter = 43;
-	double pi = 3.14159265;
 	
 	
 	// initialise parameters
 	tightness = 5;
 	alpha = 0.9;
 	estimatedTempo = 120.0;
-	tempoToLagFactor = 60. * 44100. / 512.;
 	
-	m0 = 10;
-	beatCounter = -1;
+	timeToNextPrediction = 10;
+	timeToNextBeat = -1;
 	
 	beatDueInFrame = false;
 	
@@ -123,16 +121,12 @@ void BTrack::initialise (int hopSize_, int frameSize_)
 		{
 			x = j+1;
 			t_mu = i+1;
-			tempoTransitionMatrix[i][j] = (1 / (m_sig * sqrt(2*pi))) * exp( (-1*pow((x-t_mu),2)) / (2*pow(m_sig,2)) );
+			tempoTransitionMatrix[i][j] = (1 / (m_sig * sqrt (2 * M_PI))) * exp( (-1*pow((x-t_mu),2)) / (2*pow(m_sig,2)) );
 		}
 	}
 	
 	// tempo is not fixed
 	tempoFixed = false;
-    
-    // initialise latest cumulative score value
-    // in case it is requested before any processing takes place
-    latestCumulativeScoreValue = 0;
     
     // initialise algorithm given the hopsize
     setHopSize (hopSize_);
@@ -213,7 +207,7 @@ int BTrack::getHopSize()
 //=======================================================================
 double BTrack::getLatestCumulativeScoreValue()
 {
-    return latestCumulativeScoreValue;
+    return cumulativeScore[cumulativeScore.size() - 1];
 }
 
 //=======================================================================
@@ -237,8 +231,8 @@ void BTrack::processOnsetDetectionFunctionSample (double newSample)
     // to zero. this is to avoid problems further down the line
     newSample = newSample + 0.0001;
     
-	m0--;
-	beatCounter--;
+	timeToNextPrediction--;
+	timeToNextBeat--;
 	beatDueInFrame = false;
 		
 	// add new sample at the end
@@ -248,11 +242,11 @@ void BTrack::processOnsetDetectionFunctionSample (double newSample)
 	updateCumulativeScore (newSample);
 	
 	// if we are halfway between beats, predict a beat
-	if (m0 == 0)
+	if (timeToNextPrediction == 0)
         predictBeat();
 	
 	// if we are at a beat
-	if (beatCounter == 0)
+	if (timeToNextBeat == 0)
 	{
 		beatDueInFrame = true;	// indicate a beat should be output
 		
@@ -275,11 +269,11 @@ void BTrack::setTempo (double tempo)
         tempo = tempo * 2;
 		
 	// convert tempo from bpm value to integer index of tempo probability 
-	int tempo_index = (int) round((tempo - 80)/2);
+	int tempoIndex = (int) round ((tempo - 80.) / 2);
 	
     // now set previous tempo observations to zero and set desired tempo index to 1
     std::fill (prevDelta.begin(), prevDelta.end(), 0);
-	prevDelta[tempo_index] = 1;
+	prevDelta[tempoIndex] = 1;
 	
 	/////////// CUMULATIVE SCORE ARTIFICAL TEMPO UPDATE //////////////////
 	
@@ -314,10 +308,10 @@ void BTrack::setTempo (double tempo)
 	/////////// INDICATE THAT THIS IS A BEAT //////////////////
 	
 	// beat is now
-	beatCounter = 0;
+	timeToNextBeat = 0;
 	
-	// offbeat is half of new beat period away
-	m0 = (int) round (((double) newBeatPeriod) / 2);
+	// next prediction is on the offbeat, so half of new beat period away
+	timeToNextPrediction = (int) round (((double) newBeatPeriod) / 2);
 }
 
 //=======================================================================
@@ -382,6 +376,8 @@ void BTrack::resampleOnsetDetectionFunction()
 //=======================================================================
 void BTrack::calculateTempo()
 {
+    double tempoToLagFactor = 60. * 44100. / 512.;
+    
 	// adaptive threshold on input
 	adaptiveThreshold (resampledOnsetDF);
 		
@@ -397,8 +393,8 @@ void BTrack::calculateTempo()
 	// calculate tempo observation vector from beat period observation vector
 	for (int i = 0; i < 41; i++)
 	{
-		int tempoIndex1 = (int) round (tempoToLagFactor / ((double) ((2*i)+80)));
-		int tempoIndex2 = (int) round (tempoToLagFactor / ((double) ((4*i)+160)));
+		int tempoIndex1 = (int) round (tempoToLagFactor / ((double) ((2 * i) + 80)));
+		int tempoIndex2 = (int) round (tempoToLagFactor / ((double) ((4 * i) + 160)));
 		tempoObservationVector[i] = combFilterBankOutput[tempoIndex1 - 1] + combFilterBankOutput[tempoIndex2 - 1];
 	}
 	
@@ -633,10 +629,10 @@ void BTrack::updateCumulativeScore (double onsetDetectionFunctionSample)
     createLogGaussianTransitionWeighting (logGaussianTransitionWeighting, windowSize, beatPeriod);
 	
     // calculate the new cumulative score value
-    latestCumulativeScoreValue = calculateNewCumulativeScoreValue (cumulativeScore, logGaussianTransitionWeighting, windowStart, windowEnd, onsetDetectionFunctionSample, alpha);
+    double cumulativeScoreValue = calculateNewCumulativeScoreValue (cumulativeScore, logGaussianTransitionWeighting, windowStart, windowEnd, onsetDetectionFunctionSample, alpha);
     
     // add the new cumulative score value to the buffer
-    cumulativeScore.addSampleToEnd (latestCumulativeScoreValue);
+    cumulativeScore.addSampleToEnd (cumulativeScoreValue);
 }
 
 //=======================================================================
@@ -666,7 +662,6 @@ void BTrack::predictBeat()
     // It is a log-Gaussian transition weighting running from from 2 beat periods
     // in the past to half a beat period in the past. It favours the time exactly
     // one beat period in the past
-    // This is W1 in Adam Stark's PhD thesis, equation 3.2, page 60
     
 	int startIndex = onsetDFBufferSize - round (2 * beatPeriod);
 	int endIndex = onsetDFBufferSize - round (beatPeriod / 2);
@@ -702,19 +697,21 @@ void BTrack::predictBeat()
 		if (weightedCumulativeScore > maxValue)
 		{
 			maxValue = weightedCumulativeScore;
-			beatCounter = n;
+			timeToNextBeat = n;
 		}	
 		
 		n++;
 	}
 		
-	// set next prediction time
-	m0 = beatCounter + round (beatPeriod / 2);
+	// set next prediction time as on the offbeat after the next beat
+	timeToNextPrediction = timeToNextBeat + round (beatPeriod / 2);
 }
 
 //=======================================================================
 void BTrack::createLogGaussianTransitionWeighting (double* weightingArray, int numSamples, double beatPeriod)
 {
+    // (This is W1 in Adam Stark's PhD thesis, equation 3.2, page 60)
+    
     double v = -2. * beatPeriod;
     
     for (int i = 0; i < numSamples; i++)
