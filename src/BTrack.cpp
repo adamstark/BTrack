@@ -628,23 +628,15 @@ void BTrack::updateCumulativeScore (double onsetDetectionFunctionSample)
 	int windowEnd = onsetDFBufferSize - round (beatPeriod / 2.);
 	int windowSize = windowEnd - windowStart + 1;
 	
-	double w1[windowSize];
-	double v = -2. * beatPeriod;
-	
-	// create window
-	for (int i = 0; i < windowSize; i++)
-	{
-        double a = tightness * log (-v / beatPeriod);
-		w1[i] = exp ((-1. * a * a) / 2.);
-		v = v + 1.;
-	}	
+	double logGaussianTransitionWeighting[windowSize];
+    createLogGaussianTransitionWeighting (logGaussianTransitionWeighting, windowSize, beatPeriod);
 	
 	// calculate new cumulative score value
 	double maxValue = 0;
 	int n = 0;
 	for (int i = windowStart; i <= windowEnd; i++)
 	{
-        double weightedCumulativeScore = cumulativeScore[i] * w1[n];
+        double weightedCumulativeScore = cumulativeScore[i] * logGaussianTransitionWeighting[n];
 		
         if (weightedCumulativeScore > maxValue)
             maxValue = weightedCumulativeScore;
@@ -685,17 +677,13 @@ void BTrack::predictBeat()
     // one beat period in the past
     // This is W1 in Adam Stark's PhD thesis, equation 3.2, page 60
     
-	v = -2 * beatPeriod;
+	
 	int startIndex = onsetDFBufferSize - round (2 * beatPeriod);
 	int endIndex = onsetDFBufferSize - round (beatPeriod / 2);
 	int pastWindowSize = endIndex - startIndex + 1;
+    
 	double logGaussianTransitionWeighting[pastWindowSize];
-
-	for (int i = 0; i < pastWindowSize; i++)
-	{
-		logGaussianTransitionWeighting[i] = exp((-1 * pow (tightness * log (-v / beatPeriod), 2) ) / 2);
-		v = v + 1;
-	}
+    createLogGaussianTransitionWeighting (logGaussianTransitionWeighting, pastWindowSize, beatPeriod);
 
 	// Calculate the future cumulative score, using the log Gaussian transition weighting
     
@@ -740,4 +728,17 @@ void BTrack::predictBeat()
 		
 	// set next prediction time
 	m0 = beatCounter + round (beatPeriod / 2);
+}
+
+//=======================================================================
+void BTrack::createLogGaussianTransitionWeighting (double* weightingArray, int numSamples, double beatPeriod)
+{
+    double v = -2. * beatPeriod;
+    
+    for (int i = 0; i < numSamples; i++)
+    {
+        double a = tightness * log (-v / beatPeriod);
+        weightingArray[i] = exp ((-1. * a * a) / 2.);
+        v++;
+    }
 }

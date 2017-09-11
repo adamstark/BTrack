@@ -164,6 +164,10 @@ private:
     
     /** Calculates the output of the comb filter bank */
     void calculateOutputOfCombFilterBank();
+    
+    void createLogGaussianTransitionWeighting (double* weightingArray, int numSamples, double beatPeriod);
+    
+    
 	
     //=======================================================================
 
