@@ -671,12 +671,12 @@ void BTrack::predictBeat()
     createLogGaussianTransitionWeighting (logGaussianTransitionWeighting, pastWindowSize, beatPeriod);
 
 	// Calculate the future cumulative score, by shifting the log Gaussian transition weighting from its
-    // start position of [-2 beat periods, 0.5 beat periods] forwards over the size of the beat
+    // start position of [-2 beat periods, - 0.5 beat periods] forwards over the size of the beat
     // expectation window, calculating a new cumulative score where the onset detection function sample
     // is zero. This uses the "momentum" of the function to generate itself into the future.
 	for (int i = onsetDFBufferSize; i < (onsetDFBufferSize + beatExpectationWindowSize); i++)
 	{
-        // note here that we pass 0.0 in for the onset detection function value and 1.0 for the alpha weighting factor
+        // note here that we pass 0.0 in for the onset detection function sample and 1.0 for the alpha weighting factor
         // see equation 3.4 and page 60 - 62 of Adam Stark's PhD thesis for details
         futureCumulativeScore[i] = calculateNewCumulativeScoreValue (futureCumulativeScore, logGaussianTransitionWeighting, startIndex, endIndex, 0.0, 1.0);
         
