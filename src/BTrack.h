@@ -43,13 +43,13 @@ public:
     /** Constructor assuming frame size will be double the hopSize
      * @param hopSize the hop size in audio samples
      */
-    BTrack (int hopSize_);
+    BTrack (int hopSize);
     
     /** Constructor taking both hopSize and frameSize
      * @param hopSize the hop size in audio samples
      * @param frameSize the frame size in audio samples
      */
-    BTrack (int hopSize_, int frameSize_);
+    BTrack (int hopSize, int frameSize);
     
     /** Destructor */
     ~BTrack();
@@ -114,15 +114,14 @@ public:
 private:
     
     /** Initialises the algorithm, setting internal parameters and creating weighting vectors 
-     * @param hopSize_ the hop size in audio samples
-     * @param frameSize_ the frame size in audio samples
+     * @param hopSize the hop size in audio samples
      */
-    void initialise (int hopSize_, int frameSize_);
+    void initialise (int hopSize);
     
     /** Initialise with hop size and set all array sizes accordingly
-     * @param hopSize_ the hop size in audio samples
+     * @param hopSize the hop size in audio samples
      */
-    void setHopSize (int hopSize_);
+    void setHopSize (int hopSize);
     
     /** Resamples the onset detection function from an arbitrary number of samples to 512 */
     void resampleOnsetDetectionFunction();

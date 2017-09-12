@@ -30,21 +30,21 @@
 BTrack::BTrack()
  :  odf (512, 1024, ComplexSpectralDifferenceHWR, HanningWindow)
 {
-    initialise (512, 1024);
+    initialise (512);
 }
 
 //=======================================================================
-BTrack::BTrack (int hopSize_)
- :  odf (hopSize_, 2 * hopSize_, ComplexSpectralDifferenceHWR, HanningWindow)
+BTrack::BTrack (int hop)
+ :  odf (hop, 2 * hop, ComplexSpectralDifferenceHWR, HanningWindow)
 {	
-    initialise (hopSize_, 2 * hopSize_);
+    initialise (hop);
 }
 
 //=======================================================================
-BTrack::BTrack (int hopSize_, int frameSize_)
- : odf (hopSize_, frameSize_, ComplexSpectralDifferenceHWR, HanningWindow)
+BTrack::BTrack (int hop, int frame)
+ : odf (hop, frame, ComplexSpectralDifferenceHWR, HanningWindow)
 {
-    initialise (hopSize_, frameSize_);
+    initialise (hop);
 }
 
 //=======================================================================
@@ -67,17 +67,13 @@ BTrack::~BTrack()
 }
 
 //=======================================================================
-double BTrack::getBeatTimeInSeconds (long frameNumber, int hopSize, int fs)
+double BTrack::getBeatTimeInSeconds (long frameNumber, int hopSize, int samplingFrequency)
 {
-    double hop = (double) hopSize;
-    double samplingFrequency = (double) fs;
-    double frameNum = (double) frameNumber;
-    
-    return ((hop / samplingFrequency) * frameNum);
+    return ((static_cast<double> (hopSize) / static_cast<double> (samplingFrequency)) * static_cast<double> (frameNumber));
 }
 
 //=======================================================================
-void BTrack::initialise (int hopSize_, int frameSize_)
+void BTrack::initialise (int hop)
 {
     // set vector sizes
     resampledOnsetDF.resize (512);
@@ -90,7 +86,6 @@ void BTrack::initialise (int hopSize_, int frameSize_)
     prevDeltaFixed.resize (41);
     
     double rayleighParameter = 43;
-	
 	
 	// initialise parameters
 	tightness = 5;
@@ -129,7 +124,7 @@ void BTrack::initialise (int hopSize_, int frameSize_)
 	tempoFixed = false;
     
     // initialise algorithm given the hopsize
-    setHopSize (hopSize_);
+    setHopSize (hop);
     
     // Set up FFT for calculating the auto-correlation function
     FFTLengthForACFCalculation = 1024;
@@ -151,9 +146,9 @@ void BTrack::initialise (int hopSize_, int frameSize_)
 }
 
 //=======================================================================
-void BTrack::setHopSize (int hopSize_)
+void BTrack::setHopSize (int hop)
 {	
-	hopSize = hopSize_;
+	hopSize = hop;
 	onsetDFBufferSize = (512 * 512) / hopSize;		// calculate df buffer size
 	beatPeriod = round(60/((((double) hopSize)/44100) * 120.));
 
@@ -177,13 +172,13 @@ void BTrack::setHopSize (int hopSize_)
 }
 
 //=======================================================================
-void BTrack::updateHopAndFrameSize (int hopSize_, int frameSize_)
+void BTrack::updateHopAndFrameSize (int hop, int frame)
 {
     // update the onset detection function object
-    odf.initialise (hopSize_, frameSize_);
+    odf.initialise (hop, frame);
     
     // update the hop size being used by the beat tracker
-    setHopSize (hopSize_);
+    setHopSize (hop);
 }
 
 //=======================================================================
