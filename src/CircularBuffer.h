@@ -27,7 +27,8 @@
 //=======================================================================
 /** A circular buffer that allows you to add new samples to the end
  * whilst removing them from the beginning. This is implemented in an
- * efficient way which doesn't involve any memory allocation
+ * efficient way which doesn't involve any memory allocation as samples
+ * are added to the end of the buffer
  */
 class CircularBuffer
 {
@@ -62,6 +63,7 @@ public:
         writeIndex = 0;
     }
     
+    /** Returns the size of the buffer */
     int size()
     {
         return static_cast<int> (buffer.size());
