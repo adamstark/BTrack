@@ -1,5 +1,6 @@
 # need scikits audiolab for reading audio files
 from scikits.audiolab import wavread
+import numpy as np
 
 # need to import btrack, our beat tracker
 import btrack
@@ -13,7 +14,7 @@ audioData, fs, enc = wavread(audioFilePath)     # extract audio from file
 # convert to mono if need be
 if (audioData[0].size == 2):
     print "converting to mono"
-    data = np.average(data,axis=1)
+    audioData = np.average(audioData,axis=1)
 
 # ==========================================    
 # Usage A: track beats from audio            
