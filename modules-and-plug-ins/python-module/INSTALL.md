@@ -5,14 +5,19 @@ See the main README for other information including usage and license informatio
 
 Installation
 ------------
+Ensure [FFTW is installed](http://fftw.org/download.html).
+
+Install python requirements (numpy necessary, scipy for reading `.wav` files.)
+
+    pip install -r requirements.txt
 
 On the command line, type:
 
-	python setup.py build
+    python setup.py build build_ext --inplace
 	
 and then:
 
-	python setup.py install
+    python setup.py install
 	
 You may need to prefix the second command with 'sudo', depending upon your system configuration.
 
