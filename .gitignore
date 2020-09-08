@@ -1,10 +1,12 @@
-python-module/build
 unit-tests/Build
 xcuserdata
 .DS_Store
 
 *.o
 *.dylib
+*.so
+*.pyc
+*.c
 
 *.xcworkspace
 

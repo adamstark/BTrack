@@ -292,21 +292,31 @@ static PyMethodDef btrack_methods[] = {
 };
 
 //=======================================================================
-PyMODINIT_FUNC initbtrack(void)
+static struct PyModuleDef btrack =
 {
-    (void)Py_InitModule("btrack", btrack_methods);
+    PyModuleDef_HEAD_INIT,
+    "btrack",              /* name of module */
+    "",                    /* module documentation, may be NULL */
+    -1,                    /* size of per-interpreter state of the module, or -1 if the module keeps state in global variables. */
+    btrack_methods
+};
+
+PyMODINIT_FUNC PyInit_btrack(void)
+{
     import_array();
+    return PyModule_Create(&btrack);
 }
 
 //=======================================================================
 int main(int argc, char *argv[])
 {
-    /* Pass argv[0] to the Python interpreter */
-    Py_SetProgramName(argv[0]);
-    
+    /* Convert argv[0] from char to wchar_t and pass to the Python interpreter */
+    wchar_t *program = Py_DecodeLocale(argv[0], NULL);
+    Py_SetProgramName(program);
+
     /* Initialize the Python interpreter.  Required. */
     Py_Initialize();
     
     /* Add a static module */
-    initbtrack();
+    PyInit_btrack();
 }

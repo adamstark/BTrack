@@ -9,7 +9,7 @@ BTrack - A Real-Time Beat Tracker
 About BTrack
 ------------
 
-BTrack is a causal beat tracking algorithm intended for real-time use. It is implemented in C++ with wrappers for Python and the Vamp plug-in framework.
+BTrack is a causal beat tracking algorithm intended for real-time use. It is implemented in C++ with wrappers for Python3 and the Vamp plug-in framework.
 
 Full details of the working of the algorithm can be found in:
 
@@ -21,6 +21,9 @@ BTrack is made available under the GNU General Public License, version 3. Please
 
 Versions
 --------
+==== 1.0.5 ==== (8th September 2020)
+
+* Update Python binding to support Python 3.
 
 ==== 1.0.4 ==== (18th June 2016)
 

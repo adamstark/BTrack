@@ -1,28 +1,29 @@
-# need scikits audiolab for reading audio files
-from scikits.audiolab import wavread
+import time
 
-# need to import btrack, our beat tracker
 import btrack
+import numpy as np
+from scipy.io import wavfile
 
 # set the path to an audio file on your machine
-audioFilePath = "/path/to/your/audioFile.wav"
-
-# read the audio file
-audioData, fs, enc = wavread(audioFilePath)     # extract audio from file
+audio_file_path = "/path/to/your/audioFile.wav"
+_, audio_data = wavfile.read(audio_file_path)
 
 # convert to mono if need be
-if (audioData[0].size == 2):
-    print "converting to mono"
-    data = np.average(data,axis=1)
+if audio_data.shape[1] == 2:
+    print("converting to mono")
+    audio_data = np.average(audio_data, axis=1)
 
-# ==========================================    
-# Usage A: track beats from audio            
-beats = btrack.trackBeats(audioData)    
+# ==========================================
+# Usage A: track beats from audio
+t0 = time.time()
+beats = btrack.trackBeats(audio_data)
+print(f"Calculated beats using btrack.trackBeats function in {round(time.time() - t0, 2)}s")
+print(beats)
 
 # ==========================================
 # Usage B: extract the onset detection function
-onsetDF = btrack.calculateOnsetDF(audioData)         
-
-# ==========================================
-# Usage C: track beats from the onset detection function (calculated in Usage B)
+t0 = time.time()
+onsetDF = btrack.calculateOnsetDF(audio_data)
 ODFbeats = btrack.trackBeatsFromOnsetDF(onsetDF)
+print(f"Calculated beats using onset detection function in {round(time.time() - t0, 2)}s")
+print(ODFbeats)
