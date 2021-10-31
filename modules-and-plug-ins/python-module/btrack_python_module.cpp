@@ -292,21 +292,30 @@ static PyMethodDef btrack_methods[] = {
 };
 
 //=======================================================================
-PyMODINIT_FUNC initbtrack(void)
+static struct PyModuleDef btrack_definition = {
+    PyModuleDef_HEAD_INIT,
+    "btrack",
+    "Python bindings for the BTrack beat tracker",
+    -1,
+    btrack_methods
+};
+
+//=======================================================================
+PyMODINIT_FUNC PyInit_btrack(void)
 {
-    (void)Py_InitModule("btrack", btrack_methods);
     import_array();
+    return PyModule_Create(&btrack_definition);
 }
 
 //=======================================================================
 int main(int argc, char *argv[])
 {
-    /* Pass argv[0] to the Python interpreter */
-    Py_SetProgramName(argv[0]);
+    wchar_t* program = Py_DecodeLocale (argv[0], NULL);
+    Py_SetProgramName (program);
     
     /* Initialize the Python interpreter.  Required. */
     Py_Initialize();
     
     /* Add a static module */
-    initbtrack();
+    PyInit_btrack();
 }
