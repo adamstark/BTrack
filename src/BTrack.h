@@ -59,7 +59,7 @@ public:
      * @param hopSize the hop size in audio samples
      * @param frameSize the frame size in audio samples
      */
-    void updateHopAndFrameSize (int hopSize_, int frameSize_);
+    void updateHopAndFrameSize (int hopSize, int frameSize);
     
     //=======================================================================
     /** Process a single audio frame 

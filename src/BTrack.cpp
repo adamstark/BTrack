@@ -36,7 +36,7 @@ BTrack::BTrack()
 //=======================================================================
 BTrack::BTrack (int hop)
  :  odf (hop, 2 * hop, ComplexSpectralDifferenceHWR, HanningWindow)
-{	
+{
     initialise (hop);
 }
 
@@ -110,13 +110,14 @@ void BTrack::initialise (int hop)
 	double x;
 	// create tempo transition matrix
 	m_sig = 41/8;
-	for (int i = 0;i < 41;i++)
+    
+	for (int i = 0; i < 41; i++)
 	{
-		for (int j = 0;j < 41;j++)
+		for (int j = 0; j < 41; j++)
 		{
-			x = j+1;
-			t_mu = i+1;
-			tempoTransitionMatrix[i][j] = (1 / (m_sig * sqrt (2 * M_PI))) * exp( (-1*pow((x-t_mu),2)) / (2*pow(m_sig,2)) );
+			x = j + 1;
+			t_mu = i + 1;
+			tempoTransitionMatrix[i][j] = (1 / (m_sig * sqrt (2 * M_PI))) * exp((-1 * pow ((x - t_mu), 2)) / (2 * pow (m_sig, 2)) );
 		}
 	}
 	
@@ -503,7 +504,7 @@ void BTrack::calculateBalancedACF (std::vector<double>& onsetDetectionFunction)
     
 #ifdef USE_FFTW
     // copy into complex array and zero pad
-    for (int i = 0;i < FFTLengthForACFCalculation;i++)
+    for (int i = 0; i < FFTLengthForACFCalculation; i++)
     {
         if (i < onsetDetectionFunctionLength)
         {
@@ -523,7 +524,7 @@ void BTrack::calculateBalancedACF (std::vector<double>& onsetDetectionFunction)
     // multiply by complex conjugate
     for (int i = 0;i < FFTLengthForACFCalculation;i++)
     {
-        complexOut[i][0] = complexOut[i][0]*complexOut[i][0] + complexOut[i][1]*complexOut[i][1];
+        complexOut[i][0] = complexOut[i][0] * complexOut[i][0] + complexOut[i][1] * complexOut[i][1];
         complexOut[i][1] = 0.0;
     }
     
@@ -534,7 +535,7 @@ void BTrack::calculateBalancedACF (std::vector<double>& onsetDetectionFunction)
     
 #ifdef USE_KISS_FFT
     // copy into complex array and zero pad
-    for (int i = 0;i < FFTLengthForACFCalculation;i++)
+    for (int i = 0; i < FFTLengthForACFCalculation; i++)
     {
         if (i < onsetDetectionFunctionLength)
         {
@@ -569,7 +570,7 @@ void BTrack::calculateBalancedACF (std::vector<double>& onsetDetectionFunction)
     {
 #ifdef USE_FFTW
         // calculate absolute value of result
-        double absValue = sqrt (complexIn[i][0]*complexIn[i][0] + complexIn[i][1]*complexIn[i][1]);
+        double absValue = sqrt (complexIn[i][0] * complexIn[i][0] + complexIn[i][1] * complexIn[i][1]);
 #endif
         
 #ifdef USE_KISS_FFT

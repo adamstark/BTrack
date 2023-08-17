@@ -1,6 +1,6 @@
 //=======================================================================
 /** @file CircularBuffer.h
- *  @brief A class for calculating onset detection functions
+ *  @brief A circular buffer
  *  @author Adam Stark
  *  @copyright Copyright (C) 2008-2014  Queen Mary University of London
  *

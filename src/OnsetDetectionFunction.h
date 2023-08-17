@@ -70,7 +70,7 @@ public:
      * @param hopSize_ the hop size in audio samples
      * @param frameSize_ the frame size in audio samples
      */
-	OnsetDetectionFunction (int hopSize_, int frameSize_);
+	OnsetDetectionFunction (int hopSize, int frameSize);
     
     
     /** Constructor 
@@ -79,7 +79,7 @@ public:
      * @param onsetDetectionFunctionType_ the type of onset detection function to use - (see OnsetDetectionFunctionType)
      * @param windowType the type of window to use (see WindowType)
      */
-	OnsetDetectionFunction (int hopSize_, int frameSize_, int onsetDetectionFunctionType_, int windowType_);
+	OnsetDetectionFunction (int hopSize, int frameSize, int onsetDetectionFunctionType, int windowType);
     
     /** Destructor */
 	~OnsetDetectionFunction();
@@ -89,7 +89,7 @@ public:
      * @param hopSize_ the hop size in audio samples
      * @param frameSize_ the frame size in audio samples
      */
-	void initialise (int hopSize_, int frameSize_);
+	void initialise (int hopSize, int frameSize);
     
     /** Initialisation Function 
      * @param hopSize_ the hop size in audio samples
@@ -97,7 +97,7 @@ public:
      * @param onsetDetectionFunctionType_ the type of onset detection function to use - (see OnsetDetectionFunctionType)
      * @param windowType the type of window to use (see WindowType)
      */
-	void initialise (int hopSize_, int frameSize_, int onsetDetectionFunctionType_, int windowType_);
+	void initialise (int hopSize, int frameSize, int onsetDetectionFunctionType, int windowType);
 	
     /** Process input frame and calculate detection function sample 
      * @param buffer a pointer to an array containing the audio samples to be processed
@@ -108,7 +108,7 @@ public:
     /** Set the detection function type 
      * @param onsetDetectionFunctionType_ the type of onset detection function to use - (see OnsetDetectionFunctionType)
      */
-	void setOnsetDetectionFunctionType (int onsetDetectionFunctionType_);
+	void setOnsetDetectionFunctionType (int onsetDetectionFunctionType);
 	
 private:
 	
@@ -207,7 +207,6 @@ private:
     std::vector<double> phase;          /**< FFT phase values */
     std::vector<double> prevPhase;      /**< previous phase values */
     std::vector<double> prevPhase2;     /**< second order previous phase values */
-
 };
 
 
