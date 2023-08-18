@@ -1,10 +1,11 @@
 BTrack - A Real-Time Beat Tracker
 =================================
 
-** Version 1.0.4 **
-
 *by Adam Stark, Matthew Davies and Mark Plumbley.*
 
+![Version](https://img.shields.io/badge/version-1.0.5-green.svg?style=flat-square) 
+![Licence](https://img.shields.io/badge/licence-GPLv3-blue.svg?style=flat-square) 
+![Language](https://img.shields.io/badge/language-C++-yellow.svg?style=flat-square) 
 
 About BTrack
 ------------
@@ -21,6 +22,12 @@ BTrack is made available under the GNU General Public License, version 3. Please
 
 Versions
 --------
+
+==== 1.0.5 ==== (18th August 2023)
+
+* Code improvements and modernisation
+* Move to CMake 
+* Move to doctest for unit tests
 
 ==== 1.0.4 ==== (18th June 2016)
 
@@ -127,6 +134,7 @@ or:
 
 * Kiss FFT (included with project, use the flag -DUSE_KISS_FFT)
 
+Please ensure that if you are using these libraries that you have secured any required licences for your project. The licence on this library does not cover any third party licences.
 
 License
 -------

@@ -1,6 +1,6 @@
 //=======================================================================
 /** @file CircularBuffer.h
- *  @brief A class for calculating onset detection functions
+ *  @brief A circular buffer
  *  @author Adam Stark
  *  @copyright Copyright (C) 2008-2014  Queen Mary University of London
  *
@@ -27,7 +27,8 @@
 //=======================================================================
 /** A circular buffer that allows you to add new samples to the end
  * whilst removing them from the beginning. This is implemented in an
- * efficient way which doesn't involve any memory allocation
+ * efficient way which doesn't involve any memory allocation as samples
+ * are added to the end of the buffer
  */
 class CircularBuffer
 {
@@ -58,7 +59,14 @@ public:
     void resize (int size)
     {
         buffer.resize (size);
+        std::fill (buffer.begin(), buffer.end(), 0.0);
         writeIndex = 0;
+    }
+    
+    /** Returns the size of the buffer */
+    int size()
+    {
+        return static_cast<int> (buffer.size());
     }
     
 private:

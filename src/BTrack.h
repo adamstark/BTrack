@@ -43,13 +43,13 @@ public:
     /** Constructor assuming frame size will be double the hopSize
      * @param hopSize the hop size in audio samples
      */
-    BTrack (int hopSize_);
+    BTrack (int hopSize);
     
     /** Constructor taking both hopSize and frameSize
      * @param hopSize the hop size in audio samples
      * @param frameSize the frame size in audio samples
      */
-    BTrack (int hopSize_, int frameSize_);
+    BTrack (int hopSize, int frameSize);
     
     /** Destructor */
     ~BTrack();
@@ -59,7 +59,7 @@ public:
      * @param hopSize the hop size in audio samples
      * @param frameSize the frame size in audio samples
      */
-    void updateHopAndFrameSize (int hopSize_, int frameSize_);
+    void updateHopAndFrameSize (int hopSize, int frameSize);
     
     //=======================================================================
     /** Process a single audio frame 
@@ -111,36 +111,25 @@ public:
      */
     static double getBeatTimeInSeconds (long frameNumber, int hopSize, int fs);
     
-    /** Calculates a beat time in seconds, given the frame number, hop size and sampling frequency.
-     * This version uses an int to represent the frame number
-     * @param frameNumber the index of the current frame
-     * @param hopSize the hop size in audio samples
-     * @param fs the sampling frequency in Hz
-     * @returns a beat time in seconds
-     */
-    static double getBeatTimeInSeconds (int frameNumber, int hopSize, int fs);
-    
-		
 private:
     
     /** Initialises the algorithm, setting internal parameters and creating weighting vectors 
-     * @param hopSize_ the hop size in audio samples
-     * @param frameSize_ the frame size in audio samples
+     * @param hopSize the hop size in audio samples
      */
-    void initialise (int hopSize_, int frameSize_);
+    void initialise (int hopSize);
     
     /** Initialise with hop size and set all array sizes accordingly
-     * @param hopSize_ the hop size in audio samples
+     * @param hopSize the hop size in audio samples
      */
-    void setHopSize (int hopSize_);
+    void setHopSize (int hopSize);
     
     /** Resamples the onset detection function from an arbitrary number of samples to 512 */
     void resampleOnsetDetectionFunction();
     
     /** Updates the cumulative score function with a new onset detection function sample 
-     * @param odfSample an onset detection function sample
+     * @param onsetDetectionFunctionSample an onset detection function sample
      */
-    void updateCumulativeScore (double odfSample);
+    void updateCumulativeScore (double onsetDetectionFunctionSample);
 	
     /** Predicts the next beat, based upon the internal program state */
     void predictBeat();
@@ -150,32 +139,37 @@ private:
     
     /** Calculates an adaptive threshold which is used to remove low level energy from detection
      * function and emphasise peaks 
-     * @param x a pointer to an array containing onset detection function samples
-     * @param N the length of the array, x
+     * @param x a vector containing onset detection function samples
      */
-    void adaptiveThreshold (double* x, int N);
+    void adaptiveThreshold (std::vector<double>& x);
     
-    /** Calculates the mean of values in an array between index locations [startIndex,endIndex]
-     * @param array a pointer to an array that contains the values we wish to find the mean from
+    /** Calculates the mean of values in a vector between index locations [startIndex, endIndex]
+     * @param vector a vector that contains the values we wish to find the mean from
      * @param startIndex the start index from which we would like to calculate the mean
      * @param endIndex the final index to which we would like to calculate the mean
-     * @returns the mean of the sub-section of the array
+     * @returns the mean of the sub-section of the vector
      */
-    double calculateMeanOfArray (double* array, int startIndex, int endIndex);
+    double calculateMeanOfVector (std::vector<double>& vector, int startIndex, int endIndex);
     
     /** Normalises a given array
-     * @param array a pointer to the array we wish to normalise
-     * @param N the length of the array
+     * @param vector the vector we wish to normalise
      */
-    void normaliseArray (double* array, int N);
+    void normaliseVector (std::vector<double>& vector);
     
     /** Calculates the balanced autocorrelation of the smoothed onset detection function
-     * @param onsetDetectionFunction a pointer to an array containing the onset detection function
+     * @param onsetDetectionFunction a vector containing the onset detection function
      */
-    void calculateBalancedACF (double* onsetDetectionFunction);
+    void calculateBalancedACF (std::vector<double>& onsetDetectionFunction);
     
     /** Calculates the output of the comb filter bank */
     void calculateOutputOfCombFilterBank();
+    
+    /** Calculate a log gaussian transition weighting */
+    void createLogGaussianTransitionWeighting (double* weightingArray, int numSamples, double beatPeriod);
+    
+    /** Calculate a new cumulative score value */
+    template <typename T>
+    double calculateNewCumulativeScoreValue (T cumulativeScoreArray, double* logGaussianTransitionWeighting, int startIndex, int endIndex, double onsetDetectionFunctionSample, double alphaWeightingFactor);
 	
     //=======================================================================
 
@@ -185,18 +179,18 @@ private:
     //=======================================================================
 	// buffers
     
-    CircularBuffer onsetDF;                 /**< to hold onset detection function */
-    CircularBuffer cumulativeScore;         /**< to hold cumulative score */
+    CircularBuffer onsetDF;                         /**< to hold onset detection function */
+    CircularBuffer cumulativeScore;                 /**< to hold cumulative score */
     
-    double resampledOnsetDF[512];           /**< to hold resampled detection function */
-    double acf[512];                        /**<  to hold autocorrelation function */
-    double weightingVector[128];            /**<  to hold weighting vector */
-    double combFilterBankOutput[128];       /**<  to hold comb filter output */
-    double tempoObservationVector[41];      /**<  to hold tempo version of comb filter output */
-    double delta[41];                       /**<  to hold final tempo candidate array */
-    double prevDelta[41];                   /**<  previous delta */
-    double prevDeltaFixed[41];              /**<  fixed tempo version of previous delta */
-    double tempoTransitionMatrix[41][41];   /**<  tempo transition matrix */
+    std::vector<double> resampledOnsetDF;           /**< to hold resampled detection function */
+    std::vector<double> acf;                        /**<  to hold autocorrelation function */
+    std::vector<double> weightingVector;            /**<  to hold weighting vector */
+    std::vector<double> combFilterBankOutput;       /**<  to hold comb filter output */
+    std::vector<double> tempoObservationVector;     /**<  to hold tempo version of comb filter output */
+    std::vector<double> delta;                      /**<  to hold final tempo candidate array */
+    std::vector<double> prevDelta;                  /**<  previous delta */
+    std::vector<double> prevDeltaFixed;             /**<  fixed tempo version of previous delta */
+    double tempoTransitionMatrix[41][41];           /**<  tempo transition matrix */
     
 	//=======================================================================
     // parameters
@@ -204,12 +198,9 @@ private:
     double tightness;                       /**< the tightness of the weighting used to calculate cumulative score */
     double alpha;                           /**< the mix between the current detection function sample and the cumulative score's "momentum" */
     double beatPeriod;                      /**< the beat period, in detection function samples */
-    double tempo;                           /**< the tempo in beats per minute */
     double estimatedTempo;                  /**< the current tempo estimation being used by the algorithm */
-    double latestCumulativeScoreValue;      /**< holds the latest value of the cumulative score function */
-    double tempoToLagFactor;                /**< factor for converting between lag and tempo */
-    int m0;                                 /**< indicates when the next point to predict the next beat is */
-    int beatCounter;                        /**< keeps track of when the next beat is - will be zero when the beat is due, and is set elsewhere in the algorithm to be positive once a beat prediction is made */
+    int timeToNextPrediction;               /**< indicates when the next point to predict the next beat is */
+    int timeToNextBeat;                     /**< keeps track of when the next beat is - will be zero when the beat is due, and is set elsewhere in the algorithm to be positive once a beat prediction is made */
     int hopSize;                            /**< the hop size being used by the algorithm */
     int onsetDFBufferSize;                  /**< the onset detection function buffer size */
     bool tempoFixed;                        /**< indicates whether the tempo should be fixed or not */
