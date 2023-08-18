@@ -151,7 +151,7 @@ void BTrack::setHopSize (int hop)
 {	
 	hopSize = hop;
 	onsetDFBufferSize = (512 * 512) / hopSize;		// calculate df buffer size
-	beatPeriod = round(60/((((double) hopSize)/44100) * 120.));
+	beatPeriod = round (60 / ((((double) hopSize) / 44100) * 120.));
 
     // set size of onset detection function buffer
     onsetDF.resize (onsetDFBufferSize);
@@ -324,7 +324,7 @@ void BTrack::fixTempo (double tempo)
 	int tempoIndex = (int) round((tempo - 80) / 2);
 	
 	// now set previous fixed previous tempo observation values to zero
-	for (int i=0;i < 41;i++)
+	for (int i = 0; i < 41; i++)
 	{
 		prevDeltaFixed[i] = 0;
 	}
@@ -349,7 +349,7 @@ void BTrack::resampleOnsetDetectionFunction()
 	float output[512];
     float input[onsetDFBufferSize];
     
-    for (int i = 0;i < onsetDFBufferSize;i++)
+    for (int i = 0; i < onsetDFBufferSize; i++)
         input[i] = (float) onsetDF[i];
         
     double ratio = 512.0 / ((double) onsetDFBufferSize);
@@ -435,7 +435,7 @@ void BTrack::calculateTempo()
 	beatPeriod = round ((60.0 * 44100.0) / (((2 * maxIndex) + 80) * ((double) hopSize)));
 	
 	if (beatPeriod > 0)
-        estimatedTempo = 60.0/((((double) hopSize) / 44100.0) * beatPeriod);
+        estimatedTempo = 60.0 / ((((double) hopSize) / 44100.0) * beatPeriod);
 }
 
 //=======================================================================
@@ -491,7 +491,7 @@ void BTrack::calculateOutputOfCombFilterBank()
 		{
 			for (int b = 1 - a; b <= a - 1; b++) // general state using normalisation of comb elements
 			{
-				combFilterBankOutput[i-1] += (acf[(a * i + b) - 1] * weightingVector[i - 1]) / (2 * a - 1);	// calculate value for comb filter row
+				combFilterBankOutput[i - 1] += (acf[(a * i + b) - 1] * weightingVector[i - 1]) / (2 * a - 1);	// calculate value for comb filter row
 			}
 		}
 	}
@@ -522,7 +522,7 @@ void BTrack::calculateBalancedACF (std::vector<double>& onsetDetectionFunction)
     fftw_execute (acfForwardFFT);
     
     // multiply by complex conjugate
-    for (int i = 0;i < FFTLengthForACFCalculation;i++)
+    for (int i = 0; i < FFTLengthForACFCalculation; i++)
     {
         complexOut[i][0] = complexOut[i][0] * complexOut[i][0] + complexOut[i][1] * complexOut[i][1];
         complexOut[i][1] = 0.0;
@@ -553,7 +553,7 @@ void BTrack::calculateBalancedACF (std::vector<double>& onsetDetectionFunction)
     kiss_fft (cfgForwards, fftIn, fftOut);
     
     // multiply by complex conjugate
-    for (int i = 0;i < FFTLengthForACFCalculation;i++)
+    for (int i = 0; i < FFTLengthForACFCalculation; i++)
     {
         fftOut[i].r = fftOut[i].r * fftOut[i].r + fftOut[i].i * fftOut[i].i;
         fftOut[i].i = 0.0;
@@ -639,7 +639,7 @@ void BTrack::predictBeat()
 	double beatExpectationWindow[beatExpectationWindowSize];
     
 	// copy cumulativeScore to first part of futureCumulativeScore
-	for (int i = 0;i < onsetDFBufferSize;i++)
+	for (int i = 0; i < onsetDFBufferSize; i++)
         futureCumulativeScore[i] = cumulativeScore[i];
 	
 	// Create a beat expectation window for predicting future beats from the "future" of the cumulative score.
