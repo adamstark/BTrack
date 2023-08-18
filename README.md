@@ -127,6 +127,7 @@ or:
 
 * Kiss FFT (included with project, use the flag -DUSE_KISS_FFT)
 
+Please ensure that if you are using these libraries that you have secured any required licences for your project. The licence on this library does not cover any third party licences.
 
 License
 -------
