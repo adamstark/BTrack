@@ -91,6 +91,13 @@ public:
      * @param tempo the tempo in beats per minute (bpm)
      */
     void setTempo (double tempo);
+
+    //=======================================================================
+    /** Set the tempo limits of the beat tracker
+     * @param minimum tempo in beats per minute (bpm)
+     * @param maximum tempo in beats per minute (bpm)
+     */
+    void setTempoLimits(int min, int max);
     
     /** Fix tempo to roughly around some value, so that the algorithm will only try to track
      * tempi around the given tempo
@@ -190,6 +197,8 @@ private:
     std::vector<double> delta;                      /**<  to hold final tempo candidate array */
     std::vector<double> prevDelta;                  /**<  previous delta */
     std::vector<double> prevDeltaFixed;             /**<  fixed tempo version of previous delta */
+    int minTempo = 80;
+    int maxTempo = 160;
     double tempoTransitionMatrix[41][41];           /**<  tempo transition matrix */
     
 	//=======================================================================

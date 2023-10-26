@@ -252,20 +252,26 @@ void BTrack::processOnsetDetectionFunctionSample (double newSample)
 	}
 }
 
+void BTrack::setTempoLimits(int min, int max)
+{
+	this->minTempo = min;
+	this->maxTempo = max;
+}
+
 //=======================================================================
 void BTrack::setTempo (double tempo)
 {
 	/////////// TEMPO INDICATION RESET //////////////////
 	
 	// firstly make sure tempo is between 80 and 160 bpm..
-	while (tempo > 160)
+	while (tempo > this->maxTempo)
         tempo = tempo / 2;
 	
-	while (tempo < 80)
+	while (tempo < this->minTempo)
         tempo = tempo * 2;
 		
 	// convert tempo from bpm value to integer index of tempo probability 
-	int tempoIndex = (int) round ((tempo - 80.) / 2);
+	int tempoIndex = (int) round ((tempo - (double)this->minTempo) / 2);
 	
     // now set previous tempo observations to zero and set desired tempo index to 1
     std::fill (prevDelta.begin(), prevDelta.end(), 0);
@@ -314,14 +320,14 @@ void BTrack::setTempo (double tempo)
 void BTrack::fixTempo (double tempo)
 {	
 	// firstly make sure tempo is between 80 and 160 bpm..
-	while (tempo > 160)
+	while (tempo > this->maxTempo)
         tempo = tempo / 2;
 	
-	while (tempo < 80)
+	while (tempo < this->minTempo)
         tempo = tempo * 2;
 	
 	// convert tempo from bpm value to integer index of tempo probability 
-	int tempoIndex = (int) round((tempo - 80) / 2);
+	int tempoIndex = (int) round((tempo - this->minTempo) / 2);
 	
 	// now set previous fixed previous tempo observation values to zero
 	for (int i = 0; i < 41; i++)
@@ -390,8 +396,8 @@ void BTrack::calculateTempo()
 	// calculate tempo observation vector from beat period observation vector
 	for (int i = 0; i < 41; i++)
 	{
-		int tempoIndex1 = (int) round (tempoToLagFactor / ((double) ((2 * i) + 80)));
-		int tempoIndex2 = (int) round (tempoToLagFactor / ((double) ((4 * i) + 160)));
+		int tempoIndex1 = (int) round (tempoToLagFactor / ((double) ((2 * i) + this->minTempo)));
+		int tempoIndex2 = (int) round (tempoToLagFactor / ((double) ((4 * i) + this->maxTempo)));
 		tempoObservationVector[i] = combFilterBankOutput[tempoIndex1 - 1] + combFilterBankOutput[tempoIndex2 - 1];
 	}
 	
@@ -433,7 +439,7 @@ void BTrack::calculateTempo()
 		prevDelta[j] = delta[j];
 	}
 	
-	beatPeriod = round ((60.0 * 44100.0) / (((2 * maxIndex) + 80) * ((double) hopSize)));
+	beatPeriod = round ((60.0 * 44100.0) / (((2 * maxIndex) + this->minTempo) * ((double) hopSize)));
 	
 	if (beatPeriod > 0)
         estimatedTempo = 60.0 / ((((double) hopSize) / 44100.0) * beatPeriod);
