@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 //=======================================================================
-#define _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES //needed for VC++
 
 #include <cmath>
 #include <algorithm>
@@ -225,7 +225,7 @@ void BTrack::processOnsetDetectionFunctionSample (double newSample)
     newSample = fabs (newSample);
     
     // add a tiny constant to the sample to stop it from ever going
-    // to zero. this is to avoid problems further down the line
+    // to zero. this is to avoid hproblems further down the line
     newSample = newSample + 0.0001;
     
 	timeToNextPrediction--;
@@ -246,7 +246,6 @@ void BTrack::processOnsetDetectionFunctionSample (double newSample)
 	if (timeToNextBeat == 0)
 	{
 		beatDueInFrame = true;	// indicate a beat should be output
-		
 		// recalculate the tempo
 		resampleOnsetDetectionFunction();
 		calculateTempo();
