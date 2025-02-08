@@ -31,6 +31,7 @@
 #endif
 
 #include <vector>
+#include <algorithm>
 
 //=======================================================================
 /** The type of onset detection function to calculate */

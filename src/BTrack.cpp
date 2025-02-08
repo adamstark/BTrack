@@ -347,7 +347,7 @@ void BTrack::doNotFixTempo()
 void BTrack::resampleOnsetDetectionFunction()
 {
 	float output[512];
-    float input[onsetDFBufferSize];
+    std::vector<float> input(onsetDFBufferSize);
     
     for (int i = 0; i < onsetDFBufferSize; i++)
         input[i] = (float) onsetDF[i];
@@ -357,7 +357,7 @@ void BTrack::resampleOnsetDetectionFunction()
     int outputLength = 512;
     
     SRC_DATA src_data;
-    src_data.data_in = input;
+    src_data.data_in = input.data();
     src_data.input_frames = bufferLength;
     src_data.src_ratio = ratio;
     src_data.data_out = output;
@@ -442,7 +442,7 @@ void BTrack::calculateTempo()
 void BTrack::adaptiveThreshold (std::vector<double>& x)
 {
     int N = static_cast<int> (x.size());
-	double threshold[N];
+	std::vector<double> threshold(N);
 	
 	int p_post = 7;
 	int p_pre = 8;
@@ -621,11 +621,11 @@ void BTrack::updateCumulativeScore (double onsetDetectionFunctionSample)
 	int windowSize = windowEnd - windowStart + 1;
 	
     // create log gaussian transition window
-	double logGaussianTransitionWeighting[windowSize];
-    createLogGaussianTransitionWeighting (logGaussianTransitionWeighting, windowSize, beatPeriod);
+	std::vector<double> logGaussianTransitionWeighting(windowSize);
+    createLogGaussianTransitionWeighting (logGaussianTransitionWeighting.data(), windowSize, beatPeriod);
 	
     // calculate the new cumulative score value
-    double cumulativeScoreValue = calculateNewCumulativeScoreValue (cumulativeScore, logGaussianTransitionWeighting, windowStart, windowEnd, onsetDetectionFunctionSample, alpha);
+    double cumulativeScoreValue = calculateNewCumulativeScoreValue (cumulativeScore, logGaussianTransitionWeighting.data(), windowStart, windowEnd, onsetDetectionFunctionSample, alpha);
     
     // add the new cumulative score value to the buffer
     cumulativeScore.addSampleToEnd (cumulativeScoreValue);
@@ -635,8 +635,8 @@ void BTrack::updateCumulativeScore (double onsetDetectionFunctionSample)
 void BTrack::predictBeat()
 {	 
 	int beatExpectationWindowSize = static_cast<int> (beatPeriod);
-	double futureCumulativeScore[onsetDFBufferSize + beatExpectationWindowSize];
-	double beatExpectationWindow[beatExpectationWindowSize];
+	std::vector<double> futureCumulativeScore(onsetDFBufferSize + beatExpectationWindowSize);
+	std::vector<double> beatExpectationWindow(beatExpectationWindowSize);
     
 	// copy cumulativeScore to first part of futureCumulativeScore
 	for (int i = 0; i < onsetDFBufferSize; i++)
@@ -663,8 +663,8 @@ void BTrack::predictBeat()
 	int endIndex = onsetDFBufferSize - round (beatPeriod / 2);
 	int pastWindowSize = endIndex - startIndex + 1;
     
-	double logGaussianTransitionWeighting[pastWindowSize];
-    createLogGaussianTransitionWeighting (logGaussianTransitionWeighting, pastWindowSize, beatPeriod);
+	std::vector<double> logGaussianTransitionWeighting(pastWindowSize);
+    createLogGaussianTransitionWeighting (logGaussianTransitionWeighting.data(), pastWindowSize, beatPeriod);
 
 	// Calculate the future cumulative score, by shifting the log Gaussian transition weighting from its
     // start position of [-2 beat periods, - 0.5 beat periods] forwards over the size of the beat
@@ -674,7 +674,7 @@ void BTrack::predictBeat()
 	{
         // note here that we pass 0.0 in for the onset detection function sample and 1.0 for the alpha weighting factor
         // see equation 3.4 and page 60 - 62 of Adam Stark's PhD thesis for details
-        futureCumulativeScore[i] = calculateNewCumulativeScoreValue (futureCumulativeScore, logGaussianTransitionWeighting, startIndex, endIndex, 0.0, 1.0);
+        futureCumulativeScore[i] = calculateNewCumulativeScoreValue (futureCumulativeScore, logGaussianTransitionWeighting.data(), startIndex, endIndex, 0.0, 1.0);
         
         startIndex++;
         endIndex++;
@@ -742,3 +742,4 @@ double BTrack::calculateNewCumulativeScoreValue (T cumulativeScoreArray, double*
     
     return cumulativeScoreValue;
 }
+

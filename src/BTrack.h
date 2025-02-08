@@ -22,9 +22,15 @@
 #ifndef __BTRACK_H
 #define __BTRACK_H
 
+#if defined(_WIN32) || defined(_WIN64)
+#define _USE_MATH_DEFINES
+#include <cmath>
+#endif
+
 #include "OnsetDetectionFunction.h"
 #include "CircularBuffer.h"
 #include <vector>
+
 
 //=======================================================================
 /** The main beat tracking class and the interface to the BTrack
@@ -224,3 +230,4 @@ private:
 };
 
 #endif
+

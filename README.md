@@ -136,6 +136,44 @@ or:
 
 Please ensure that if you are using these libraries that you have secured any required licences for your project. The licence on this library does not cover any third party licences.
 
+Libsamplerate Installation
+---------------------------
+Linux & MacOS
+--------------
+To install libsamplerate on linux, download the tar.xz file from the [releases section](https://github.com/libsndfile/libsamplerate/releases). Then follow the instructions for installing it [here](https://github.com/libsndfile/libsamplerate/blob/master/INSTALL).
+
+Windows
+--------
+Since we need the libsamplerate library for BTrack, for windows, you can get it by downloading the zip folder for youe Windows version [here](https://github.com/libsndfile/libsamplerate/releases).
+
+
+Building BTrack
+----------------
+MACOS & Linux
+---------------
+You can build BTrack on Unix Systems with the following:
+
+    mkdir build
+    cd build
+    cmake ..
+    make
+
+After running the above, you should get a build of BTrack. Currently, the tests are not passed due to some subtle bugs. That will be fixed later on. If you still want to build with tests, you can run:
+    
+    cmake -DBUILD_TESTS=ON ..
+
+Windows
+--------
+For Windows Systems, build the BTrack Library using Microsoft Visual Studio. However, place the libsample unzipped folder in the libs directory in the root folder. This will allow CMake detect libsamplerate without any errors. Perform your Configuration and Generation on CMake using the GUI application. Perform your build on Visual Studio with the following shortcut:
+
+    CTRL + SHIFT + B
+
+Before doing the above, in powershell you can run the following in the root folder:
+
+    mkdir build
+
+The above should create a diretory for your build which you can set in the GUI application of CMake.
+
 License
 -------
 
