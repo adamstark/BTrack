@@ -67,7 +67,7 @@ jobs:
           python -m build --wheel --sdist
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: btrack-wheels
           path: modules-and-plug-ins/python-module/dist/*
@@ -78,7 +78,7 @@ jobs:
     needs: build-wheels
     steps:
       - name: Download built wheels
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: btrack-wheels
           path: dist/
