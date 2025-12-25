@@ -267,9 +267,9 @@ static PyObject * btrack_trackBeatsFromOnsetDF(PyObject *dummy, PyObject *args)
 
 //=======================================================================
 static PyMethodDef btrack_methods[] = {
-    { "calculateOnsetDF",btrack_calculateOnsetDF,METH_VARARGS,"Calculate the onset detection function"},
-    { "trackBeats",btrack_trackBeats,METH_VARARGS,"Track beats from audio"},
-    { "trackBeatsFromOnsetDF",btrack_trackBeatsFromOnsetDF,METH_VARARGS,"Track beats from an onset detection function"},
+    { "calculate_onset_detection_function", btrack_calculateOnsetDF, METH_VARARGS, "Calculate the onset detection function"},
+    { "detect_beats", btrack_trackBeats, METH_VARARGS, "Detect beats from audio"},
+    { "detect_beats_from_odf", btrack_trackBeatsFromOnsetDF, METH_VARARGS, "Detect beats from an onset detection function"},
     {NULL, NULL, 0, NULL} /* Sentinel */
 };
 

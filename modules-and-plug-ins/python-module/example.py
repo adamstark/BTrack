@@ -19,13 +19,13 @@ if (audioData[0].size == 2):
     audioData = np.average (audioData, axis = 1)
 
 # ==========================================    
-# Usage A: track beats from audio            
-beats = btrack.trackBeats (audioData)    
+# Usage A: detect beats from audio            
+beats = btrack.detect_beats (audioData)    
 
 # ==========================================
 # Usage B: extract the onset detection function
-onsetDF = btrack.calculateOnsetDF (audioData)         
+odf = btrack.calculate_onset_detection_function (audioData)         
 
 # ==========================================
-# Usage C: track beats from the onset detection function (calculated in Usage B)
-ODFbeats = btrack.trackBeatsFromOnsetDF (onsetDF)
+# Usage C: detect beats from the onset detection function (calculated in Usage B)
+odf_beats = btrack.detect_beats_from_odf (odf)
