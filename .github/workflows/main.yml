@@ -1,0 +1,54 @@
+name: Build and Release Python Module
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-release:
+    runs-on: macos-latest
+
+    strategy:
+      matrix:
+        python-version: [3.10, 3.11, 3.12]
+
+    env:
+      # Set DRY_RUN to true for Test PyPI, false for production PyPI
+      DRY_RUN: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Upgrade build tools
+        run: |
+          python -m pip install --upgrade pip setuptools wheel twine
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade scikit-build-core pybind11 numpy
+
+      - name: Build distributions
+        working-directory: modules-and-plug-ins/python-module
+        run: |
+          python -m build --wheel --sdist
+
+      - name: Publish to PyPI
+        working-directory: modules-and-plug-ins/python-module
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "Dry run: uploading to Test PyPI"
+            python -m twine upload --repository testpypi dist/*
+          else
+            echo "Production: uploading to PyPI"
+            python -m twine upload dist/*
+          fi
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
