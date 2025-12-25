@@ -25,7 +25,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../src build/src)
 # Python extension module
 # ------------------------------------------------------------
 add_library(
-    btrack
+    btrack_beat_tracker
     MODULE
     btrack_python_module.cpp
 )
@@ -34,10 +34,10 @@ add_library(
 # Set version
 # ------------------------------------------------------------
 set(BTRACK_VERSION "1.0.5")
-target_compile_definitions(btrack PRIVATE BTRACK_VERSION=\"${BTRACK_VERSION}\")
+target_compile_definitions(btrack_beat_tracker PRIVATE BTRACK_VERSION=\"${BTRACK_VERSION}\")
 
 # Include directories
-target_include_directories(btrack PRIVATE
+target_include_directories(btrack_beat_tracker PRIVATE
     ${Python_INCLUDE_DIRS}
     ${NUMPY_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src
@@ -45,24 +45,24 @@ target_include_directories(btrack PRIVATE
 )
 
 # Link against BTrack and Python
-target_link_libraries(btrack PRIVATE BTrack ${Python_LIBRARIES})
+target_link_libraries(btrack_beat_tracker PRIVATE BTrack ${Python_LIBRARIES})
 
 # Ensure proper module name and location
-set_target_properties(btrack PROPERTIES
-    PREFIX ""                          # btrack.so, not libbtrack.so
-    OUTPUT_NAME "btrack"               # final module name: btrack.so
+set_target_properties(btrack_beat_tracker PROPERTIES
+    PREFIX ""                          # btrack_beat_tracker.so, not libbtrack_beat_tracker.so
+    OUTPUT_NAME "btrack_beat_tracker"               # final module name: btrack_beat_tracker.so
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 if(APPLE)
-    set_target_properties(btrack PROPERTIES 
+    set_target_properties(btrack_beat_tracker PROPERTIES 
         SUFFIX ".so"
         LINK_FLAGS "-undefined dynamic_lookup"
     )
 endif()
 
 # ------------------------------------------------------------
-# Install btrack.so directly (no __init__.py, no submodule)
+# Install btrack_beat_tracker.so directly (no __init__.py, no submodule)
 # ------------------------------------------------------------
-install(TARGETS btrack
+install(TARGETS btrack_beat_tracker
         LIBRARY DESTINATION ".")

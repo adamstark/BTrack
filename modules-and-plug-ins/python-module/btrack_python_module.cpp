@@ -276,14 +276,14 @@ static PyMethodDef btrack_methods[] = {
 //=======================================================================
 static struct PyModuleDef btrack_definition = {
     PyModuleDef_HEAD_INIT,
-    "btrack",
+    "btrack_beat_tracker",
     "Python bindings for the BTrack beat tracker",
     -1,
     btrack_methods
 };
 
 //=======================================================================
-PyMODINIT_FUNC PyInit_btrack(void)
+PyMODINIT_FUNC PyInit_btrack_beat_tracker(void)
 {
     import_array();
     PyObject* m = PyModule_Create(&btrack_definition);
