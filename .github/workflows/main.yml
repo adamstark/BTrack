@@ -45,16 +45,18 @@ jobs:
         run: |
           python -m build --wheel --sdist
 
-      - name: Publish to PyPI
+      - name: Publish to PyPI (Test)
+        if: env.DRY_RUN == 'true'
         working-directory: modules-and-plug-ins/python-module
-        run: |
-          if [ "$DRY_RUN" = "true" ]; then
-            echo "Dry run: uploading to Test PyPI"
-            python -m twine upload --repository testpypi dist/*
-          else
-            echo "Production: uploading to PyPI"
-            python -m twine upload dist/*
-          fi
+        run: python -m twine upload --repository testpypi dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+
+      - name: Publish to PyPI (Production)
+        if: env.DRY_RUN == 'false'
+        working-directory: modules-and-plug-ins/python-module
+        run: python -m twine upload dist/*
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
