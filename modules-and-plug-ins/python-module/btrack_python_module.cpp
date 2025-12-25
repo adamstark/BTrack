@@ -1,32 +1,27 @@
+#define PY_SSIZE_T_CLEAN
 #include <iostream>
 #include <Python.h>
-#include "../../src/OnsetDetectionFunction.h"
-#include "../../src/BTrack.h"
 #include <numpy/arrayobject.h>
+#include "OnsetDetectionFunction.h"
+#include "BTrack.h"
 
 //=======================================================================
 static PyObject * btrack_trackBeats(PyObject *dummy, PyObject *args)
 {
     PyObject *arg1=NULL;
-    PyObject *arr1=NULL;
     
-    if (!PyArg_ParseTuple(args, "O", &arg1))
-    {
+    if (! PyArg_ParseTuple(args, "O", &arg1))
         return NULL;
-    }
     
-    arr1 = PyArray_FROM_OTF(arg1, NPY_DOUBLE, NPY_IN_ARRAY);
-    if (arr1 == NULL)
-    {
+    PyArrayObject* arr1 = (PyArrayObject*) PyArray_FROM_OTF(arg1, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
+
+    if (! arr1)
         return NULL;
-    }
-    
-    
     
     ////////// GET INPUT DATA ///////////////////
     
     // get data as array
-    double* data = (double*) PyArray_DATA(arr1);
+    double* data = static_cast<double*>(PyArray_DATA(arr1));
     
     // get array size
     long signal_length = PyArray_Size((PyObject*)arr1);
@@ -113,20 +108,13 @@ static PyObject * btrack_trackBeats(PyObject *dummy, PyObject *args)
 static PyObject * btrack_calculateOnsetDF(PyObject *dummy, PyObject *args)
 {
     PyObject *arg1=NULL;
-    PyObject *arr1=NULL;
     
-    if (!PyArg_ParseTuple(args, "O", &arg1)) 
-    {
+    if (! PyArg_ParseTuple(args, "O", &arg1)) 
         return NULL;
-    }
     
-    arr1 = PyArray_FROM_OTF(arg1, NPY_DOUBLE, NPY_IN_ARRAY); 
-    if (arr1 == NULL) 
-    {
+    PyArrayObject* arr1 = (PyArrayObject*) PyArray_FROM_OTF(arg1, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
+    if (! arr1) 
         return NULL;
-    }
-
-
     
     ////////// GET INPUT DATA ///////////////////
     
@@ -198,20 +186,14 @@ static PyObject * btrack_calculateOnsetDF(PyObject *dummy, PyObject *args)
 static PyObject * btrack_trackBeatsFromOnsetDF(PyObject *dummy, PyObject *args)
 {
     PyObject *arg1=NULL;
-    PyObject *arr1=NULL;
     
-    if (!PyArg_ParseTuple(args, "O", &arg1)) 
-    {
+    if (! PyArg_ParseTuple(args, "O", &arg1)) 
         return NULL;
-    }
     
-    arr1 = PyArray_FROM_OTF(arg1, NPY_DOUBLE, NPY_IN_ARRAY); 
-    if (arr1 == NULL) 
-    {
+    PyArrayObject* arr1 = (PyArrayObject*) PyArray_FROM_OTF(arg1, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
+    
+    if (! arr1)
         return NULL;
-    }
-    
-    
     
     ////////// GET INPUT DATA ///////////////////
     
@@ -305,17 +287,4 @@ PyMODINIT_FUNC PyInit_btrack(void)
 {
     import_array();
     return PyModule_Create(&btrack_definition);
-}
-
-//=======================================================================
-int main(int argc, char *argv[])
-{
-    wchar_t* program = Py_DecodeLocale (argv[0], NULL);
-    Py_SetProgramName (program);
-    
-    /* Initialize the Python interpreter.  Required. */
-    Py_Initialize();
-    
-    /* Add a static module */
-    PyInit_btrack();
 }
