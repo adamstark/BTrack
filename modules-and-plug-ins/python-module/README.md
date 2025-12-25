@@ -7,7 +7,7 @@ This README explains how to build and install the `btrack` Python module locally
 ## 1. Installation via PyPI:
 
 ```bash
-pip install btrack
+pip install btrack_beat_tracker
 ```
 
 ## 2. Build locally
