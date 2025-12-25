@@ -33,7 +33,7 @@ jobs:
 
       - name: Install build dependencies
         run: |
-          python -m pip install --upgrade scikit-build-core pybind11 numpy
+          python -m pip install --upgrade scikit-build-core pybind11 numpy build
 
       - name: Build distributions
         working-directory: modules-and-plug-ins/python-module
