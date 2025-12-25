@@ -30,6 +30,12 @@ add_library(
     btrack_python_module.cpp
 )
 
+# ------------------------------------------------------------
+# Set version
+# ------------------------------------------------------------
+set(BTRACK_VERSION "1.0.5")
+target_compile_definitions(btrack PRIVATE BTRACK_VERSION=\"${BTRACK_VERSION}\")
+
 # Include directories
 target_include_directories(btrack PRIVATE
     ${Python_INCLUDE_DIRS}

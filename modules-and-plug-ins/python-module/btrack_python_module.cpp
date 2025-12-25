@@ -286,5 +286,8 @@ static struct PyModuleDef btrack_definition = {
 PyMODINIT_FUNC PyInit_btrack(void)
 {
     import_array();
-    return PyModule_Create(&btrack_definition);
+    PyObject* m = PyModule_Create(&btrack_definition);
+
+    PyModule_AddStringConstant(m, "__version__", BTRACK_VERSION);
+    return m;
 }
