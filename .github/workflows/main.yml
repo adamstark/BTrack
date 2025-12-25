@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.10, 3.11, 3.12]
+        python-version: ["3.10", "3.11", "3.12"]
 
     env:
       # Set DRY_RUN to true for Test PyPI, false for production PyPI
