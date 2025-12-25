@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [windows-latest]
         python-version: ["3.11", "3.12", "3.13"]
     outputs:
       dist-paths: ${{ steps.upload-artifacts.outputs.dist-paths }}
@@ -30,6 +30,13 @@ jobs:
         run: |
           sudo apt-get update || brew update
           sudo apt-get install -y libsamplerate0-dev || brew install libsamplerate
+
+      - name: Install vcpkg dependencies
+        if: runner.os == 'Windows'
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git vcpkg
+          .\vcpkg\bootstrap-vcpkg.bat
+          .\vcpkg\vcpkg install libsamplerate:x64-windows
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -61,7 +68,16 @@ jobs:
           path.write_text(text)
           EOF
 
+      - name: Build distributions (Windows)
+        if: runner.os == 'Windows'
+        working-directory: modules-and-plug-ins/python-module
+        run: |
+          python -m build --wheel --sdist
+        env:
+          CMAKE_TOOLCHAIN_FILE: ${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake
+
       - name: Build distributions
+        if: runner.os != 'Windows'
         working-directory: modules-and-plug-ins/python-module
         run: |
           python -m build --wheel --sdist
@@ -73,7 +89,7 @@ jobs:
           path: modules-and-plug-ins/python-module/dist/*
 
   publish:
-    if: true
+    if: false
     name: Publish to PyPI
     runs-on: ubuntu-latest
     needs: build-wheels
