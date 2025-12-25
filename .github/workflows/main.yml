@@ -22,6 +22,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Install system dependencies
+        run: |
+          brew update
+          brew install libsamplerate
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
