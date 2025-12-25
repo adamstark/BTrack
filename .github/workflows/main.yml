@@ -85,7 +85,7 @@ jobs:
       - name: Flatten wheel artifacts
         run: |
           mkdir -p files-to-upload
-          find dist -type f \( -name "*.whl" -o -name "*.tar.gz" \) -exec mv {} upload/ \;
+          find dist -type f \( -name "*.whl" -o -name "*.tar.gz" \) -exec mv {} files-to-upload/ \;
 
       - name: Install twine
         run: |
