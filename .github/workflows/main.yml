@@ -77,22 +77,26 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-wheels
     steps:
-      - name: Download built wheels
+      - name: Download all built wheels
         uses: actions/download-artifact@v4
         with:
-          name: btrack-wheels
           path: dist/
+
+      - name: Flatten wheel artifacts
+        run: |
+          mkdir -p files-to-upload
+          find dist -type f \( -name "*.whl" -o -name "*.tar.gz" \) -exec mv {} upload/ \;
 
       - name: Publish to Test PyPI
         if: env.DRY_RUN == 'true'
-        run: python -m twine upload --repository testpypi dist/*
+        run: python -m twine upload --repository testpypi files-to-upload/*
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
 
       - name: Publish to Production PyPI
         if: env.DRY_RUN == 'false'
-        run: python -m twine upload dist/*
+        run: python -m twine upload files-to-upload/*
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
