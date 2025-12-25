@@ -69,7 +69,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: btrack-wheels
+          name: btrack-wheels-${{ matrix.os }}-py${{ matrix.python-version }}
           path: modules-and-plug-ins/python-module/dist/*
 
   publish:
