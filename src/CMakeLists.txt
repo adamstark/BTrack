@@ -13,8 +13,7 @@ endif()
 if(APPLE)
     find_library(LIBSAMPLERATE_LIBRARIES NAMES samplerate PATHS /opt/homebrew/lib /usr/local/lib)
 elseif(WIN32)
-    # Windows users need to set path manually or via vcpkg
-    find_library(LIBSAMPLERATE_LIBRARIES NAMES libsamplerate samplerate PATHS C:/libsamplerate/lib)
+    find_library(LIBSAMPLERATE_LIBRARIES NAMES samplerate)
 else()
     # Linux / other UNIX
     find_library(LIBSAMPLERATE_LIBRARIES NAMES samplerate)
