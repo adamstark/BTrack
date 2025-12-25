@@ -8,13 +8,13 @@ build-backend = "scikit_build_core.build"
 
 [tool.scikit-build]
 build-dir = "build/{wheel_tag}"
-cmake.verbose = true
+build.verbose = true
 
 [project]
 name = "btrack"
 version = "1.0.5"
 description = "Python bindings for the BTrack beat tracker"
-readme = "../../README.md"
+readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "GPLv3" }
 authors = [
