@@ -40,6 +40,27 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel twine build scikit-build-core pybind11 numpy
 
+      # ---------------------------
+      # Dry-run version bump
+      # ---------------------------
+      - name: Bump version for Test PyPI
+        if: env.DRY_RUN == 'true'
+        working-directory: modules-and-plug-ins/python-module
+        shell: bash
+        run: |
+          python - <<EOF
+          from pathlib import Path
+          import re, tomllib
+
+          path = Path("pyproject.toml")
+          data = tomllib.loads(path.read_text())
+          base = data["project"]["version"]
+          new = f"{base}.post0.dev{${{ github.run_number }}}"
+
+          text = re.sub(r'version\\s*=\\s*".*"', f'version = "{new}"', path.read_text())
+          path.write_text(text)
+          EOF
+
       - name: Build distributions
         working-directory: modules-and-plug-ins/python-module
         run: |
