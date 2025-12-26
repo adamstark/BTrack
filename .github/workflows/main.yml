@@ -8,15 +8,15 @@ on:
       - 'release/*'
     tags:
       - 'v*.*.*'
-      
-  workflow_dispatch:    
   
   pull_request:
     branches:
       - master
       - develop
-      - 'release/*
-
+      - 'release/*'
+      
+  workflow_dispatch:   
+  
 env:
   # Set DRY_RUN to true for Test PyPI, false for Production PyPI
   DRY_RUN: true
