@@ -51,7 +51,7 @@ The onset detection function is calculated as per Use Case B above
 
 If you want to build and install the module directly for local development:
 
-    cd modules-and-plug-ins/python-module
+    cd plugins/python-module
     python3 -m pip install --force-reinstall .
 
 ## 4. License

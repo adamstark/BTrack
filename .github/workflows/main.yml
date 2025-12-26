@@ -52,7 +52,7 @@ jobs:
       # ---------------------------
       - name: Bump version for Test PyPI
         if: env.DRY_RUN == 'true'
-        working-directory: modules-and-plug-ins/python-module
+        working-directory: plugins/python-module
         shell: bash
         run: |
           python - <<EOF
@@ -70,7 +70,7 @@ jobs:
 
       - name: Build distributions (Windows)
         if: runner.os == 'Windows'
-        working-directory: modules-and-plug-ins/python-module
+        working-directory: plugins/python-module
         run: |
           python -m build --wheel --sdist
         env:
@@ -78,7 +78,7 @@ jobs:
 
       - name: Build distributions
         if: runner.os != 'Windows'
-        working-directory: modules-and-plug-ins/python-module
+        working-directory: plugins/python-module
         run: |
           python -m build --wheel --sdist
 
@@ -86,7 +86,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: btrack-wheels-${{ matrix.os }}-py${{ matrix.python-version }}
-          path: modules-and-plug-ins/python-module/dist/*
+          path: plugins/python-module/dist/*
 
   publish:
     if: false
