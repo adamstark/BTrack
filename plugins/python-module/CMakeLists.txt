@@ -27,7 +27,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../src build/src)
 add_library(
     btrack_beat_tracker
     MODULE
-    btrack_python_module.cpp
+    BTrackPythonModule.cpp
 )
 
 # ------------------------------------------------------------
