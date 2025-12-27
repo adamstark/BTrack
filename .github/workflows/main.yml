@@ -93,6 +93,17 @@ jobs:
         run: |
           python -m build --wheel --sdist
 
+      - name: Install built wheel
+        working-directory: plugins/python-module
+        run: |
+          python -m pip install dist/*.whl
+
+      - name: Run Python sanity tests
+        working-directory: plugins/python-module
+        run: |
+          python -m pip install pytest
+          pytest -q
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
