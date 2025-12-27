@@ -10,4 +10,5 @@ xcuserdata
 
 plugins/max-external/build
 plugins/python-module/build
+plugins/python-module/tests/__pycache__
 build/
