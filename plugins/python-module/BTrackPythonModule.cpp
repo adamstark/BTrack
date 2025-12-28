@@ -1,275 +1,148 @@
 #define PY_SSIZE_T_CLEAN
 #include <iostream>
+#include <vector>
 #include <Python.h>
 #include <numpy/arrayobject.h>
 #include "OnsetDetectionFunction.h"
 #include "BTrack.h"
 
 //=======================================================================
-static PyObject * btrack_trackBeats(PyObject *dummy, PyObject *args)
+static PyObject* detectBeats (PyObject* dummy, PyObject* args)
 {
-    PyObject *arg1=NULL;
+    PyObject* inputObject = nullptr;
     
-    if (! PyArg_ParseTuple(args, "O", &arg1))
-        return NULL;
+    if (! PyArg_ParseTuple (args, "O", &inputObject))
+        return nullptr;
     
-    PyArrayObject* arr1 = (PyArrayObject*) PyArray_FROM_OTF(arg1, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
+    PyArrayObject* inputArray = (PyArrayObject*) PyArray_FROM_OTF (inputObject, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
 
-    if (! arr1)
-        return NULL;
+    if (! inputArray)
+        return nullptr;
+        
+    const double* audioSampleArray = static_cast<double*> (PyArray_DATA (inputArray));
+    long signalLength = PyArray_Size ((PyObject*)inputArray);
+    constexpr int hopSize = 512;
+    constexpr int frameSize = 1024;
+    constexpr int sampleRate = 44100;
+    int numFrames = signalLength / hopSize;
     
-    ////////// GET INPUT DATA ///////////////////
+    std::vector<double> buffer (hopSize); // buffer to hold one hopsize worth of audio samples
     
-    // get data as array
-    double* data = static_cast<double*>(PyArray_DATA(arr1));
-    
-    // get array size
-    long signal_length = PyArray_Size((PyObject*)arr1);
-    
-    
-    ////////// BEGIN PROCESS ///////////////////
-    int hopSize = 512;
-    int frameSize = 1024;
-    
-    int numframes;
-    double buffer[hopSize];	// buffer to hold one hopsize worth of audio samples
-    
-    
-    // get number of audio frames, given the hop size and signal length
-	numframes = (int) floor(((double) signal_length) / ((double) hopSize));
-    
-    
-    BTrack b(hopSize,frameSize);
-    
-    
-    double beats[5000];
-    int beatnum = 0;
-    
-    ///////////////////////////////////////////
-	//////// Begin Processing Loop ////////////
+    BTrack b (hopSize, frameSize);
+
+    std::vector<double> beats;
+    beats.reserve (numFrames);
 	
-	for (int i=0;i < numframes;i++)
+	for (int i = 0; i < numFrames; i++)
 	{
-		// add new samples to frame
-		for (int n = 0;n < hopSize;n++)
-		{
-			buffer[n] = data[(i*hopSize)+n];
-		}
+        std::copy_n (audioSampleArray + (i * hopSize), hopSize, buffer.begin());
 		
-        // process the current audio frame
-        b.processAudioFrame(buffer);
+        b.processAudioFrame (buffer.data()); // process the current audio frame
         
-        // if a beat is currently scheduled
+        // if a beat is currently scheduled, store the time
 		if (b.beatDueInCurrentFrame())
-		{
-			beats[beatnum] = BTrack::getBeatTimeInSeconds(i,hopSize,44100);
-            beatnum = beatnum + 1;
-		}
-		
+            beats.push_back (BTrack::getBeatTimeInSeconds (i, hopSize, sampleRate));
 	}
-	
-	///////// End Processing Loop /////////////
-	///////////////////////////////////////////
+        
+    npy_intp dims = static_cast<npy_intp> (beats.size());
+    PyObject* outputArray = PyArray_SimpleNew (1, &dims, NPY_DOUBLE);
+    double* out = static_cast<double*> (PyArray_DATA ((PyArrayObject*)outputArray));
+    std::copy (beats.begin(), beats.end(), out);
     
-    
-    ////////// END PROCESS ///////////////////
-    
-    double beats_out[beatnum];          // create output array
-    
-    // copy beats into output array
-    for (int i = 0;i < beatnum;i++)
-    {
-        beats_out[i] = beats[i];
-    }
-    
-    
-    
-    ////////// CREATE ARRAY AND RETURN IT ///////////////////
-    int nd=1;
-    npy_intp m= beatnum;
-    //double fArray[5] = {0,1,2,3,4};
-    
-    PyObject* c=PyArray_SimpleNew(nd, &m, NPY_DOUBLE);
-    
-    void *arr_data = PyArray_DATA((PyArrayObject*)c);
-    
-    memcpy(arr_data, beats_out, PyArray_ITEMSIZE((PyArrayObject*) c) * m);
-    
-    
-    Py_DECREF(arr1);
-    Py_INCREF(Py_None);
-    //return Py_None;
-    
-    return (PyObject *)c;
+    Py_DECREF (inputArray);
+    return outputArray;
 }
 
 
 //=======================================================================
-static PyObject * btrack_calculateOnsetDF(PyObject *dummy, PyObject *args)
+static PyObject* calculateOnsetDetectionFunction (PyObject* dummy, PyObject* args)
 {
-    PyObject *arg1=NULL;
+    PyObject *inputObject = nullptr;
     
-    if (! PyArg_ParseTuple(args, "O", &arg1)) 
-        return NULL;
+    if (! PyArg_ParseTuple (args, "O", &inputObject)) 
+        return nullptr;
     
-    PyArrayObject* arr1 = (PyArrayObject*) PyArray_FROM_OTF(arg1, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
-    if (! arr1) 
-        return NULL;
-    
-    ////////// GET INPUT DATA ///////////////////
-    
-    // get data as array
-    double* data = (double*) PyArray_DATA(arr1);
-    
-    // get array size
-    long signal_length = PyArray_Size((PyObject*)arr1);
-    
-    ////////// BEGIN PROCESS ///////////////////
-    int hopSize = 512;
-    int frameSize = 1024;
-    int df_type = 6;
-    int numframes;
-    double buffer[hopSize];	// buffer to hold one hopsize worth of audio samples
+    PyArrayObject* inputArray = (PyArrayObject*) PyArray_FROM_OTF (inputObject, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
 
+    if (! inputArray) 
+        return nullptr;
     
-    // get number of audio frames, given the hop size and signal length
-	numframes = (int) floor(((double) signal_length) / ((double) hopSize));
-    
-    OnsetDetectionFunction onset(hopSize,frameSize,df_type,1);
+    const double* audioSampleArray = static_cast<double*> (PyArray_DATA (inputArray));
+    long signalLength = PyArray_Size ((PyObject*)inputArray);
+    constexpr int hopSize = 512;
+    constexpr int frameSize = 1024;
+    int onsetDetectionFunctionType = 6;
 
-    double df[numframes];
-    
+    std::vector<double> buffer (hopSize); // buffer to hold one hopsize worth of audio samples
 
+    int numFrames = signalLength / hopSize;
     
-    ///////////////////////////////////////////
-	//////// Begin Processing Loop ////////////
+    OnsetDetectionFunction onset (hopSize, frameSize, onsetDetectionFunctionType, 1);
+
+    std::vector<double> odf (numFrames);
 	
-	for (int i=0;i < numframes;i++)
+	for (int i = 0; i < numFrames; i++)
 	{		
-		// add new samples to frame
-		for (int n = 0;n < hopSize;n++)
-		{
-			buffer[n] = data[(i*hopSize)+n];
-		}
-		
-		df[i] = onset.calculateOnsetDetectionFunctionSample(buffer);
-		
+        std::copy_n (audioSampleArray + (i * hopSize), hopSize, buffer.begin());
+		odf[i] = onset.calculateOnsetDetectionFunctionSample (buffer.data());	
 	}
-	
-	///////// End Processing Loop /////////////
-	///////////////////////////////////////////
-    
-    
 
-    
-    ////////// CREATE ARRAY AND RETURN IT ///////////////////
-    int nd=1;
-    npy_intp m= numframes;
-
-    
-    PyObject* c=PyArray_SimpleNew(nd, &m, NPY_DOUBLE);
-    
-    void *arr_data = PyArray_DATA((PyArrayObject*)c);
-        
-    memcpy(arr_data, df, PyArray_ITEMSIZE((PyArrayObject*) c) * m); 
-    
+    npy_intp dims = static_cast<npy_intp> (numFrames);
+    PyObject* outputArray = PyArray_SimpleNew (1, &dims, NPY_DOUBLE);
+    double* out = static_cast<double*> (PyArray_DATA ((PyArrayObject*)outputArray));
+    std::copy (odf.begin(), odf.end(), out);
      
-    Py_DECREF(arr1);  
-    Py_INCREF(Py_None); 
-    //return Py_None;
-    
-    return (PyObject *)c;
+    Py_DECREF(inputArray);      
+    return outputArray;
 }
 
-
 //=======================================================================
-static PyObject * btrack_trackBeatsFromOnsetDF(PyObject *dummy, PyObject *args)
+static PyObject* detectBeatsFromOnsetDetectionFunction (PyObject* dummy, PyObject* args)
 {
-    PyObject *arg1=NULL;
+    PyObject* inputObject = nullptr;
     
-    if (! PyArg_ParseTuple(args, "O", &arg1)) 
-        return NULL;
+    if (! PyArg_ParseTuple (args, "O", &inputObject)) 
+        return nullptr;
     
-    PyArrayObject* arr1 = (PyArrayObject*) PyArray_FROM_OTF(arg1, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
+    PyArrayObject* inputArray = (PyArrayObject*) PyArray_FROM_OTF (inputObject, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
     
-    if (! arr1)
-        return NULL;
-    
-    ////////// GET INPUT DATA ///////////////////
-    
-    // get data as array
-    double* data = (double*) PyArray_DATA(arr1);
-    
-    // get array size
-    long numframes = PyArray_Size((PyObject*)arr1);
-
-    ////////// BEGIN PROCESS ///////////////////
-    int hopSize = 512;
-    int frameSize = 2*hopSize;
-
-    BTrack b(hopSize,frameSize);
-    
-    double beats[5000];
-    int beatnum = 0;
-    double df_val;
-    
-    ///////////////////////////////////////////
-	//////// Begin Processing Loop ////////////
-	
-	for (long i=0;i < numframes;i++)
-	{		
-        df_val = data[i] + 0.0001;
+    if (! inputArray)
+        return nullptr;
         
-		b.processOnsetDetectionFunctionSample(df_val);				// process df sample in beat tracker
+    const double* odfArray = static_cast<double*> (PyArray_DATA(inputArray));
+    long numFrames = PyArray_Size((PyObject*)inputArray);
+    constexpr int hopSize = 512;
+    constexpr int frameSize = 1024;
+    constexpr int sampleRate = 44100;
+    constexpr double epsilon = 1e-4;
+
+    BTrack b (hopSize, frameSize);
+    
+    std::vector<double> beats;
+    beats.reserve (numFrames);
+
+	for (long i = 0; i < numFrames; i++)
+	{	
+		b.processOnsetDetectionFunctionSample (odfArray[i] + epsilon);
 		
 		if (b.beatDueInCurrentFrame())
-		{
-            beats[beatnum] = BTrack::getBeatTimeInSeconds(i,hopSize,44100);
-			beatnum = beatnum + 1;	
-		}
-		
+            beats.push_back (BTrack::getBeatTimeInSeconds (i, hopSize, sampleRate));
 	}
-	
-	///////// End Processing Loop /////////////
-	///////////////////////////////////////////
     
+    npy_intp dims = static_cast<npy_intp> (beats.size());
+    PyObject* outputArray = PyArray_SimpleNew (1, &dims, NPY_DOUBLE);
+    double* out = static_cast<double*> (PyArray_DATA ((PyArrayObject*)outputArray));
+    std::copy (beats.begin(), beats.end(), out);
     
-    ////////// END PROCESS ///////////////////
-    
-    double beats_out[beatnum];          // create output array
-    
-    
-    // copy beats into output array
-    for (int i = 0;i < beatnum;i++)     
-    {
-        beats_out[i] = beats[i];
-    }
-    
-    
-    ////////// CREATE ARRAY AND RETURN IT ///////////////////
-    int nd=1;
-    npy_intp m= beatnum;
-    //double fArray[5] = {0,1,2,3,4};
-    
-    PyObject* c=PyArray_SimpleNew(nd, &m, NPY_DOUBLE);
-    
-    void *arr_data = PyArray_DATA((PyArrayObject*)c);
-    
-    memcpy(arr_data, beats_out, PyArray_ITEMSIZE((PyArrayObject*) c) * m); 
-    
-    
-    Py_DECREF(arr1);  
-    Py_INCREF(Py_None); 
-    //return Py_None;
-    
-    return (PyObject *)c;
+    Py_DECREF(inputArray);      
+    return outputArray;
 }
 
 //=======================================================================
 static PyMethodDef btrack_methods[] = {
-    { "calculate_onset_detection_function", btrack_calculateOnsetDF, METH_VARARGS, "Calculate the onset detection function"},
-    { "detect_beats", btrack_trackBeats, METH_VARARGS, "Detect beats from audio"},
-    { "detect_beats_from_odf", btrack_trackBeatsFromOnsetDF, METH_VARARGS, "Detect beats from an onset detection function"},
+    { "calculate_onset_detection_function", calculateOnsetDetectionFunction, METH_VARARGS, "Calculate the onset detection function"},
+    { "detect_beats", detectBeats, METH_VARARGS, "Detect beats from audio"},
+    { "detect_beats_from_odf", detectBeatsFromOnsetDetectionFunction, METH_VARARGS, "Detect beats from an onset detection function"},
     {NULL, NULL, 0, NULL} /* Sentinel */
 };
 
@@ -287,7 +160,6 @@ PyMODINIT_FUNC PyInit_btrack_beat_tracker(void)
 {
     import_array();
     PyObject* m = PyModule_Create(&btrack_definition);
-
     PyModule_AddStringConstant(m, "__version__", BTRACK_VERSION);
     return m;
 }
