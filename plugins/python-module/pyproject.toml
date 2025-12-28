@@ -12,7 +12,7 @@ build.verbose = true
 
 [project]
 name = "btrack-beat-tracker"
-version = "1.0.5"
+version = "1.0.6"
 description = "Python bindings for the BTrack beat tracker"
 readme = "README.md"
 requires-python = ">=3.8"
