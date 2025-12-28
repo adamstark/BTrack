@@ -56,9 +56,7 @@ OnsetDetectionFunction::OnsetDetectionFunction (int hopSize_, int frameSize_, in
 OnsetDetectionFunction::~OnsetDetectionFunction()
 {
     if (initialised)
-    {
         freeFFT();
-    }
 }
 
 //=======================================================================
@@ -86,7 +84,6 @@ void OnsetDetectionFunction::initialise (int hopSize_, int frameSize_, int onset
     phase.resize (frameSize);
     prevPhase.resize (frameSize);
     prevPhase2.resize (frameSize);
-	
 	
 	// set the window to the specified type
 	switch (windowType)
@@ -128,9 +125,7 @@ void OnsetDetectionFunction::initialise (int hopSize_, int frameSize_, int onset
 void OnsetDetectionFunction::initialiseFFT()
 {
     if (initialised) // if we have already initialised FFT plan
-    {
         freeFFT();
-    }
     
 #ifdef USE_FFTW
     complexIn = (fftw_complex*) fftw_malloc (sizeof(fftw_complex) * frameSize);		// complex array to hold fft data
@@ -304,9 +299,9 @@ void OnsetDetectionFunction::performFFT()
 #endif
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////// Methods for Detection Functions /////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////// Methods for Onset Detection Functions /////////////////////////////////
 
 //=======================================================================
 double OnsetDetectionFunction::energyEnvelope()
@@ -669,9 +664,7 @@ double OnsetDetectionFunction::highFrequencySpectralDifferenceHWR()
 //=======================================================================
 void OnsetDetectionFunction::calculateHanningWindow()
 {
-	double N;		// variable to store framesize minus 1
-	
-	N = (double) (frameSize - 1);	// framesize minus 1
+	double N = (double) (frameSize - 1);	// framesize minus 1
 	
 	// Hanning window calculation
 	for (int n = 0; n < frameSize; n++)
@@ -683,70 +676,47 @@ void OnsetDetectionFunction::calculateHanningWindow()
 //=======================================================================
 void OnsetDetectionFunction::calclulateHammingWindow()
 {
-	double N;		// variable to store framesize minus 1
-	double n_val;	// double version of index 'n'
-	
-	N = (double) (frameSize - 1);	// framesize minus 1
-	n_val = 0;
+	double N = (double) (frameSize - 1);	// framesize minus 1
 	
 	// Hamming window calculation
 	for (int n = 0; n < frameSize; n++)
-	{
-		window[n] = 0.54 - (0.46 * cos (2 * pi * (n_val / N)));
-		n_val = n_val+1;
-	}
+        window[n] = 0.54 - (0.46 * cos (2.0 * pi * (static_cast<double> (n) / N)));
 }
 
 //=======================================================================
 void OnsetDetectionFunction::calculateBlackmanWindow()
 {
-	double N;		// variable to store framesize minus 1
-	double n_val;	// double version of index 'n'
-	
-	N = (double) (frameSize - 1);	// framesize minus 1
-	n_val = 0;
+	double N = (double) (frameSize - 1);	// framesize minus 1
 	
 	// Blackman window calculation
 	for (int n = 0; n < frameSize; n++)
-	{
-		window[n] = 0.42 - (0.5 * cos (2 * pi * (n_val / N))) + (0.08 * cos (4 * pi * (n_val / N)));
-		n_val = n_val + 1;
-	}
+        window[n] = 0.42 - (0.5 * cos (2 * pi * (static_cast<double> (n) / N))) + (0.08 * cos (4.0 * pi * (static_cast<double> (n) / N)));
 }
 
 //=======================================================================
 void OnsetDetectionFunction::calculateTukeyWindow()
 {
-	double N;		// variable to store framesize minus 1
-	double n_val;	// double version of index 'n'
-	double alpha;	// alpha [default value = 0.5];
-	
-	alpha = 0.5;
-	
-	N = (double) (frameSize - 1);	// framesize minus 1
-		
-	// Tukey window calculation
-	
-	n_val = (double) (-1 * ((frameSize / 2))) + 1;
+	double alpha = 0.5;
+	double N = (double) (frameSize - 1);	// framesize minus 1
+	double position = (double) (-1 * ((frameSize / 2))) + 1;
 
 	for (int n = 0; n < frameSize; n++)	// left taper
 	{
-		if ((n_val >= 0) && (n_val <= (alpha * (N / 2))))
+		if ((position >= 0) && (position <= (alpha * (N / 2))))
 		{
 			window[n] = 1.0;
 		}
-		else if ((n_val <= 0) && (n_val >= (-1 * alpha * (N / 2))))
+		else if ((position <= 0) && (position >= (-1 * alpha * (N / 2))))
 		{
 			window[n] = 1.0;
 		}
 		else
 		{
-			window[n] = 0.5 * (1 + cos (pi * (((2 * n_val) / (alpha * N)) - 1)));
+			window[n] = 0.5 * (1 + cos (pi * (((2 * position) / (alpha * N)) - 1)));
 		}
 
-		n_val = n_val + 1;
+		position = position + 1;
 	}
-
 }
 
 //=======================================================================
@@ -754,9 +724,7 @@ void OnsetDetectionFunction::calculateRectangularWindow()
 {
 	// Rectangular window calculation
 	for (int n = 0; n < frameSize; n++)
-	{
-		window[n] = 1.0;
-	}
+        window[n] = 1.0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -764,19 +732,15 @@ void OnsetDetectionFunction::calculateRectangularWindow()
 ///////////////////////////////// Other Handy Methods //////////////////////////////////////////
 
 //=======================================================================
-double OnsetDetectionFunction::princarg(double phaseVal)
-{	
+double OnsetDetectionFunction::princarg (double phaseVal)
+{
 	// if phase value is less than or equal to -pi then add 2*pi
 	while (phaseVal <= (-pi))
-	{
-		phaseVal = phaseVal + (2 * pi);
-	}
+        phaseVal = phaseVal + (2 * pi);
 	
 	// if phase value is larger than pi, then subtract 2*pi
 	while (phaseVal > pi)
-	{
-		phaseVal = phaseVal - (2 * pi);
-	}
+        phaseVal = phaseVal - (2 * pi);
 			
 	return phaseVal;
 }
