@@ -167,7 +167,7 @@ private:
      * @param phaseVal the phase value to process
      * @returns the wrapped phase value
      */
-	double princarg(double phaseVal);
+	double princarg (double phaseVal);
 	
     void initialiseFFT();
     void freeFFT();

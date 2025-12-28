@@ -2,10 +2,28 @@ option(USE_KISS_FFT "Enable Kiss FFT backend" ON)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/src)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR}/../libs/kiss_fft130)
-include_directories (/opt/homebrew/include)
+
+if(APPLE)
+    include_directories (/opt/homebrew/include)
+elseif(UNIX)
+    include_directories (/usr/include)
+endif()
 
 # Find libsamplerate
-find_library(LIBSAMPLERATE_LIBRARIES NAMES samplerate)
+if(APPLE)
+    find_library(LIBSAMPLERATE_LIBRARIES NAMES samplerate PATHS /opt/homebrew/lib /usr/local/lib)
+elseif(WIN32)
+    find_library(LIBSAMPLERATE_LIBRARIES NAMES samplerate)
+else()
+    # Linux / other UNIX
+    find_library(LIBSAMPLERATE_LIBRARIES NAMES samplerate)
+endif()
+
+if(NOT LIBSAMPLERATE_LIBRARIES)
+    message(FATAL_ERROR "libsamplerate not found! Please install it.")
+endif()
+
+message(STATUS "Using libsamplerate: ${LIBSAMPLERATE_LIBRARIES}")
 
 set(BTRACK_SOURCES
     BTrack.cpp

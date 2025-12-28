@@ -27,13 +27,13 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../src build/src)
 add_library(
     btrack_beat_tracker
     MODULE
-    btrack_python_module.cpp
+    BTrackPythonModule.cpp
 )
 
 # ------------------------------------------------------------
 # Set version
 # ------------------------------------------------------------
-set(BTRACK_VERSION "1.0.5")
+set(BTRACK_VERSION "1.0.6")
 target_compile_definitions(btrack_beat_tracker PRIVATE BTRACK_VERSION=\"${BTRACK_VERSION}\")
 
 # Include directories

@@ -8,6 +8,7 @@ xcuserdata
 
 *.xcworkspace
 
-modules-and-plug-ins/max-external/build
-modules-and-plug-ins/python-module/build
+plugins/max-external/build
+plugins/python-module/build
+plugins/python-module/tests/__pycache__
 build/

@@ -87,39 +87,39 @@ void BTrack::initialise (int hop)
     
     double rayleighParameter = 43;
 	
-	// initialise parameters
-	tightness = 5;
-	alpha = 0.9;
-	estimatedTempo = 120.0;
-	
-	timeToNextPrediction = 10;
-	timeToNextBeat = -1;
-	
-	beatDueInFrame = false;
-	
+    // initialise parameters
+    tightness = 5;
+    alpha = 0.9;
+    estimatedTempo = 120.0;
+    
+    timeToNextPrediction = 10;
+    timeToNextBeat = -1;
+    
+    beatDueInFrame = false;
 
-	// create rayleigh weighting vector
-	for (int n = 0; n < 128; n++)
+    // create rayleigh weighting vector
+    for (int n = 0; n < 128; n++)
         weightingVector[n] = ((double) n / pow (rayleighParameter, 2)) * exp((-1 * pow((double) - n, 2)) / (2 * pow (rayleighParameter, 2)));
-	
+    
     // initialise prevDelta
     std::fill (prevDelta.begin(), prevDelta.end(), 1);
-    
-	double t_mu = 41/2;
-	double m_sig;
-	double x;
-	// create tempo transition matrix
-	m_sig = 41/8;
-    
-	for (int i = 0; i < 41; i++)
-	{
-		for (int j = 0; j < 41; j++)
-		{
-			x = j + 1;
-			t_mu = i + 1;
-			tempoTransitionMatrix[i][j] = (1 / (m_sig * sqrt (2 * M_PI))) * exp((-1 * pow ((x - t_mu), 2)) / (2 * pow (m_sig, 2)) );
-		}
-	}
+        
+    double t_mu = 41 / 2;
+    double m_sig;
+    double x;
+		
+    // create tempo transition matrix
+    m_sig = 41 / 8;
+        
+    for (int i = 0; i < 41; i++)
+    {
+        for (int j = 0; j < 41; j++)
+        {
+            x = j + 1;
+            t_mu = i + 1;
+            tempoTransitionMatrix[i][j] = (1 / (m_sig * sqrt (2 * M_PI))) * exp((-1 * pow ((x - t_mu), 2)) / (2 * pow (m_sig, 2)) );
+        }
+    }
 	
 	// tempo is not fixed
 	tempoFixed = false;
@@ -648,6 +648,7 @@ void BTrack::predictBeat()
     // This is W2 in Adam Stark's PhD thesis, equation 3.6, page 62
     
 	double v = 1;
+    
 	for (int i = 0; i < beatExpectationWindowSize; i++)
 	{
 		beatExpectationWindow[i] = exp((-1 * pow ((v - (beatPeriod / 2)), 2))   /  (2 * pow (beatPeriod / 2, 2)));

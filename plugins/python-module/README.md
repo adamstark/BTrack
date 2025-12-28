@@ -1,6 +1,12 @@
 # BTrack Python Module
 
-Python bindings for the BTrack beat tracker.
+Here you can find Python bindings for the BTrack beat tracker.
+
+Full details of the working of the BTrack algorithm can be found in:
+
+* Musicians and Machines: Bridging the Semantic Gap in Live Performance, Chapter 3, A. M. Stark, PhD Thesis, Queen Mary, University of London, 2011.
+
+* Real-Time Beat-Synchronous Analysis of Musical Audio, A. M. Stark, M. E. P. Davies and M. D. Plumbley. In Proceedings of the 12th International Conference on Digital Audio Effects (DAFx-09), Como, Italy, September 1-4, 2009.
 
 ## 1. Installation via PyPI:
 
@@ -51,7 +57,7 @@ The onset detection function is calculated as per Use Case B above
 
 If you want to build and install the module directly for local development:
 
-    cd modules-and-plug-ins/python-module
+    cd plugins/python-module
     python3 -m pip install --force-reinstall .
 
 ## 4. License
