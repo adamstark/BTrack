@@ -66,7 +66,7 @@ Usage - Python Module
 
 Install:
 
-	pip install btrack_beat_tracker
+	pip install btrack-beat-tracker
 
 See the [plugins/python-module](plugins/python-module) folder for usage instructions and more information.
 
