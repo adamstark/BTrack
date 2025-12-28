@@ -53,7 +53,6 @@ static PyObject* detectBeats (PyObject* dummy, PyObject* args)
     return outputArray;
 }
 
-
 //=======================================================================
 static PyObject* calculateOnsetDetectionFunction (PyObject* dummy, PyObject* args)
 {
