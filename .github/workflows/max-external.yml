@@ -6,15 +6,16 @@ on:
       - master
       - develop
       - "release/*"
-    tags:
-      - "*.*.*"
 
   pull_request:
     branches:
       - master
       - develop
       - "release/*"
-
+      
+  release:
+    types: [published]
+    
   workflow_dispatch:
 
 jobs:
@@ -43,3 +44,11 @@ jobs:
         with:
           name: btrack-max-external
           path: plugins/max-external/btrack~/output/btrack~.zip
+
+      - name: Upload to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: plugins/max-external/btrack~/output/btrack~.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
