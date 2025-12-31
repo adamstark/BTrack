@@ -38,7 +38,7 @@ jobs:
           zip -r btrack~.zip btrack~.mxo
 
       - name: Upload Max External
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: btrack-max-external
           path: plugins/max-external/btrack~/output/btrack~.zip
