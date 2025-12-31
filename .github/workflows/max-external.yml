@@ -28,6 +28,6 @@ jobs:
 
       - name: Build Max External
         run: |
-          cd plugins/max-External
+          cd plugins/max-external/btrack\~/
           chmod +x ./build-max-external.sh
           ./build-max-external.sh
