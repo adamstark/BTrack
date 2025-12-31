@@ -30,15 +30,15 @@ include_directories(
 	"${MAX_SDK_INCLUDES}"
 	"${MAX_SDK_MSP_INCLUDES}"
 	"${MAX_SDK_JIT_INCLUDES}"
-    "../../src/"
-    "../../libs/kiss_fft130/"
+    "../../../src/"
+    "../../../libs/kiss_fft130/"
 )
 
 file(GLOB PROJECT_SRC
     "btrack~.cpp"
-    "../../src/*.h"
-    "../../src/*.cpp"
-	"../../libs/kiss_fft130/kiss_fft.c"
+    "../../../src/*.h"
+    "../../../src/*.cpp"
+	"../../../libs/kiss_fft130/kiss_fft.c"
 )
 add_library( 
 	${PROJECT_NAME} 
@@ -62,9 +62,3 @@ add_custom_command(
 )
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/max-sdk-base/script/max-posttarget.cmake)
-
-# Rename the output file to btrack~
-set_target_properties(${PROJECT_NAME} PROPERTIES
-    OUTPUT_NAME "btrack~"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/output"
-)
