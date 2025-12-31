@@ -10,16 +10,13 @@ print_section() {
     echo ""
 }
 
-if [ "$1" = "clean" ]; then
-    print_section "CLEANING"
-    rm -rf build
-    rm -rf libsamplerate
-    rm -rf libsamplerate-install
-    rm -rf output
-    rm -rf max-sdk-base
-    echo "Clean complete!"
-    exit 0
-fi
+print_section "CLEANING"
+rm -rf build
+rm -rf libsamplerate
+rm -rf libsamplerate-install
+rm -rf output
+rm -rf max-sdk-base
+echo "Clean complete!"
 
 # Your normal build commands here
 echo "Building btrack~ max external..."
