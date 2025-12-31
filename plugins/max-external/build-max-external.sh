@@ -47,6 +47,6 @@ git clone https://github.com/Cycling74/max-sdk-base.git
 print_section "BUILDING BTRACK MAX EXTERNAL"
 mkdir build && cd build
 cmake ..  \
-  -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \ 
+  -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
   -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13
 cmake --build . 

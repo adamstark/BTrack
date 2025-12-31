@@ -19,7 +19,7 @@ on:
 
 jobs:
   build-external:
-    name: Build Wheels
+    name: Build Max External
     runs-on: macos-latest
 
     steps:
