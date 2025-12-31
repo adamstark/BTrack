@@ -47,3 +47,6 @@ cmake ..  \
   -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
   -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13
 cmake --build . 
+cd ..
+mkdir -p output
+cp -R ../../../externals/btrack~.mxo ./output/
