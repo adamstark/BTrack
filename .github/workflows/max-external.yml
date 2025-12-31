@@ -31,3 +31,14 @@ jobs:
           cd plugins/max-external/btrack\~/
           chmod +x ./build-max-external.sh
           ./build-max-external.sh
+
+      - name: Zip up external
+        run: |
+          cd plugins/max-external/btrack~/output
+          zip -r btrack~.zip btrack~.mxo
+
+      - name: Upload Max External
+        uses: actions/upload-artifact@v3
+        with:
+          name: btrack-max-external
+          path: plugins/max-external/btrack~/output/btrack~.zip
