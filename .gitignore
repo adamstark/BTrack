@@ -12,3 +12,7 @@ plugins/max-external/build
 plugins/python-module/build
 plugins/python-module/tests/__pycache__
 build/
+plugins/max-external/libsamplerate-install/
+plugins/max-external/libsamplerate/
+plugins/max-external/output/
+plugins/max-external/max-sdk-base/

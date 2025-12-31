@@ -26,8 +26,8 @@
 
 //===========================================================================
 // BTrack includes
-#include "../../src/BTrack.h"
-#include "../../src/OnsetDetectionFunction.h"
+#include "BTrack.h"
+#include "OnsetDetectionFunction.h"
 
 //===========================================================================
 // struct to represent the object's state
@@ -66,9 +66,9 @@ void *btrack_new(t_symbol *s, long argc, t_atom *argv);
 void btrack_free(t_btrack *x);
 void btrack_assist(t_btrack *x, void *b, long m, long a, char *s);
 void btrack_float(t_btrack *x, double f);
-void btrack_dsp(t_btrack *x, t_signal **sp, short *count);
+//void btrack_dsp(t_btrack *x, t_signal **sp, short *count);
 void btrack_dsp64(t_btrack *x, t_object *dsp64, short *count, double samplerate, long maxvectorsize, long flags);
-t_int *btrack_perform(t_int *w);
+//t_int *btrack_perform(t_int *w);
 void btrack_perform64(t_btrack *x, t_object *dsp64, double **ins, long numins, double **outs, long numouts, long sampleframes, long flags, void *userparam);
 
 //===========================================================================
@@ -92,14 +92,15 @@ static t_class *btrack_class = NULL;
 
 
 //===========================================================================
-int C74_EXPORT main(void)
-{	
+//int C74_EXPORT main(void)
+void ext_main(void *r)
+{
     //--------------------------------------------------------------
 	t_class *c = class_new("btrack~", (method)btrack_new, (method)btrack_free, (long)sizeof(t_btrack), 0L, A_GIMME, 0);
 	
     //--------------------------------------------------------------
 	class_addmethod(c, (method)btrack_float,		"float",	A_FLOAT, 0);
-	class_addmethod(c, (method)btrack_dsp,		"dsp",		A_CANT, 0);		// Old 32-bit MSP dsp chain compilation for Max 5 and earlier
+	//class_addmethod(c, (method)btrack_dsp,		"dsp",		A_CANT, 0);		// Old 32-bit MSP dsp chain compilation for Max 5 and earlier
 	class_addmethod(c, (method)btrack_dsp64,		"dsp64",	A_CANT, 0);		// New 64-bit MSP dsp chain compilation for Max 6
 	class_addmethod(c, (method)btrack_assist,	"assist",	A_CANT, 0);
     
@@ -120,7 +121,7 @@ int C74_EXPORT main(void)
 	class_register(CLASS_BOX, c);
 	btrack_class = c;
 
-	return 0;
+	//return 0;
 }
 
 //===========================================================================
@@ -197,18 +198,18 @@ void btrack_float(t_btrack *x, double f)
 //===========================================================================
 // this function is called when the DAC is enabled, and "registers" a function for the signal chain in Max 5 and earlier.
 // In this case we register the 32-bit, "btrack_perform" method.
-void btrack_dsp(t_btrack *x, t_signal **sp, short *count)
-{
-    // get hop size and frame size
-    int hopSize = (int) sp[0]->s_n;
-    int frameSize = hopSize*2;
-    
-    // initialise the beat tracker
-    x->b->updateHopAndFrameSize(hopSize, frameSize);
-    
-    // set up dsp
-	dsp_add(btrack_perform, 3, x, sp[0]->s_vec, sp[0]->s_n);
-}
+//void btrack_dsp(t_btrack *x, t_signal **sp, short *count)
+//{
+//    // get hop size and frame size
+//    int hopSize = (int) sp[0]->s_n;
+//    int frameSize = hopSize*2;
+//    
+//    // initialise the beat tracker
+//    x->b->updateHopAndFrameSize(hopSize, frameSize);
+//    
+//    // set up dsp
+//	dsp_add(btrack_perform, 3, x, sp[0]->s_vec, sp[0]->s_n);
+//}
 
 
 //===========================================================================
@@ -222,32 +223,32 @@ void btrack_dsp64(t_btrack *x, t_object *dsp64, short *count, double samplerate,
     
     // initialise the beat tracker
     x->b->updateHopAndFrameSize(hopSize, frameSize);
-		
+    		
     // set up dsp
 	object_method(dsp64, gensym("dsp_add64"), x, btrack_perform64, 0, NULL);
 }
 
 
-//===========================================================================
-// this is the 32-bit perform method for Max 5 and earlier
-t_int *btrack_perform(t_int *w)
-{
-	t_btrack *x = (t_btrack *)(w[1]);
-	t_float *inL = (t_float *)(w[2]);
-	int n = (int)w[3];
-	
-    double audioFrame[n];
-    
-    for (int i = 0;i < n;i++)
-    {
-        audioFrame[i] = (double) inL[i];
-    }
-    
-    btrack_process(x,audioFrame);
-		
-	// you have to return the NEXT pointer in the array OR MAX WILL CRASH
-	return w + 4;
-}
+////===========================================================================
+//// this is the 32-bit perform method for Max 5 and earlier
+//t_int *btrack_perform(t_int *w)
+//{
+//	t_btrack *x = (t_btrack *)(w[1]);
+//	t_float *inL = (t_float *)(w[2]);
+//	int n = (int)w[3];
+//	
+//    double audioFrame[n];
+//    
+//    for (int i = 0;i < n;i++)
+//    {
+//        audioFrame[i] = (double) inL[i];
+//    }
+//    
+//    btrack_process(x,audioFrame);
+//		
+//	// you have to return the NEXT pointer in the array OR MAX WILL CRASH
+//	return w + 4;
+//}
 
 //===========================================================================
 // this is 64-bit perform method for Max 6
