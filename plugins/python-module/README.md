@@ -10,7 +10,7 @@ Full details of the working of the BTrack algorithm can be found in:
 
 ## 1. Installation via PyPI:
 
-    pip install btrack_beat_tracker
+    pip install btrack-beat-tracker
 
 ## 2. **Usage**
 

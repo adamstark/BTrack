@@ -1,0 +1,54 @@
+name: Build Max External
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - "release/*"
+
+  pull_request:
+    branches:
+      - master
+      - develop
+      - "release/*"
+      
+  release:
+    types: [published]
+    
+  workflow_dispatch:
+
+jobs:
+  build-external:
+    name: Build Max External
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Max External
+        run: |
+          cd plugins/max-external/btrack\~/
+          chmod +x ./build-max-external.sh
+          ./build-max-external.sh
+
+      - name: Codesign and Zip external
+        run: |
+          cd plugins/max-external/btrack~/output
+          codesign -s - --deep --force btrack~.mxo
+          zip -r btrack~.zip btrack~.mxo
+
+      - name: Upload Max External
+        uses: actions/upload-artifact@v4
+        with:
+          name: btrack-max-external
+          path: plugins/max-external/btrack~/output/btrack~.zip
+
+      - name: Upload to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: plugins/max-external/btrack~/output/btrack~.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

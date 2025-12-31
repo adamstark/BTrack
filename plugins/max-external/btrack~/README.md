@@ -1,20 +1,36 @@
 BTrack Max External: btrack~
 ============================
 
+Download the latest build
+-------------------------
+
+[Download latest Max external](https://github.com/adamstark/Btrack/releases/latest/download/btrack~.zip)
+
+IMPORTANT: Once you have downloaded the external, in terminal navigate to where the `btrack~.mxo` is and run:
+
+	xattr -d com.apple.quarantine btrack~.mxo 
+
+This will remove any quarantine complaints
 
 Build Instructions
 ------------------
 
-Edit the file maxmspsdk.xcconfig in this directory, setting the path to the c74support folder in your version of the Max SDK:
+To build the Max external clone the repo:
 
+	git clone https://github.com/adamstark/BTrack.git
 
-	C74SUPPORT = $(SRCROOT)/../../../SDKs/MaxSDK-6.1.4/c74support/
-	
-	
-Also, to compile BTrack, you will require the following libraries:
+Change to the `btrack~` max external directory:
 
-* FFTW
-* libsamplerate
+	cd plugins/max-external/btrack~
+
+Run the build script:
+
+	chmod +x ./build-max-external.sh
+	./build-max-external.sh
+
+The resulting external will be:
+
+	plugins/max-external/btrack~/output/btrack~.mxo
 
 Documentation
 -------------

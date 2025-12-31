@@ -33,7 +33,7 @@ add_library(
 # ------------------------------------------------------------
 # Set version
 # ------------------------------------------------------------
-set(BTRACK_VERSION "1.0.6")
+set(BTRACK_VERSION "1.0.7")
 target_compile_definitions(btrack_beat_tracker PRIVATE BTRACK_VERSION=\"${BTRACK_VERSION}\")
 
 # Include directories

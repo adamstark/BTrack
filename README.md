@@ -3,7 +3,7 @@ BTrack - A Real-Time Beat Tracker
 
 *by Adam Stark, Matthew Davies and Mark Plumbley.*
 
-![Version](https://img.shields.io/badge/version-1.0.6-green.svg?style=flat-square) 
+![Version](https://img.shields.io/badge/version-1.0.7-green.svg?style=flat-square) 
 ![Licence](https://img.shields.io/badge/licence-GPLv3-blue.svg?style=flat-square) 
 ![Language](https://img.shields.io/badge/language-C++-yellow.svg?style=flat-square) 
 
@@ -22,6 +22,11 @@ BTrack is made available under the GNU General Public License, version 3. Please
 
 Versions
 --------
+
+==== 1.0.7 ==== (31st December 2025)
+
+* Updated max external
+* Added max external build script
 
 ==== 1.0.6 ==== (28th December 2025)
 
@@ -66,7 +71,7 @@ Usage - Python Module
 
 Install:
 
-	pip install btrack_beat_tracker
+	pip install btrack-beat-tracker
 
 See the [plugins/python-module](plugins/python-module) folder for usage instructions and more information.
 
