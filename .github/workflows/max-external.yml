@@ -18,16 +18,16 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-wheels:
+  build-external:
     name: Build Wheels
     runs-on: macos-latest
 
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Build Max External
-      run: |
-        cd plugins/max-External
-        chmod +x ./build-max-external.sh
-        ./build-max-external.sh
+      - name: Build Max External
+        run: |
+          cd plugins/max-External
+          chmod +x ./build-max-external.sh
+          ./build-max-external.sh
