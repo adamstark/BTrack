@@ -32,9 +32,10 @@ jobs:
           chmod +x ./build-max-external.sh
           ./build-max-external.sh
 
-      - name: Zip up external
+      - name: Codesign and Zip external
         run: |
           cd plugins/max-external/btrack~/output
+          codesign -s - --deep --force btrack~.mxo
           zip -r btrack~.zip btrack~.mxo
 
       - name: Upload Max External
