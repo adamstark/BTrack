@@ -16,3 +16,4 @@ plugins/max-external/btrack*/libsamplerate-install/
 plugins/max-external/btrack*/libsamplerate/
 plugins/max-external/btrack*/output/
 plugins/max-external/btrack*/max-sdk-base/
+externals/
