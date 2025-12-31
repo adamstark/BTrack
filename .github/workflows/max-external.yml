@@ -1,0 +1,33 @@
+name: Build Max External
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - "release/*"
+    tags:
+      - "*.*.*"
+
+  pull_request:
+    branches:
+      - master
+      - develop
+      - "release/*"
+
+  workflow_dispatch:
+
+jobs:
+  build-wheels:
+    name: Build Wheels
+    runs-on: macos-latest
+
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build Max External
+      run: |
+        cd plugins/max-External
+        chmod +x ./build-max-external.sh
+        ./build-max-external.sh
