@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.19)
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum macOS deployment version")
 project(btrack_tilde)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/max-sdk-base/script/max-pretarget.cmake)
@@ -36,6 +35,7 @@ include_directories(
 )
 
 file(GLOB PROJECT_SRC
+    "btrack~.cpp"
     "../../src/*.h"
     "../../src/*.cpp"
 	"../../libs/kiss_fft130/kiss_fft.c"
