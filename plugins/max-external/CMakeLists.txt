@@ -49,7 +49,17 @@ add_library(
 # Link against the samplerate library
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBSAMPLERATE_LIBRARY})
 
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/output)
+# ----------------------------------------------------------
+# Ensure PkgInfo exists in the output bundle (CI-safe)
+# ----------------------------------------------------------
+add_custom_command(
+    TARGET ${PROJECT_NAME}
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>/..
+    COMMAND ${CMAKE_COMMAND} -E echo "APPL????"
+            > $<TARGET_FILE_DIR:${PROJECT_NAME}>/../PkgInfo
+)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/max-sdk-base/script/max-posttarget.cmake)
 
