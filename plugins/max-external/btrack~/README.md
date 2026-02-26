@@ -4,7 +4,9 @@ BTrack Max External: btrack~
 Download the latest build
 -------------------------
 
-[Download latest Max external](https://github.com/adamstark/Btrack/releases/latest/download/btrack~.zip)
+Download latest Max external on the [releases](https://github.com/adamstark/BTrack/releases/latest) page.
+
+This is currently Mac-only.
 
 IMPORTANT: Once you have downloaded the external, in terminal navigate to where the `btrack~.mxo` is and run:
 
